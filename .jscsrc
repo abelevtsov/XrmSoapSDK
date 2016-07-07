@@ -1,0 +1,155 @@
+{
+    // JSCS, version 1.13.1
+    // https://github.com/jscs-dev/node-jscs/releases
+
+    "disallowCapitalizedComments": false,
+    "disallowDanglingUnderscores": {
+        "allExcept": [ "_jQuery", "_this", "_behaviors", "__next", "_type" ]
+    },
+    "disallowEmptyBlocks": true,
+    "disallowImplicitTypeConversion": [ "binary" ],
+    "disallowKeywordsInComments": "\\b(ToDo:|fix|fixme)\\b",
+    "disallowKeywordsOnNewLine": [ "else", "catch" ],
+    "disallowKeywords": [ "with" ],
+    "disallowMixedSpacesAndTabs": true,
+    "disallowMultipleLineBreaks": true,
+    "disallowMultipleLineStrings": true,
+    "disallowMultipleSpaces": true,
+    "disallowMultipleVarDecl": false,
+    "disallowNewlineBeforeBlockStatements": true,
+    "disallowOperatorBeforeLineBreak": [ "+", "." ],
+    "disallowPaddingNewlinesInBlocks": true,
+    "disallowQuotedKeysInObjects": true,
+    "disallowSpaceAfterObjectKeys": true,
+    "disallowSpaceAfterPrefixUnaryOperators": true,
+    "disallowSpaceBeforeBinaryOperators": [ "," ],
+    "disallowSpaceBeforePostfixUnaryOperators": true,
+    "disallowSpacesInAnonymousFunctionExpression": {
+        "beforeOpeningRoundBrace": true
+    },
+    "disallowSpacesInCallExpression": true,
+    "disallowSpacesInFunctionDeclaration": {
+        "beforeOpeningRoundBrace": true
+    },
+    "disallowSpacesInFunctionExpression": {
+        "beforeOpeningRoundBrace": true
+    },
+    "disallowSpacesInFunction": {
+        "beforeOpeningRoundBrace": true
+    },
+    "disallowSpacesInNamedFunctionExpression": {
+        "beforeOpeningRoundBrace": true
+    },
+    "disallowSpacesInsideArrayBrackets": true,
+    "disallowSpacesInsideParentheses": true,
+    "disallowTrailingComma": true,
+    "disallowTrailingWhitespace": true,
+    "disallowYodaConditions": true,
+    "maximumLineLength": {
+        "value": 230,
+        "tabSize": 4,
+        "allowRegex": true,
+        "allowUrlComments": true
+    },
+    "requireBlocksOnNewline": true,
+    "requireCamelCaseOrUpperCaseIdentifiers": "ignoreProperties",
+    "requireCapitalizedConstructors": {
+        "allExcept": ["ctor", "orgService", "crmProvider"]
+    },
+    "requireCommaBeforeLineBreak": true,
+    "requireCurlyBraces": [
+        "if",
+        "else",
+        "for",
+        "while",
+        "do",
+        "try",
+        "catch"
+    ],
+    "requireDollarBeforejQueryAssignment": true,
+    "requireDotNotation": true,
+    "requireFunctionDeclarations": false,
+    "requireLineBreakAfterVariableAssignment": true,
+    "requireLineFeedAtFileEnd": true,
+    // "requireNamedUnassignedFunctions": true, // check (new chrome debugger)
+    "requirePaddingNewLinesAfterBlocks": {
+        "allExcept": [
+            "inCallExpressions",
+            "inArrayExpressions",
+            "inNewExpressions",
+            "inProperties"
+        ]
+    },
+    "requirePaddingNewlinesBeforeKeywords": [ "try" ],
+    "requirePaddingNewLinesBeforeLineComments": {
+        "allExcept": "firstAfterCurly"
+    },
+    "requireParenthesesAroundIIFE": true,
+    "requireSemicolons": true,
+    "requireSpaceAfterBinaryOperators": true,
+    "requireSpaceAfterKeywords": [
+        "do",
+        "for",
+        "if",
+        "else",
+        "switch",
+        "case",
+        "try",
+        "catch",
+        "void",
+        "while",
+        "with",
+        "return",
+        "typeof"
+    ],
+    "requireSpaceAfterLineComment": {
+        "allowSlash": true,
+        "allExcept": [
+            "/",
+            "#",
+            "="
+        ]
+    },
+    "requireSpaceBeforeBinaryOperators": true,
+    "requireSpaceBeforeBlockStatements": true,
+    "requireSpaceBeforeKeywords": [
+        "else",
+        "while",
+        "catch"
+    ],
+    "requireSpaceBeforeObjectValues": true,
+    "requireSpaceBetweenArguments": true,
+    "requireSpacesInAnonymousFunctionExpression": {
+        "beforeOpeningCurlyBrace": true
+    },
+    "requireSpacesInConditionalExpression": true,
+    "requireSpacesInForStatement": true,
+    "requireSpacesInFunctionDeclaration": {
+        "beforeOpeningCurlyBrace": true
+    },
+    "requireSpacesInFunctionExpression": {
+        "beforeOpeningCurlyBrace": true
+    },
+    "requireSpacesInFunction": {
+        "beforeOpeningCurlyBrace": true
+    },
+    "requireSpacesInNamedFunctionExpression": {
+        "beforeOpeningCurlyBrace": true
+    },
+    "requireSpacesInsideObjectBrackets": "all",
+    "safeContextKeyword": "self",
+    "validateAlignedFunctionParameters": true,
+    "validateIndentation": 4,
+    // "validateLineBreaks": "LF", // check (shouldn't be hardcoded and don't pass any test)
+    "validateNewlineAfterArrayElements": {
+        "maximum": 2,
+        "ignoreBrackets": true
+    },
+    "validateParameterSeparator": ", ",
+    "validateQuoteMarks": {
+        "mark": "\"",
+        "escape": true
+    },
+    "esprima": "esprima-fb",
+    "esnext": true
+}
