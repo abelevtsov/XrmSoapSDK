@@ -40,7 +40,7 @@
             }
         },
 
-        queryByAttributeTest = function() {
+        queryByAttributeExample = function() {
             var query = new QueryByAttribute("contact", ["firstname"], ["test"], new ColumnSet("fullname")),
                 contacts = orgService.RetrieveMultiple(query);
 
@@ -55,7 +55,7 @@
             }
         },
 
-        queryExpressionTest = function() {
+        queryExpressionExample = function() {
             var i, l,
                 query = new QueryExpression("contact", [new ConditionExpression("middlename", soap.ConditionOperator.NotNull)], new ColumnSet(true)),
                 contacts = orgService.RetrieveMultiple(query);
@@ -90,7 +90,7 @@
             }
         },
 
-        crmProviderTests = function() {
+        crmProviderExample = function() {
             var currentUserId = Xrm.Page.context.getUserId();
             var allEntitiesMetadata = crmProvider.RetrieveAllEntitiesMetadata(soap.EntityFilters.All, true);
             var contactMetadata = crmProvider.RetrieveEntityMetadata(soap.EntityFilters.All, "contact", true);
@@ -101,7 +101,7 @@
             var asyncOperationId = crmProvider.ExecuteWorkflow("dcbfe8f3-c5c0-e311-9777-00155d011e01", "2099D78C-94BF-4494-A21E-6ED46C111C98");
         },
 
-        crudTest = function() {
+        crudExample = function() {
             var entity = new Entity("contact");
             entity.setAttribute("parentcustomerid", new EntityReference("account", new Guid("8A2C9BB0-2E7D-E311-A409-00155D011E01")));
             entity.setAttribute("firstname", "test");
@@ -121,15 +121,15 @@
         },
 
         test = function() {
-            fetchTest();
+            fetchExample();
 
-            queryByAttributeTest();
+            queryByAttributeExample();
 
-            queryExpressionTest();
+            queryExpressionExample();
 
-            crmProviderTests();
+            crmProviderExample();
 
-            crudTest();
+            crudExample();
 
             var contact = orgService.Retrieve("contact", "8A2C9BB0-2E7D-E311-A409-00155D011E01", ["firstname", "lastname"]);
             console.log("Contact name is '" + contact.getAttributeValue("firstname") + "'");
