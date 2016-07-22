@@ -13,6 +13,10 @@
         Entity = soap.Entity,
         EntityReference = soap.EntityReference,
         Guid = soap.Guid,
+        contactState = {
+            Active: 0,
+            Inactive: 1
+        },
 
         fetchTest = function() {
             var fetchXml = [
@@ -57,7 +61,14 @@
 
         queryExpressionExample = function() {
             var i, l,
-                query = new QueryExpression("contact", [new ConditionExpression("middlename", soap.ConditionOperator.NotNull)], new ColumnSet(true)),
+                query =
+                    new QueryExpression(
+                        "contact",
+                        [
+                            new ConditionExpression("middlename", soap.ConditionOperator.NotNull),
+                            new ConditionExpression("statecode", soap.ConditionOperator.Equal, [new soap.StateCode(contactState.Active)])
+                        ],
+                        new ColumnSet(true)),
                 contacts = orgService.RetrieveMultiple(query);
 
             for (i = 0, l = contacts.length; i < l; i++) {

@@ -606,7 +606,7 @@
                     var typed = value.hasOwnProperty("type");
                     return valueTemplate({
                         type: typed ? value.type : "string",
-                        xmlns: typed ? serializationNs : xmlSchemaNs,
+                        xmlns: value instanceof self.StateCode || value instanceof self.StatusCode || !typed ? xmlSchemaNs : serializationNs,
                         value: value.hasOwnProperty("value") ? value.value : value
                     });
                 });
@@ -1526,6 +1526,24 @@
         };
 
         return entityReference;
+    })();
+
+    this.StateCode = (function() {
+        var stateCode = function(value) {
+            this.value = value;
+            this.type = "int";
+        };
+
+        return stateCode;
+    })();
+
+    this.StatusCode = (function() {
+        var statusCode = function(value) {
+            this.value = value;
+            this.type = "int";
+        };
+
+        return statusCode;
     })();
 
     this.XrmValue = (function() {
