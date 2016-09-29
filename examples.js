@@ -18,7 +18,7 @@
             Inactive: 1
         },
 
-        fetchTest = function() {
+        fetchExample = function() {
             var fetchXml = [
                 "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>",
                     "<entity name='contact'>",
@@ -131,7 +131,7 @@
             orgService.Delete("contact", new Guid(id));
         },
 
-        test = function() {
+        runExample = function() {
             fetchExample();
 
             queryByAttributeExample();
@@ -144,6 +144,12 @@
 
             var contact = orgService.Retrieve("contact", "8A2C9BB0-2E7D-E311-A409-00155D011E01", ["firstname", "lastname"]);
             console.log("Contact name is '" + contact.getAttributeValue("firstname") + "'");
+			
+			var phonecall = orgService.Retrieve("phonecall", "8A2C9BB0-2E7D-E311-A409-00155D011E01", ["to", "from", "regardingobjectid"]);
+            var to = phonecall.getAttributeValue("to");
+            for (var i = 0, l = to.length; i < l; i++) {
+                console.log("PhoneCall recipient " + i + ": '" + to[i].getName() + "'");
+            }
         },
 
         init = function() {
@@ -154,6 +160,6 @@
 
     return {
         init: init,
-        test: test
+        runExample: runExample
     }
 });
