@@ -1274,8 +1274,6 @@
                                         obj[sKey] = new self.EntityReference($(nodes[1]).text(), $(nodes[0]).text(), $(nodes[2]).text());
                                         break;
                                     case "EntityCollection":
-                                        entRef = new self.EntityCollection();
-
                                         var items = [],
                                             childNodes = attr.childNodes[k].childNodes[1].childNodes[0].childNodes;
 
@@ -1286,16 +1284,13 @@
                                                     continue;
                                                 }
 
-                                                var itemRef = new self.EntityReference();
                                                 nodes = itemNodes[z].childNodes[1].childNodes;
-                                                itemRef.id = $(nodes[0]).text();
-                                                itemRef.logicalName = $(nodes[1]).text();
-                                                itemRef.name = $(nodes[2]).text();
+                                                var itemRef = new self.EntityReference($(nodes[1]).text(), $(nodes[0]).text(), $(nodes[2]).text());
                                                 items[y] = itemRef;
                                             }
                                         }
 
-                                        entRef.value = items;
+                                        entRef = new self.EntityCollection(items);
                                         obj[sKey] = entRef;
                                         break;
                                     case "Money":
@@ -1473,14 +1468,23 @@
         return guid;
     })();
 
+    this.EntityCollection = (function() {
+        var entityCollection = function(value) {
+                this.value = value;
+                this.type = "EntityCollection";
+            };
+
+        return entityCollection;
+    })();
+
     this.EntityReference = (function() {
         var entityReference = function(logicalName, id, name) {
                 /// <summary>Like EntityReference in Microsoft.Xrm.Sdk</summary>
                 /// <param name="logicalName" type="String">Entity logical name</param>
                 /// <param name="id" type="Guid">Entity Id</param>
                 /// <param name="name" type="String">Entity name</param>
-                this.id = new self.Guid(id);
-                this.logicalName = logicalName;
+                this.id = id ? new self.Guid(id) : self.Guid.Empty();
+                this.logicalName = logicalName || "";
                 this.name = name || "";
                 this.type = "EntityReference";
             };

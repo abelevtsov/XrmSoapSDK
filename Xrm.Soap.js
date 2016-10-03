@@ -1470,7 +1470,7 @@ Type.registerNamespace("Xrm.Soap");
         return guid;
     })();
 
-	this.EntityCollection = (function() {
+    this.EntityCollection = (function() {
         var entityCollection = function(value) {
                 this.value = value;
                 this.type = "EntityCollection";
@@ -1478,15 +1478,15 @@ Type.registerNamespace("Xrm.Soap");
 
         return entityCollection;
     })();
-	
+
     this.EntityReference = (function() {
         var entityReference = function(logicalName, id, name) {
                 /// <summary>Like EntityReference in Microsoft.Xrm.Sdk</summary>
                 /// <param name="logicalName" type="String">Entity logical name</param>
                 /// <param name="id" type="Guid">Entity Id</param>
                 /// <param name="name" type="String">Entity name</param>
-                this.id = new self.Guid(id);
-                this.logicalName = logicalName;
+                this.id = id ? new self.Guid(id) : self.Guid.Empty();
+                this.logicalName = logicalName || "";
                 this.name = name || "";
                 this.type = "EntityReference";
             };
