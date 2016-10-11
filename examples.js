@@ -113,22 +113,33 @@
         },
 
         crudExample = function() {
-            var entity = new Entity("contact");
-            entity.setAttribute("parentcustomerid", new EntityReference("account", new Guid("8A2C9BB0-2E7D-E311-A409-00155D011E01")));
-            entity.setAttribute("firstname", "test");
-            entity.setAttribute("rare_int", 123);
-            entity.setAttribute("rare_float", 123.55);
-            entity.setAttribute("rare_decimal", new soap.Decimal(222.33));
-            entity.setAttribute("rare_currency", new soap.Money(555.55));
-            entity.setAttribute("rare_datetime", new Date());
-            entity.setAttribute("rare_optionset", new soap.OptionSetValue(2, "Перерасчет по факту поставки"));
-            var id = orgService.Create(entity);
+            var contact = new Entity("contact");
+            contact.setAttribute("parentcustomerid", new EntityReference("account", new Guid("8A2C9BB0-2E7D-E311-A409-00155D011E01")));
+            contact.setAttribute("firstname", "test");
+            contact.setAttribute("rare_int", 123);
+            contact.setAttribute("rare_float", 123.55);
+            contact.setAttribute("rare_bool", true);
+            contact.setAttribute("rare_decimal", new soap.Decimal(222.33));
+            contact.setAttribute("rare_currency", new soap.Money(555.55));
+            contact.setAttribute("rare_datetime", new Date());
+            contact.setAttribute("rare_optionset", new soap.OptionSetValue(2, "Перерасчет по факту поставки"));
+            var contactId = orgService.Create(contact);
 
-            entity = new Entity("contact", id);
-            entity.setAttribute("middlename", "testovich");
-            orgService.Update(entity);
+            contact = new Entity("contact", contactId);
+            contact.setAttribute("middlename", "testovich");
+            orgService.Update(contact);
 
-            orgService.Delete("contact", new Guid(id));
+            // working with Activity
+            var phonecall = new Entity("phonecall"),
+                phonecallId = orgService.Create(phonecall),
+                from = contact.ToEntityReference();
+
+            phonecall = new Entity("phonecall", phonecallId);
+            phonecall.setAttribute("from", new soap.EntityCollection([from]));
+            orgService.Update(phonecall);
+
+            orgService.Delete(phonecall.LogicalName(), phonecall.Id());
+            orgService.Delete(contact.LogicalName(), contact.Id());
         },
 
         runExample = function() {
@@ -144,9 +155,11 @@
 
             var contact = orgService.Retrieve("contact", "8A2C9BB0-2E7D-E311-A409-00155D011E01", ["firstname", "lastname"]);
             console.log("Contact name is '" + contact.getAttributeValue("firstname") + "'");
-			
-			var phonecall = orgService.Retrieve("phonecall", "8A2C9BB0-2E7D-E311-A409-00155D011E01", ["to", "from", "regardingobjectid"]);
-            var to = phonecall.getAttributeValue("to");
+
+            // working with ActivityParties
+            var phonecall = orgService.Retrieve("phonecall", "8A2C9BB0-2E7D-E311-A409-00155D011E01", ["to", "from", "regardingobjectid"]),
+                to = phonecall.getAttributeValue("to");
+
             for (var i = 0, l = to.length; i < l; i++) {
                 console.log("PhoneCall recipient " + i + ": '" + to[i].getName() + "'");
             }
