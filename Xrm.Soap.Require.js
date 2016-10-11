@@ -351,7 +351,8 @@
         publishersPrefixes = [""],
         context = typeof window.GetGlobalContext === "function" ? window.GetGlobalContext() : window.Xrm.Page.context,
         loc = window.location,
-        splittedUrl = context.getClientUrl().replace(/^(http|https):\/\/([_a-zA-Z0-9\-\.]+)(:([0-9]{1,5}))?/, loc.protocol + "//" + loc.host).split(/\/+/g),
+        clientUrl = context.getClientUrl(),
+        splittedUrl = clientUrl.replace(/^(http|https):\/\/([_a-zA-Z0-9\-\.]+)(:([0-9]{1,5}))?/, loc.protocol + "//" + loc.host).split(/\/+/g),
         xrmServiceUrl = "/XRMServices/2011/Organization.svc/web",
         contractsXrmNs = "http://schemas.microsoft.com/xrm/2011/Contracts",
         contractsCrmNs = "http://schemas.microsoft.com/crm/2011/Contracts",
@@ -860,7 +861,7 @@
             var result = "";
             if (this.attributes.length) {
                 result += attributesTemplate({
-                    attributes: _.map(this.attributes, function (attr) {
+                    attributes: _.map(this.attributes, function(attr) {
                         return attributeTemplate({ value: attr });
                     })
                 });
@@ -871,7 +872,7 @@
 
             if (this.orders && this.orders.length) {
                 result += ordersTemplate({
-                    orders: _.map(this.orders, function (order) {
+                    orders: _.map(this.orders, function(order) {
                         return order.serialize();
                     })
                 });
@@ -881,7 +882,7 @@
 
             if (this.attributes.length) {
                 result += valuesTemplate({
-                    values: _.map(this.values, function (value) {
+                    values: _.map(this.values, function(value) {
                         var typed = value.hasOwnProperty("type");
                         return valueTemplate({
                             type: typed ? value.type : "string",
@@ -1473,14 +1474,23 @@
         return guid;
     })();
 
+    this.EntityCollection = (function() {
+        var entityCollection = function(value) {
+            this.value = value;
+            this.type = "EntityCollection";
+        };
+
+        return entityCollection;
+    })();
+
     this.EntityReference = (function() {
         var entityReference = function(logicalName, id, name) {
                 /// <summary>Like EntityReference in Microsoft.Xrm.Sdk</summary>
                 /// <param name="logicalName" type="String">Entity logical name</param>
                 /// <param name="id" type="Guid">Entity Id</param>
                 /// <param name="name" type="String">Entity name</param>
-                this.id = new self.Guid(id);
-                this.logicalName = logicalName;
+                this.id = id ? new self.Guid(id) : self.Guid.Empty();
+                this.logicalName = logicalName || "";
                 this.name = name || "";
                 this.type = "EntityReference";
             };
@@ -1902,7 +1912,7 @@
                     };
 
                     var errorText,
-                        serviceUrl = serverUrl + "/" + orgName + xrmServiceUrl,
+                        serviceUrl = serverUrl + (splittedUrl.length === 3 && splittedUrl[2] === orgName ? ("/" + orgName) : "") + xrmServiceUrl,
                         soapTemplate = compile([
                             utf8Root,
                              "<soap:Envelope xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'>",

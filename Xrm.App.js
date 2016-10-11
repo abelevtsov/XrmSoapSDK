@@ -3,8 +3,7 @@ Type.registerNamespace("Xrm.App");
 (function(global) {
     this.Load = function(requirejsResourceName, mainResourceName, etn, parameters) {
         var doc = global.document,
-            context = typeof global.GetGlobalContext === "function" ? global.GetGlobalContext() : global.Xrm.Page.context,
-            baseUrl = "/" + context.getOrgUniqueName() + "/%7B" + (new Date()).getTime() + "%7D/WebResources/",
+            baseUrl = baseUrl = "/%7B" + (new Date()).getTime() + "%7D/WebResources/",
             script = doc.createElement("script");
 
         script.setAttribute("id", "xrm_app");
