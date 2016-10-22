@@ -1,10 +1,9 @@
-; define(["soap"], function(soap) {
-    ///<summary>
-    /// This file contains examples of usage Xrm.Soap library
-    ///</summary>
+define(["soap"], function(soap) {
+    /// <summary>This file contains examples of usage Xrm.Soap library</summary>
     var xrmPage,
         orgService,
         crmProvider,
+
         // ReSharper disable InconsistentNaming
         QueryByAttribute = soap.QueryByAttribute,
         QueryExpression = soap.QueryExpression,
@@ -174,5 +173,5 @@
     return {
         init: init,
         runExample: runExample
-    }
+    };
 });

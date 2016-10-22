@@ -1,0 +1,23 @@
+{
+  "name": "Xrm.Soap.Sdk",
+  "version": "0.0.1",
+  "author": "Aleksandr Belevtsov <belevtsov80@mail.ru>",
+  "description": "Xrm.Soap.Sdk",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "scripts/tests"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "underscore": "^1.8.3",
+    "json2": "*",
+    "base64": "~0.3.0",
+    "requirejs": "^2.1.22",
+    "requirejs-text": "^2.0.14",
+    "es6-promise": "^4.0.5"
+  }
+}

@@ -9,14 +9,14 @@
     require.config({
         baseUrl: ".." + baseUrl, // note: in CRM 2015 remove ".."
         paths: {
-            underscore: "rare_lib_underscore",
-            jquery: "rare_lib_jquery",
-            soap: "rare_lib_xrmsoap",
-            text: "rare_lib_requirejs_text",
-            common: "rare_lib_common",
-            form: "rare_form_" + etnLowerCased,
-            ribbon: "sk_ribbon." + etnLowerCased,
-            formbase: "sk_form.base." + lastetnPart
+            underscore: "new_lib_underscore",
+            jquery: "new_lib_jquery",
+            soap: "new_lib_xrmsoap",
+            text: "new_lib_requirejs_text",
+            common: "new_lib_common",
+            form: "new_form_" + etnLowerCased,
+            ribbon: "new_ribbon." + etnLowerCased,
+            formbase: "new_form.base." + lastetnPart
         },
         shim: {
             base64: {
@@ -32,18 +32,23 @@
                 deps: ["jquery", "underscore"],
                 exports: "Xrm.Soap",
                 init: function() {
-                    return this.Xrm.Soap.init(["rare_", "new_"]);
+                    return this.Xrm.Soap.init(["new_"]);
                 }
             },
             common: {
                 deps: ["jquery", "underscore"],
-                exports: "Rare.Common"
+                exports: "Xrm.Common"
             }
         }
     });
 
     require(["form", "underscore"], function(form, _) {
-        parameters && parameters.length && (parameters = parameters.split("|"));
-        _.isFunction(form.init) && form.init.apply(null, parameters || []);
+        if (parameters && parameters.length) {
+            parameters = parameters.split("|");
+        }
+
+        if (_.isFunction(form.init)) {
+            form.init.apply(null, parameters || []);
+        }
     });
 })();

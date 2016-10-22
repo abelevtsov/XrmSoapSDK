@@ -2,25 +2,21 @@ Type.registerNamespace("Xrm.Common");
 
 (function(global) {
     "use strict";
+
     /* jshint -W030 */
 
     var self = this,
-        orgName = global.ORG_UNIQUE_NAME,
         mscrm = global.Mscrm,
         xrmPage = Xrm.Page,
+        emptyString = "",
 
         areEqualGuids = function(guid1, guid2) {
-            var areEqual;
             if (!guid1 || !guid2) {
-                areEqual = false;
+                return false;
             } else {
-                var regex = /[{}]/g,
-                    emptyString = "";
-
-                areEqual = guid1.replace(regex, emptyString).toLowerCase() === guid2.replace(regex, emptyString).toLowerCase();
+                var regex = /[{}]/g;
+                return guid1.replace(regex, emptyString).toLowerCase() === guid2.replace(regex, emptyString).toLowerCase();
             }
-
-            return areEqual;
         },
 
         showNavPanel = function() {
@@ -51,7 +47,7 @@ Type.registerNamespace("Xrm.Common");
         };
     })();
 
-    this.OpenCustomLookupDialog = function(callee, lookupStyle, lookupTypes, additionalParams, defaultType, defaultViewId, customViews, behavior, isMobileRefresh, isInlineMultiLookup, params) {
+    this.openCustomLookupDialog = function(callee, lookupStyle, lookupTypes, additionalParams, defaultType, defaultViewId, customViews, behavior, isMobileRefresh, isInlineMultiLookup, params) {
         var args = new global.LookupArgsClass(),
             oUrl = mscrm.CrmUri.create("/_controls/lookup/lookupinfo.aspx"),
             query = oUrl.get_query(),
@@ -122,74 +118,28 @@ Type.registerNamespace("Xrm.Common");
         return lookupDialogBehavior;
     })();
 
-    this.SetLookupBehavior = function(lookupName, behavior) {
+    this.setLookupBehavior = function(lookupName, behavior) {
         // Отключаем смену Представлений в диалоговом окне лукапа
-        var lookupControl = document.getElementById(lookupName) || document.getElementById(lookupName + "_i");
-        if (lookupControl._behaviors) {
+        var showProp = behavior.ShowProp(),
+            lookupControl = document.getElementById(lookupName) || document.getElementById(lookupName + "_i");
+
+        if (lookupControl && lookupControl._behaviors) {
             var currentBehavior = lookupControl._behaviors[0];
             if (currentBehavior.AddParam) {
                 behavior = behavior || new self.LookupDialogBehavior(false, false, true, true, false, true);
                 currentBehavior.AddParam("ShowNewButton", behavior.ShowNew());
-                currentBehavior.AddParam("ShowPropButton", behavior.ShowProp());
+                currentBehavior.AddParam("ShowPropButton", showProp);
                 currentBehavior.AddParam("EnableNewButton", behavior.EnableNew());
                 currentBehavior.AddParam("AllowFilterOff", behavior.AllowFilterOff());
                 currentBehavior.AddParam("DisableQuickFind", behavior.DisableQuickFind());
                 currentBehavior.AddParam("DisableViewPicker", behavior.DisableViewPicker());
             }
 
-            lookupControl.setAttribute("showproperty", behavior.ShowProp());
+            lookupControl.setAttribute("showproperty", showProp);
         }
     };
 
-    this.require = function(webresourceName, callback, async) {
-        // ToDo: use script tag instead eval
-        async = async || false;
-        (function() {
-            if (webresourceName) {
-                var req = new global.XMLHttpRequest(),
-
-                    handleResponse = function(responseText) {
-                        switch (/[^.]+$/.exec(webresourceName)[0]) {
-                            case "js":
-                                responseText && eval.call(global, responseText);
-                                callback && callback();
-                                break;
-                            default:
-                                callback && callback(responseText);
-                                break;
-                        }
-                    };
-
-                req.open("GET", "../" + orgName + "/%7B" + (new Date()).getTime() + "%7D/WebResources/" + webresourceName, async);
-                req.send();
-
-                if (async) {
-                    req.onreadystatechange = function() {
-                        req.onreadystatechange = null;
-                        if (req.readyState === 4) {
-                            switch (/[^.]+$/.exec(webresourceName)[0]) {
-                                case "js":
-                                    req.responseText && eval.call(global, req.responseText);
-                                    callback && callback();
-                                    break;
-                                default:
-                                    callback && callback(req.responseText);
-                                    break;
-                            }
-                        }
-                    };
-                } else {
-                    handleResponse(req.responseText);
-                }
-            }
-        })();
-    };
-
-    this.requireAsync = function(webresourceName, callback) {
-        self.require(webresourceName, callback, true);
-    };
-
-    this.SetVisibleTabSection = function(tabName, sectionName, show, sectionFunc) {
+    this.setVisibleTabSection = function(tabName, sectionName, show, sectionFunc) {
         /// <summary>Показать/спрятать секцию панели</summary>
         /// <param name="tabName" type="String">Имя вкладки</param>
         /// <param name="sectionName" type="String">Имя панели</param>
@@ -209,7 +159,7 @@ Type.registerNamespace("Xrm.Common");
         }
     };
 
-    this.SetVisibleAdminTab = function(tabName, sectionName, show) {
+    this.setVisibleAdminTab = function(tabName, sectionName, show) {
         /// <summary>Показать/спрятать секцию панели администратора</summary>
         /// <param name="tabName" type="String">Имя вкладки</param>
         /// <param name="sectionName" type="String">Имя панели</param>
@@ -224,7 +174,7 @@ Type.registerNamespace("Xrm.Common");
         }
     };
 
-    this.SetVisibleTab = function(tabName, show) {
+    this.setVisibleTab = function(tabName, show) {
         /// <summary>Показать/спрятать вкладку</summary>
         /// <param name="tabName" type="String">Имя вкладки</param>
         /// <param name="show" type="Boolean">Признак "показать"</param>
@@ -232,7 +182,7 @@ Type.registerNamespace("Xrm.Common");
         tab && tab.setVisible(show);
     };
 
-    this.SetDisabledSectionFields = function(sectionName, isDisabled) {
+    this.setDisabledSectionFields = function(sectionName, isDisabled) {
         /// <summary>Делает доступными/недоступными для редактирования поля секции</summary>
         /// <param name="sectionName" type="String">Название секции</param>
         /// <param name="isDisabled" type="Boolean">Признак доступности</param>
@@ -241,7 +191,7 @@ Type.registerNamespace("Xrm.Common");
             if (controls.hasOwnProperty(prop)) {
                 var control = controls[prop],
                     parent = control.getParent(),
-                    controlSectionName = parent ? parent.getName() : "";
+                    controlSectionName = parent ? parent.getName() : emptyString;
 
                 if (controlSectionName === sectionName) {
                     control.setDisabled(isDisabled);
@@ -250,7 +200,7 @@ Type.registerNamespace("Xrm.Common");
         }
     };
 
-    this.SetRequiredSectionFieldsLevel = function(sectionName, level) {
+    this.setRequiredSectionFieldsLevel = function(sectionName, level) {
         /// <summary>Установка уровня обязательности полей секции</summary>
         /// <param name="sectionName" type="String">Название секции</param>
         /// <param name="level" type="String">Уровень обязательности</param>
@@ -259,7 +209,7 @@ Type.registerNamespace("Xrm.Common");
             if (controls.hasOwnProperty(prop)) {
                 var control = controls[prop],
                     parent = control.getParent(),
-                    controlSectionName = parent ? parent.getName() : "";
+                    controlSectionName = parent ? parent.getName() : emptyString;
 
                 if (controlSectionName === sectionName) {
                     var attribute = xrmPage.getAttribute(control.getName());
@@ -269,7 +219,7 @@ Type.registerNamespace("Xrm.Common");
         }
     };
 
-    this.SetDisabledTabFields = function(tabName, isDisabled) {
+    this.setDisabledTabFields = function(tabName, isDisabled) {
         /// <summary>Делает доступными/недоступными для редактирования поля вкладки</summary>
         /// <param name="tabName" type="String">Название вкладки</param>
         /// <param name="isDisabled" type="Boolean">Признак доступности</param>
@@ -287,7 +237,7 @@ Type.registerNamespace("Xrm.Common");
 
                     var control = controls[prop],
                         parent = control.getParent(),
-                        controlSectionName = parent ? parent.getName() : "";
+                        controlSectionName = parent ? parent.getName() : emptyString;
 
                     if (controlSectionName === sectionName) {
                         control.setDisabled(isDisabled);
@@ -297,7 +247,7 @@ Type.registerNamespace("Xrm.Common");
         }
     };
 
-    this.SetDisabledValueForAllFields = function(isDisabled) {
+    this.setDisabledValueForAllFields = function(isDisabled) {
         /// <summary>Set disable value from parameter for all controls in form</summary>
         /// <param name="isDisabled" type="Boolean">Disable (true) or enable (false) control</param>
         var doesControlHaveAttribute = function(control) {
@@ -314,7 +264,7 @@ Type.registerNamespace("Xrm.Common");
         });
     };
 
-    this.SetAllRecommendedAttributesToRequired = function() {
+    this.setAllRecommendedAttributesToRequired = function() {
         /// <summary>Сделать все "рекомендованные" атрибуты обязательными</summary>
         var attributes = xrmPage.data.entity.attributes.get();
         for (var name in attributes) {
@@ -327,7 +277,7 @@ Type.registerNamespace("Xrm.Common");
         }
     };
 
-    this.SetAllMandatoryAttributesToNone = function() {
+    this.setAllMandatoryAttributesToNone = function() {
         /// <summary>Сделать все "обязательные" атрибуты необязательными</summary>
         var attributes = xrmPage.data.entity.attributes.get();
         for (var name in attributes) {
@@ -340,7 +290,7 @@ Type.registerNamespace("Xrm.Common");
         }
     };
 
-    this.GetAllMandatoryAttributes = function() {
+    this.getAllMandatoryAttributes = function() {
         var result = [],
             attributes = xrmPage.data.entity.attributes.get();
 
@@ -356,7 +306,7 @@ Type.registerNamespace("Xrm.Common");
         return result;
     };
 
-    this.GetPageNavItem = function(name) {
+    this.getPageNavItem = function(name) {
         /// <summary>Возвращает объект навигации по имени</summary>
         /// <param name="name" type="String">Имя объекта навигации</param>
         return xrmPage.ui.navigation.items.get("nav_" + name);
@@ -372,7 +322,7 @@ Type.registerNamespace("Xrm.Common");
         }
     };
 
-    this.GetObjectTypeCode = function(entityName) {
+    this.getObjectTypeCode = function(entityName) {
         /// <summary>Возвращает код сущности по имени</summary>
         /// <param name="entityName" type="String">Имя сущности</param>
         try {
@@ -392,7 +342,7 @@ Type.registerNamespace("Xrm.Common");
         return null;
     };
 
-    this.IsUserInRole = function(roleName) {
+    this.isUserInRole = function(roleName) {
         /// <summary>Check if current user is in role with name equal roleName</summary>
         /// <param name="roleName" type="String">Role name for check</param>
         var serverUrl = xrmPage.context.getClientUrl(),
@@ -428,23 +378,20 @@ Type.registerNamespace("Xrm.Common");
         return false;
     };
 
-    this.IsAdmin = function() {
-        return self.IsUserInRole("Системный администратор");
+    this.isAdmin = function() {
+        return self.isUserInRole("System administrator");
     };
 
-    this.SetFormViewMode = function(readOnly) {
-        /// <summary>Установить режим чтения формы</summary>
-        /// <param name="readOnly" type="Boolean">Значение режима чтения</param>
+    this.setFormViewMode = function(readOnly) {
         try {
             if (readOnly) {
                 if (!Xrm.Page.ui) {
-                    setTimeout(self.SetFormViewMode, 100);
+                    setTimeout(self.setFormViewMode, 100);
                     return;
                 }
 
-                // находимся в режиме только для чтения
-                self.SetDisableValueForAllFields(true);
-                self.PreventCopyPaste("span, label, input:text");
+                self.setDisableValueForAllFields(true);
+                self.preventCopyPaste("span, label, input:text");
                 global.openObjCustom = function(type, id) {
                     if (type === "8" || type === "9") {
                         return global.openObj(type, id, null, null, null, { rof: true });
@@ -466,25 +413,24 @@ Type.registerNamespace("Xrm.Common");
                     };
                 });
 
-                // скрыть риббоны и подвинуть контент вверх
                 var parentDoc = global.parent.document;
                 $("#crmTopBar", parentDoc).hide();
                 $("#crmContentPanel", parentDoc).css("top", "0");
             } else {
-                // показать навигационную панель
                 showNavPanel();
             }
         } catch (ex) {
-            setTimeout(self.SetFormViewMode, 50);
+            setTimeout(self.setFormViewMode, 50);
         }
     };
 
-    this.PreventCopyPaste = function(selector) {
+    this.preventCopyPaste = function(selector) {
         $(selector).each(function() {
             var $this = $(this);
             $this.removeAttr("contentEditable")
                  .attr("contenteditable", false)
                  .attr("disabled", true);
+
             if ($this.is(":text")) {
                 $this.css("background-color", "white");
             }
@@ -507,14 +453,14 @@ Type.registerNamespace("Xrm.Common");
         });
     };
 
-    this.SetLookupValue = function(name, value, checkNull) {
+    this.setLookupValue = function(name, value, checkNull) {
         var attr = xrmPage.getAttribute(name);
         if (attr) {
             if (value) {
                 if (value instanceof Xrm.Soap.EntityReference) {
-                    attr.setValue([{ id: value.id.value, name: value.name || "", entityType: value.logicalName }]);
+                    attr.setValue([{ id: value.id.value, name: value.name || emptyString, entityType: value.logicalName }]);
                 } else if (value instanceof global.LookupControlItem) {
-                    attr.setValue([{ id: value.id, name: value.name || "", entityType: value.entityType }]);
+                    attr.setValue([{ id: value.id, name: value.name || emptyString, entityType: value.entityType }]);
                 } else {
                     attr.setValue(value);
                 }
@@ -548,7 +494,13 @@ Type.registerNamespace("Xrm.Common");
             ie = false;
 
         if (updateWithAdditionalParams) {
-            var missingElementClasses = ["BorderTopWidth", "BorderBottomWidth", "PaddingTop", "PaddingBottom"];
+            var missingElementClasses = [
+                    "BorderTopWidth",
+                    "BorderBottomWidth",
+                    "PaddingTop",
+                    "PaddingBottom"
+                ];
+
             for (var c in missingElementClasses) {
                 if (missingElementClasses.hasOwnProperty(c)) {
                     var className = missingElementClasses[c],

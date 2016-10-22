@@ -4,11 +4,12 @@ Type.registerNamespace("Xrm.Soap");
     "use strict";
 
     /* jshint -W030 */
+    /* jshint esnext: true */
+
     var self = this,
-        undefConst = "undefined",
-        unknownConst = "unknown",
-        trueString = "true",
-        falseString = "false",
+        emptyString = "",
+        trueString = true + emptyString,
+        falseString = false + emptyString,
 
         notify = function(msg) {
             Xrm && Xrm.Utility && Xrm.Utility.alertDialog ? Xrm.Utility.alertDialog(msg) : alert(msg);
@@ -19,8 +20,8 @@ Type.registerNamespace("Xrm.Soap");
                 return s;
             }
 
-            var buffer = "",
-                encoded = "";
+            var buffer = emptyString,
+                encoded = emptyString;
 
             for (var count = 0, cnt = 0, l = s.length; cnt < l; cnt++) {
                 var c = s.charCodeAt(cnt);
@@ -32,7 +33,7 @@ Type.registerNamespace("Xrm.Soap");
 
                 if (++count === 500) {
                     encoded += buffer;
-                    buffer = "";
+                    buffer = emptyString;
                     count = 0;
                 }
             }
@@ -46,10 +47,10 @@ Type.registerNamespace("Xrm.Soap");
 
         removeBraces = function(value) {
             if (!!!value) {
-                return "";
+                return emptyString;
             }
 
-            return value.replace("{", "").replace("}", "").toLowerCase();
+            return value.replace("{", emptyString).replace("}", emptyString).toLowerCase();
         },
 
         stringToDate = function(s) {
@@ -58,7 +59,7 @@ Type.registerNamespace("Xrm.Soap");
         },
 
         innerSurrogateAmpersandWorkaround = function(s) {
-            var buffer = "",
+            var buffer = emptyString,
                 c0,
                 cnt,
                 l;
@@ -83,7 +84,7 @@ Type.registerNamespace("Xrm.Soap");
             }
 
             s = buffer;
-            buffer = "";
+            buffer = emptyString;
             for (cnt = 0, l = s.length; cnt < l; cnt++) {
                 c0 = s.charCodeAt(cnt);
                 if (c0 >= 55296 && c0 <= 57343) {
@@ -98,17 +99,17 @@ Type.registerNamespace("Xrm.Soap");
         },
 
         xmlToString = function(response) {
-            var xmlString = "";
+            var xmlString = emptyString;
 
             try {
                 if (response) {
-                    if (typeof XMLSerializer !== undefConst &&
-                        typeof response.xml === undefConst) {
+                    if (typeof XMLSerializer !== "undefined" &&
+                        typeof response.xml === "undefined") {
                         xmlString = (new XMLSerializer()).serializeToString(response[0]);
                     } else {
-                        if (typeof response.xml !== undefConst) {
+                        if (typeof response.xml !== "undefined") {
                             xmlString = response.xml;
-                        } else if (typeof response[0].xml !== undefConst) {
+                        } else if (typeof response[0].xml !== "undefined") {
                             xmlString = response[0].xml;
                         }
                     }
@@ -158,7 +159,7 @@ Type.registerNamespace("Xrm.Soap");
 
         crmXmlEncode = function(s) {
             var stype = typeof s;
-            if (undefConst === stype || unknownConst === stype) {
+            if (stype === "undefined" || stype === "unknown") {
                 return s;
             } else if (stype !== "string") {
                 s = s.toString();
@@ -168,7 +169,7 @@ Type.registerNamespace("Xrm.Soap");
         },
 
         encodeValue = function(value) {
-            if (value === null || value === undefConst) {
+            if (value === null || value === "undefined") {
                 return null;
             }
 
@@ -176,7 +177,7 @@ Type.registerNamespace("Xrm.Soap");
                 return value.value;
             }
 
-            if (value && typeof value === typeof "" && value.slice(0, 1) === "{" && value.slice(-1) === "}") {
+            if (value && typeof value === typeof emptyString && value.slice(0, 1) === "{" && value.slice(-1) === "}") {
                 value = value.slice(1, -1);
             }
 
@@ -215,7 +216,7 @@ Type.registerNamespace("Xrm.Soap");
         })(),
 
         getNodeName = function(node) {
-            return typeof node.baseName !== undefConst ? node.baseName : node.localName;
+            return typeof node.baseName !== "undefined" ? node.baseName : node.localName;
         },
 
         objectifyNode = function(node) {
@@ -350,7 +351,7 @@ Type.registerNamespace("Xrm.Soap");
             return c;
         },
 
-        publishersPrefixes = [""],
+        publishersPrefixes = [emptyString],
         context = typeof global.GetGlobalContext === "function" ? global.GetGlobalContext() : global.Xrm.Page.context,
         loc = global.location,
         clientUrl = context.getClientUrl(),
@@ -399,7 +400,6 @@ Type.registerNamespace("Xrm.Soap");
             splittedUrl[1] = loc.host;
         }
 
-        // ToDo: move all templates to external resource
         attributeTemplate = compile("<b:string><%= value %></b:string>");
         noLockTemplate = compile("<a:NoLock><%= noLock %></a:NoLock>");
         distinctTemplate = compile("<a:Distinct><%= distinct %></a:Distinct>");
@@ -648,7 +648,7 @@ Type.registerNamespace("Xrm.Soap");
                      "<%= filterOperator %>",
                  "</a:FilterOperator>",
              "</a:LinkCriteria>"
-            ].join("")),
+            ].join(emptyString)),
 
             filterExpression = function(logicalOperator) {
                 this.conditions = [];
@@ -724,7 +724,7 @@ Type.registerNamespace("Xrm.Soap");
                      "<%= linkToEntityName %>",
                    "</a:LinkToEntityName>",
                  "</a:LinkEntity>"
-            ].join("")),
+            ].join(emptyString)),
 
             linkEntity = function(linkFromEntityName, linkToEntityName, linkFromAttributeName, linkToAttributeName, joinOperator) {
                 /// <summary>LinkEntity like in Microsoft.Xrm.Sdk</summary>
@@ -749,7 +749,7 @@ Type.registerNamespace("Xrm.Soap");
             return template({
                 columns: (this.columns ? this.columns : new self.ColumnSet(false)).serialize(true),
                 joinOperator: this.joinOperator,
-                linkCriteria: this.linkCriteria ? this.linkCriteria.serialize() : "",
+                linkCriteria: this.linkCriteria ? this.linkCriteria.serialize() : emptyString,
                 linkFromAttributeName: this.linkFromAttributeName,
                 linkFromEntityName: this.linkFromEntityName,
                 linkToAttributeName: this.linkToAttributeName,
@@ -768,7 +768,7 @@ Type.registerNamespace("Xrm.Soap");
                   "<a:PagingCookie i:nil='true'/>",
                   "<a:ReturnTotalRecordCount><%= returnTotalRecordCount %></a:ReturnTotalRecordCount>",
                 "</a:PageInfo>"
-            ].join("")),
+            ].join(emptyString)),
 
             pageInfo = function(count, pageNumber, returnTotalRecordCount) {
                 this.count = count || 0;
@@ -860,7 +860,7 @@ Type.registerNamespace("Xrm.Soap");
         queryByAttribute.prototype.serialize = function() {
             /// <summary>Gets soap xml for query</summary>
             // ToDo: improve result creation
-            var result = "";
+            var result = emptyString;
             if (this.attributes.length) {
                 result += attributesTemplate({
                     attributes: _.map(this.attributes, function(attr) {
@@ -1034,12 +1034,12 @@ Type.registerNamespace("Xrm.Soap");
 
     this.Entity = (function() {
         var entity = function(logicalName, id) {
-                /// <summary>Universal class for creating, updating and deleting any entity</summary>
-                /// <param name="logicalName" type="String">Logical name of entity. Example: av_sms</param>
-                this.attributes = {};
-                this.logicalName = logicalName;
-                this.id = id && id.type === "guid" ? id : new self.Guid(!id ? self.Guid.Empty() : id);
-            };
+            /// <summary>Universal class for creating, updating and deleting any entity</summary>
+            /// <param name="logicalName" type="String">Logical name of entity. Example: av_sms</param>
+            this.attributes = {};
+            this.logicalName = logicalName;
+            this.id = id && id.type === "guid" ? id : new self.Guid(!id ? self.Guid.Empty() : id);
+        };
 
         entity.prototype = {
             getAttribute: function(name) {
@@ -1069,7 +1069,7 @@ Type.registerNamespace("Xrm.Soap");
                     }
                 }
 
-                return "";
+                return emptyString;
             },
 
             LogicalName: function() {
@@ -1083,7 +1083,6 @@ Type.registerNamespace("Xrm.Soap");
             Id: function(id) {
                 if (id) {
                     this.id = id.type === "guid" ? id : new self.Guid(id);
-                    // this.setAttribute(this.logicalName + "id", id);
                 }
 
                 return this.id;
@@ -1097,15 +1096,17 @@ Type.registerNamespace("Xrm.Soap");
             },
 
             toLookupValue: function() {
-                return [{
-                    id: this.getIdValue(),
-                    name: this.getName(),
-                    entityType: this.LogicalName()
-                }];
+                return [
+                    {
+                        id: this.getIdValue(),
+                        name: this.getName(),
+                        entityType: this.LogicalName()
+                    }
+                ];
             },
 
             clone: function() {
-                var clone = new entity(this.logicalName),
+                var clone = new self.Entity(this.logicalName),
                     attributes = this.attributes;
 
                 for (var name in attributes) {
@@ -1146,80 +1147,80 @@ Type.registerNamespace("Xrm.Soap");
                         value = attribute.hasOwnProperty("value") ? attribute.value : attribute;
                         encodedValue = encodeValue(value);
                         switch (sType) {
-                            case "OptionSetValue":
-                                xml[counter++] = "<b:value i:type='a:OptionSetValue'>";
-                                xml[counter++] = "<a:Value>" + encodedValue + "</a:Value>" + "</b:value>";
-                                break;
-                            case "EntityCollection":
-                                xml[counter++] = "<b:value i:type='a:EntityCollection'>";
-                                xml[counter++] = "<a:Entities>";
-                                var collections = $.isArray(value) ? value : [value];
-                                for (var i = 0, l = collections.length; i < l; i++) {
-                                    var item = collections[i];
-                                    id = item.hasOwnProperty("id") ? item.id : item;
-                                    encodedId = encodeValue(id);
-                                    logicalName = item.hasOwnProperty("logicalName") ? item.logicalName : item;
-                                    encodedLogicalName = encodeValue(logicalName);
-                                    xml[counter++] = "<a:Entity>";
-                                    xml[counter++] = "<a:Attributes>";
-                                    xml[counter++] = "<a:KeyValuePairOfstringanyType>";
-                                    xml[counter++] = "<b:key>partyid</b:key>";
-                                    xml[counter++] = "<b:value i:type='a:EntityReference'>";
-                                    xml[counter++] = "<a:Id>" + encodedId + "</a:Id>";
-                                    xml[counter++] = "<a:LogicalName>" + encodedLogicalName + "</a:LogicalName>";
-                                    xml[counter++] = "<a:Name i:nil='true'/>";
-                                    xml[counter++] = "</b:value>";
-                                    xml[counter++] = "</a:KeyValuePairOfstringanyType>";
-                                    xml[counter++] = "</a:Attributes>";
-                                    xml[counter++] = "<a:EntityState i:nil='true'/>";
-                                    xml[counter++] = "<a:FormattedValues />";
-                                    xml[counter++] = "<a:Id>" + self.Guid.Empty().value + "</a:Id>";
-                                    xml[counter++] = "<a:LogicalName>activityparty</a:LogicalName>";
-                                    xml[counter++] = "<a:RelatedEntities />";
-                                    xml[counter++] = "</a:Entity>";
-                                }
-
-                                xml[counter++] = "</a:Entities>";
-                                xml[counter++] = "<a:EntityName i:nil='true'/>";
-                                xml[counter++] = "<a:MinActiveRowVersion i:nil='true'/>";
-                                xml[counter++] = "<a:MoreRecords>false</a:MoreRecords>";
-                                xml[counter++] = "<a:PagingCookie i:nil='true'/>";
-                                xml[counter++] = "<a:TotalRecordCount>0</a:TotalRecordCount>";
-                                xml[counter++] = "<a:TotalRecordCountLimitExceeded>false</a:TotalRecordCountLimitExceeded>";
-                                xml[counter++] = "</b:value>";
-                                break;
-                            case "EntityReference":
-                                id = attribute.hasOwnProperty("id") ? attribute.id : attribute;
+                        case "OptionSetValue":
+                            xml[counter++] = "<b:value i:type='a:OptionSetValue'>";
+                            xml[counter++] = "<a:Value>" + encodedValue + "</a:Value>" + "</b:value>";
+                            break;
+                        case "EntityCollection":
+                            xml[counter++] = "<b:value i:type='a:EntityCollection'>";
+                            xml[counter++] = "<a:Entities>";
+                            var collections = $.isArray(value) ? value : [value];
+                            for (var i = 0, l = collections.length; i < l; i++) {
+                                var item = collections[i];
+                                id = item.hasOwnProperty("id") ? item.id : item;
                                 encodedId = encodeValue(id);
-                                logicalName = attribute.hasOwnProperty("logicalName") ? attribute.logicalName : attribute;
+                                logicalName = item.hasOwnProperty("logicalName") ? item.logicalName : item;
                                 encodedLogicalName = encodeValue(logicalName);
+                                xml[counter++] = "<a:Entity>";
+                                xml[counter++] = "<a:Attributes>";
+                                xml[counter++] = "<a:KeyValuePairOfstringanyType>";
+                                xml[counter++] = "<b:key>partyid</b:key>";
                                 xml[counter++] = "<b:value i:type='a:EntityReference'>";
                                 xml[counter++] = "<a:Id>" + encodedId + "</a:Id>";
                                 xml[counter++] = "<a:LogicalName>" + encodedLogicalName + "</a:LogicalName>";
-                                xml[counter++] = "<a:Name i:nil='true'/>" + "</b:value>";
-                                break;
-                            case "Money":
-                                xml[counter++] = "<b:value i:type='a:Money'>";
-                                xml[counter++] = "<a:Value>" + encodedValue + "</a:Value>" + "</b:value>";
-                                break;
-                            case "guid":
-                                xml[counter++] = "<b:value i:type='c:guid' xmlns:c='" + serializationNs + "'>";
-                                xml[counter++] = encodedValue + "</b:value>";
-                                break;
-                            case "decimal":
-                                xml[counter++] = "<b:value i:type='c:decimal' xmlns:c='" + xmlSchemaNs + "'>";
-                                xml[counter++] = encodedValue + "</b:value>";
-                                break;
-                            case "number":
-                                /* jshint eqeqeq: false */
-                                var oType = parseInt(encodedValue, 10) == encodedValue ? "int" : "double";
-                                xml[counter++] = "<b:value i:type='c:" + oType + "' xmlns:c='" + xmlSchemaNs + "'>";
-                                xml[counter++] = encodedValue + "</b:value>";
-                                break;
-                            default:
-                                sType = typeof value === "object" && value.getTime ? "dateTime" : sType;
-                                xml[counter++] = "<b:value i:type='c:" + sType + "' xmlns:c='" + xmlSchemaNs + "'>" + encodedValue + "</b:value>";
-                                break;
+                                xml[counter++] = "<a:Name i:nil='true'/>";
+                                xml[counter++] = "</b:value>";
+                                xml[counter++] = "</a:KeyValuePairOfstringanyType>";
+                                xml[counter++] = "</a:Attributes>";
+                                xml[counter++] = "<a:EntityState i:nil='true'/>";
+                                xml[counter++] = "<a:FormattedValues />";
+                                xml[counter++] = "<a:Id>" + self.Guid.Empty().value + "</a:Id>";
+                                xml[counter++] = "<a:LogicalName>activityparty</a:LogicalName>";
+                                xml[counter++] = "<a:RelatedEntities />";
+                                xml[counter++] = "</a:Entity>";
+                            }
+
+                            xml[counter++] = "</a:Entities>";
+                            xml[counter++] = "<a:EntityName i:nil='true'/>";
+                            xml[counter++] = "<a:MinActiveRowVersion i:nil='true'/>";
+                            xml[counter++] = "<a:MoreRecords>false</a:MoreRecords>";
+                            xml[counter++] = "<a:PagingCookie i:nil='true'/>";
+                            xml[counter++] = "<a:TotalRecordCount>0</a:TotalRecordCount>";
+                            xml[counter++] = "<a:TotalRecordCountLimitExceeded>false</a:TotalRecordCountLimitExceeded>";
+                            xml[counter++] = "</b:value>";
+                            break;
+                        case "EntityReference":
+                            id = attribute.hasOwnProperty("id") ? attribute.id : attribute;
+                            encodedId = encodeValue(id);
+                            logicalName = attribute.hasOwnProperty("logicalName") ? attribute.logicalName : attribute;
+                            encodedLogicalName = encodeValue(logicalName);
+                            xml[counter++] = "<b:value i:type='a:EntityReference'>";
+                            xml[counter++] = "<a:Id>" + encodedId + "</a:Id>";
+                            xml[counter++] = "<a:LogicalName>" + encodedLogicalName + "</a:LogicalName>";
+                            xml[counter++] = "<a:Name i:nil='true'/>" + "</b:value>";
+                            break;
+                        case "Money":
+                            xml[counter++] = "<b:value i:type='a:Money'>";
+                            xml[counter++] = "<a:Value>" + encodedValue + "</a:Value>" + "</b:value>";
+                            break;
+                        case "guid":
+                            xml[counter++] = "<b:value i:type='c:guid' xmlns:c='" + serializationNs + "'>";
+                            xml[counter++] = encodedValue + "</b:value>";
+                            break;
+                        case "decimal":
+                            xml[counter++] = "<b:value i:type='c:decimal' xmlns:c='" + xmlSchemaNs + "'>";
+                            xml[counter++] = encodedValue + "</b:value>";
+                            break;
+                        case "number":
+                            /* jshint eqeqeq: false */
+                            var oType = parseInt(encodedValue, 10) == encodedValue ? "int" : "double";
+                            xml[counter++] = "<b:value i:type='c:" + oType + "' xmlns:c='" + xmlSchemaNs + "'>";
+                            xml[counter++] = encodedValue + "</b:value>";
+                            break;
+                        default:
+                            sType = typeof value === "object" && value.getTime ? "dateTime" : sType;
+                            xml[counter++] = "<b:value i:type='c:" + sType + "' xmlns:c='" + xmlSchemaNs + "'>" + encodedValue + "</b:value>";
+                            break;
                         }
                     }
 
@@ -1234,129 +1235,137 @@ Type.registerNamespace("Xrm.Soap");
                 xml[counter++] = "<a:RelatedEntities xmlns:b='" + genericNs + "'/>";
                 xml[counter++] = "</entity>";
 
-                return xml.join("");
-            },
+                return xml.join(emptyString);
+            }
+        };
 
-            deserialize: function(resultNode) {
-                var obj = {},
-                    resultNodes = resultNode.childNodes;
+        entity.deserialize = function(resultNode) {
+            var obj = {},
+                resultNodes = resultNode.childNodes,
+                instance = new self.Entity();
 
-                for (var j = 0, rl = resultNodes.length; j < rl; j++) {
-                    var k,
-                        l,
-                        al,
-                        cnl,
-                        attr,
-                        sKey;
+            for (var j = 0, rl = resultNodes.length; j < rl; j++) {
+                var k,
+                    l,
+                    al,
+                    cnl,
+                    attr,
+                    sKey;
 
-                    switch (resultNodes[j].nodeName) {
-                        case "a:Attributes":
-                            attr = resultNodes[j];
-                            for (k = 0, cnl = attr.childNodes.length; k < cnl; k++) {
-                                sKey = $(attr.childNodes[k].firstChild).text();
-                                var sType = "",
-                                    attributes = attr.childNodes[k].childNodes[1].attributes;
+                switch (resultNodes[j].nodeName) {
+                    case "a:Attributes":
+                        attr = resultNodes[j];
+                        for (k = 0, cnl = attr.childNodes.length; k < cnl; k++) {
+                            sKey = $(attr.childNodes[k].firstChild).text();
+                            var sType = emptyString,
+                                attributes = attr.childNodes[k].childNodes[1].attributes;
 
-                                for (l = 0, al = attributes.length; l < al; l++) {
-                                    if (attributes[l].nodeName === "i:type") {
-                                        sType = ($(attributes[l]).val() || "").replace("c:", "").replace("a:", "");
-                                        break;
+                            for (l = 0, al = attributes.length; l < al; l++) {
+                                if (attributes[l].nodeName === "i:type") {
+                                    sType = ($(attributes[l]).val() || emptyString).replace("c:", emptyString)
+                                        .replace("a:", emptyString);
+                                    break;
+                                }
+                            }
+
+                            var entRef,
+                                nodes,
+                                entCv;
+
+                            switch (sType) {
+                                case "OptionSetValue":
+                                    obj[sKey] = new self.OptionSetValue(parseInt($(attr.childNodes[k].childNodes[1]).text()));
+                                    break;
+                                case "EntityReference":
+                                    nodes = attr.childNodes[k].childNodes[1].childNodes;
+                                    obj[sKey] = new self.EntityReference($(nodes[1]).text(), $(nodes[0]).text(), $(nodes[2]).text());
+                                    break;
+                                case "EntityCollection":
+                                    var items = [],
+                                        childNodes = attr.childNodes[k].childNodes[1].childNodes[0].childNodes;
+
+                                    for (var y = 0; y < childNodes.length; y++) {
+                                        var itemNodes = childNodes[y].childNodes[0].childNodes;
+                                        for (var z = 0; z < itemNodes.length; z++) {
+                                            if ($(itemNodes[z].childNodes[0]).text() !== "partyid") {
+                                                continue;
+                                            }
+
+                                            nodes = itemNodes[z].childNodes[1].childNodes;
+                                            var itemRef = new self
+                                                .EntityReference($(nodes[1]).text(), $(nodes[0]).text(), $(nodes[2]).text());
+                                            items[y] = itemRef;
+                                        }
                                     }
-                                }
 
-                                var entRef,
-                                    nodes,
-                                    entCv;
+                                    entRef = new self.EntityCollection(items);
+                                    obj[sKey] = entRef;
+                                    break;
+                                case "Money":
+                                    obj[sKey] = new self.Money(parseFloat($(attr.childNodes[k].childNodes[1]).text()));
+                                    break;
+                                case "guid":
+                                    obj[sKey] = new self.Guid($(attr.childNodes[k].childNodes[1]).text());
+                                    break;
+                                default:
+                                    entCv = new self.XrmValue();
+                                    entCv.type = sType;
+                                    if (entCv.type === "int") {
+                                        entCv.value = parseInt($(attr.childNodes[k].childNodes[1]).text());
+                                    } else if (entCv.type === "decimal" || entCv.type === "double") {
+                                        entCv.value = parseFloat($(attr.childNodes[k].childNodes[1]).text());
+                                    } else if (entCv.type === "dateTime") {
+                                        entCv.value = stringToDate($(attr.childNodes[k].childNodes[1]).text());
+                                    } else if (entCv.type === "boolean") {
+                                        entCv.value = ($(attr.childNodes[k].childNodes[1]).text() === "false") ? false : true;
+                                    } else if (entCv.type === "AliasedValue") {
+                                        var $attr = $(attr).children().eq(k).children().eq(1).children().eq(2),
+                                            aliasedType = $attr.attr("i:type");
 
-                                switch (sType) {
-                                    case "OptionSetValue":
-                                        obj[sKey] = new self.OptionSetValue(parseInt($(attr.childNodes[k].childNodes[1]).text()));
-                                        break;
-                                    case "EntityReference":
-                                        nodes = attr.childNodes[k].childNodes[1].childNodes;
-                                        obj[sKey] = new self.EntityReference($(nodes[1]).text(), $(nodes[0]).text(), $(nodes[2]).text());
-                                        break;
-                                    case "EntityCollection":
-                                        var items = [],
-                                            childNodes = attr.childNodes[k].childNodes[1].childNodes[0].childNodes;
-
-                                        for (var y = 0; y < childNodes.length; y++) {
-                                            var itemNodes = childNodes[y].childNodes[0].childNodes;
-                                            for (var z = 0; z < itemNodes.length; z++) {
-                                                if ($(itemNodes[z].childNodes[0]).text() !== "partyid") {
-                                                    continue;
-                                                }
-
-                                                nodes = itemNodes[z].childNodes[1].childNodes;
-                                                var itemRef = new self.EntityReference($(nodes[1]).text(), $(nodes[0]).text(), $(nodes[2]).text());
-                                                items[y] = itemRef;
-                                            }
-                                        }
-
-                                        entRef = new self.EntityCollection(items);
-                                        obj[sKey] = entRef;
-                                        break;
-                                    case "Money":
-                                        obj[sKey] = new self.Money(parseFloat($(attr.childNodes[k].childNodes[1]).text()));
-                                        break;
-                                    case "guid":
-                                        obj[sKey] = new self.Guid($(attr.childNodes[k].childNodes[1]).text());
-                                        break;
-                                    default:
-                                        entCv = new self.XrmValue();
-                                        entCv.type = sType;
-                                        if (entCv.type === "int") {
-                                            entCv.value = parseInt($(attr.childNodes[k].childNodes[1]).text());
-                                        } else if (entCv.type === "decimal" || entCv.type === "double") {
-                                            entCv.value = parseFloat($(attr.childNodes[k].childNodes[1]).text());
-                                        } else if (entCv.type === "dateTime") {
-                                            entCv.value = stringToDate($(attr.childNodes[k].childNodes[1]).text());
-                                        } else if (entCv.type === "boolean") {
-                                            entCv.value = ($(attr.childNodes[k].childNodes[1]).text() === "false") ? false : true;
-                                        } else if (entCv.type === "AliasedValue") {
-                                            var $attr = $(attr).children().eq(k).children().eq(1).children().eq(2),
-                                                aliasedType = $attr.attr("i:type");
-
-                                            if (aliasedType === "a:EntityReference") {
-                                                var aliasedRef = $attr.children();
-                                                entCv = new self.EntityReference(aliasedRef.eq(1).text(), aliasedRef.eq(0).text(), aliasedRef.eq(2).text());
-                                            } else if (aliasedType === "c:boolean") {
-                                                entCv.value = $attr.text() === trueString;
-                                            } else {
-                                                entCv.value = $attr.text();
-                                            }
+                                        if (aliasedType === "a:EntityReference") {
+                                            var aliasedRef = $attr.children();
+                                            entCv = new self
+                                                .EntityReference(aliasedRef.eq(1).text(),
+                                                    aliasedRef.eq(0).text(),
+                                                    aliasedRef.eq(2).text());
+                                        } else if (aliasedType === "c:boolean") {
+                                            entCv.value = $attr.text() === trueString;
                                         } else {
-                                            entCv.value = $(attr.childNodes[k].childNodes[1]).text();
+                                            entCv.value = $attr.text();
                                         }
+                                    } else {
+                                        entCv.value = $(attr.childNodes[k].childNodes[1]).text();
+                                    }
 
-                                        obj[sKey] = entCv;
-                                        break;
-                                }
+                                    obj[sKey] = entCv;
+                                    break;
                             }
+                        }
 
-                            this.attributes = obj;
-                            break;
-                        case "a:Id":
-                            this.id = new self.Guid($(resultNodes[j]).text());
-                            break;
-                        case "a:LogicalName":
-                            this.logicalName = $(resultNodes[j]).text();
-                            break;
-                        case "a:FormattedValues":
-                            var foVal = resultNodes[j];
-                            for (k = 0, l = foVal.childNodes.length; k < l; k++) {
-                                var childNode = foVal.childNodes[k];
-                                sKey = $(childNode.firstChild).text();
-                                this.attributes[sKey].formattedValue = $(childNode.childNodes[1]).text();
-                                if (isNaN(this.attributes[sKey].value) && this.attributes[sKey].type === "dateTime") {
-                                    this.attributes[sKey].value = new Date(this.attributes[sKey].formattedValue);
-                                }
+                        instance.attributes = obj;
+                        break;
+                    case "a:Id":
+                        this.id = new self.Guid($(resultNodes[j]).text());
+                        break;
+                    case "a:LogicalName":
+                        this.logicalName = $(resultNodes[j]).text();
+                        break;
+                    case "a:FormattedValues":
+                        var foVal = resultNodes[j];
+                        for (k = 0, l = foVal.childNodes.length; k < l; k++) {
+                            var childNode = foVal.childNodes[k];
+                            sKey = $(childNode.firstChild).text();
+                            instance.attributes[sKey].formattedValue = $(childNode.childNodes[1]).text();
+                            if (isNaN(instance.attributes[sKey].value) && instance.attributes[sKey].type === "dateTime") {
+                                instance.attributes[sKey].value = new Date(instance.attributes[sKey].formattedValue);
                             }
+                        }
 
-                            break;
-                    }
+                        break;
                 }
             }
+
+            return instance;
         };
 
         return entity;
@@ -1377,7 +1386,7 @@ Type.registerNamespace("Xrm.Soap");
                 }
 
                 this.value = value;
-                this.name = nameIsExist ? name : "";
+                this.name = nameIsExist ? name : emptyString;
                 this.type = "OptionSetValue";
             };
 
@@ -1487,8 +1496,8 @@ Type.registerNamespace("Xrm.Soap");
                 /// <param name="id" type="Guid">Entity Id</param>
                 /// <param name="name" type="String">Entity name</param>
                 this.id = id ? new self.Guid(id) : self.Guid.Empty();
-                this.logicalName = logicalName || "";
-                this.name = name || "";
+                this.logicalName = logicalName || emptyString;
+                this.name = name || emptyString;
                 this.type = "EntityReference";
             };
 
@@ -1581,7 +1590,7 @@ Type.registerNamespace("Xrm.Soap");
     this.OrganizationRequest = (function() {
         /// <summary>Abstarct base class for all requests</summary>
         var organizationRequest = function() {
-                this.RequestName = arguments[0] || "";
+                this.RequestName = arguments[0] || emptyString;
                 this.Parameters = arguments[1];
                 this.RequestId = self.Guid.Empty();
             };
@@ -1613,7 +1622,7 @@ Type.registerNamespace("Xrm.Soap");
                   "<a:RequestId i:nil='true'/>",
                   "<a:RequestName>RetrieveAllEntities</a:RequestName>",
                 "</request>"
-            ].join("")),
+            ].join(emptyString)),
             request = function(entityFilters, retrieveAsIfPublished) {
                 this.entityFilters = entityFilters;
                 this.retrieveAsIfPublished = !!retrieveAsIfPublished;
@@ -1668,7 +1677,7 @@ Type.registerNamespace("Xrm.Soap");
                   "<a:RequestId i:nil='true'/>",
                   "<a:RequestName>RetrieveEntity</a:RequestName>",
                 "</request>"
-            ].join("")),
+            ].join(emptyString)),
             request = function(logicalName, entityFilters, retrieveAsIfPublished) {
                 this.logicalName = logicalName;
                 this.entityFilters = entityFilters;
@@ -1725,7 +1734,7 @@ Type.registerNamespace("Xrm.Soap");
                   "<a:RequestId i:nil='true' />",
                   "<a:RequestName>RetrieveAttribute</a:RequestName>",
                 "</request>"
-            ].join("")),
+            ].join(emptyString)),
             request = function(entityLogicalName, attributeLogicalName, retrieveAsIfPublished) {
                 this.entityLogicalName = entityLogicalName;
                 this.attributeLogicalName = attributeLogicalName;
@@ -1786,7 +1795,7 @@ Type.registerNamespace("Xrm.Soap");
                   "<a:RequestId i:nil='true' />",
                   "<a:RequestName>SetState</a:RequestName>",
                 "</request>"
-            ].join("")),
+            ].join(emptyString)),
             request = function(entityName, entityId, state, status) {
                 this.entityName = entityName;
                 this.entityId = new self.Guid(entityId);
@@ -1833,7 +1842,7 @@ Type.registerNamespace("Xrm.Soap");
                   "<a:RequestId i:nil='true'/>",
                   "<a:RequestName>ExecuteWorkflow</a:RequestName>",
                 "</request>"
-            ].join("")),
+            ].join(emptyString)),
             request = function(entityId, workflowId) {
                 this.entityId = new self.Guid(entityId);
                 this.workflowId = new self.Guid(workflowId);
@@ -1872,7 +1881,7 @@ Type.registerNamespace("Xrm.Soap");
                   "<a:RequestId i:nil='true'/>",
                   "<a:RequestName>RetrieveSharedPrincipalsAndAccess</a:RequestName>",
                 "</request>"
-            ].join("")),
+            ].join(emptyString)),
             request = function(entityName, entityId) {
                 /// <summary>RetrieveSharedPrincipalsAndAccessRequest like in Microsoft.Xrm.Sdk</summary>
                 this.entityName = entityName;
@@ -1896,210 +1905,164 @@ Type.registerNamespace("Xrm.Soap");
         return request;
     })(self.OrganizationRequest);
 
-    this.GetOrganizationService = function() {
-        return (function(serverUrl) {
-            /// <summary>Like IOrganizationService in Microsoft.Xrm.Sdk</summary>
-            var orgService = function() {
-                    this.Url = function() {
-                        return serverUrl;
-                    };
+    this.OrganizationService = (function() {
+        /// <summary>Like IOrganizationService in Microsoft.Xrm.Sdk</summary>
+        var orgService = function() {
+                this.url = function() {
+                    return splittedUrl[0] + "//" + splittedUrl[1];
+                };
 
-                    this.OrgName = function() {
-                        return orgName;
-                    };
+                this.orgName = function() {
+                    return orgName;
+                };
 
-                    var errorText,
-                        serviceUrl = serverUrl + (splittedUrl.length === 3 && splittedUrl[2] === orgName ? ("/" + orgName) : "") + xrmServiceUrl,
-                        soapTemplate = compile([
-                            utf8Root,
-                             "<soap:Envelope xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'>",
-                               "<soap:Body>",
-                                 "<<%= soapAction %> xmlns='" + contractsXrmNs + "/Services' xmlns:i='" + xmlSchemaInstanceNs + "'>",
-                                   "<%= soapBody %>",
-                                 "</<%= soapAction %>>",
-                               "</soap:Body>",
-                             "</soap:Envelope>"
-                        ].join("")),
+                var serviceUrl = this.url() + (splittedUrl.length === 3 && splittedUrl[2] === orgName ? ("/" + orgName) : emptyString) + xrmServiceUrl,
+                    soapTemplate = compile([
+                        utf8Root,
+                            "<soap:Envelope xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'>",
+                            "<soap:Body>",
+                                "<<%= soapAction %> xmlns='" + contractsXrmNs + "/Services' xmlns:i='" + xmlSchemaInstanceNs + "'>",
+                                "<%= soapBody %>",
+                                "</<%= soapAction %>>",
+                            "</soap:Body>",
+                            "</soap:Envelope>"
+                    ].join(emptyString)),
 
-                        processResponse = function(response, suppressError, errorCallback) {
-                            if (!response || (response.hasOwnProperty("xml") && !response.xml)) {
-                                if (!!!suppressError) {
-                                    errorText = "No response received from the server.";
-                                    if ($.isFunction(errorCallback)) {
-                                        errorCallback(errorText);
-                                        return null;
-                                    }
+                    processResponse = function(response) {
+                        if (!response || (response.hasOwnProperty("xml") && !response.xml)) {
+                            return "No response received from the server";
+                        }
 
-                                    throw new Error(errorText);
-                                }
+                        const $response = $(response);
+                        const error = $response.find("error").text();
+                        const faultString = $response.find("faultstring").text();
 
-                                return null;
-                            }
+                        if (!(error === emptyString && faultString === emptyString)) {
+                            return error !== emptyString ? $response.find("description").text() : faultString;
+                        }
 
-                            var $response = $(response),
-                                error = $response.find("error").text(),
-                                faultString = $response.find("faultstring").text();
+                        const currentType = typeof response;
+                        const ieXmlType = typeof response.xml;
 
-                            if (error !== "" || faultString !== "") {
-                                if (!!!suppressError) {
-                                    errorText = error !== "" ? $response.find("description").text() : faultString;
-                                    if ($.isFunction(errorCallback)) {
-                                        errorCallback(errorText);
-                                        return null;
-                                    }
+                        if (currentType !== "object" && (ieXmlType === "undefined" || ieXmlType === "unknown")) {
+                            return parseXml(response);
+                        } else if (currentType === "object") {
+                            return response;
+                        } else {
+                            return parseXml(xmlToString(response));
+                        }
+                    },
 
-                                    throw new Error(errorText);
-                                }
+                    execute = function(soapBody, soapAction, async) {
+                        return new Promise(function(resolve, reject) {
+                            const soapXml = soapTemplate({ soapBody: soapBody, soapAction: soapAction });
+                            const req = new global.XMLHttpRequest();
 
-                                return null;
-                            }
-
-                            var currentType = typeof response,
-                                ieXmlType = typeof response.xml;
-
-                            if (currentType !== "object" && (ieXmlType === undefConst || ieXmlType === "unknown")) {
-                                return parseXml(response);
-                            } else if (currentType === "object") {
-                                return response;
-                            } else {
-                                return parseXml(xmlToString(response));
-                            }
-                        },
-
-                        execute = function(soapBody, soapAction, async, suppressError, callback, errorCallback) {
-                            async = async || false;
-                            var soapXml = soapTemplate({ soapAction: soapAction, soapBody: soapBody }),
-                                req = new global.XMLHttpRequest();
-
-                            req.open("POST", serviceUrl, async);
+                            req.open("POST", serviceUrl, async || false);
                             req.setRequestHeader("Accept", "application/xml, text/xml, */*");
                             req.setRequestHeader("Content-Type", "text/xml; charset=utf-8");
                             req.setRequestHeader("SOAPAction", xrmSoapActionPrefix + soapAction);
+
+                            req.onload = function() {
+                                const parsedResponse = processResponse(req.responseXML);
+                                if (req.status === 200) {
+                                    req.onreadystatechange = null;
+                                    resolve(parsedResponse);
+                                } else {
+                                    reject(Error(parsedResponse));
+                                }
+                            };
+
+                            req.onerror = function() {
+                                req.onreadystatechange = null;
+                                reject(Error("network error occured"));
+                            };
+
                             req.send(soapXml);
-                            if (async) {
-                                req.onreadystatechange = function() {
-                                    if (req.readyState === 4) {
-                                        req.onreadystatechange = null;
-                                        $.isFunction(callback) && callback(processResponse(req.responseXML, suppressError, errorCallback));
-                                    }
-                                };
-                            } else {
-                                return processResponse(req.responseXML, suppressError, errorCallback);
-                            }
-                        };
+                        });
+                    };
 
-                    orgService.prototype.Create = function(entity) {
-                        /// <summary>Create like create in Microsoft.Xrm.Sdk</summary>
-                        var resultXml = execute(entity.serialize(), "Create");
-
+                orgService.prototype.create = function(entity, async) {
+                    /// <summary>Create like create in Microsoft.Xrm.Sdk</summary>
+                    return execute(entity.serialize(), "Create", async).then(function(resultXml) {
                         return resultXml ? $(resultXml).find("CreateResult").text() : null;
-                    };
+                    });
+                };
 
-                    orgService.prototype.CreateAsync = function(entity, callback, errorCallback) {
-                        /// <summary>Create like create in Microsoft.Xrm.Sdk</summary>
-                        execute(entity.serialize(), "Create", true, false, function(resultXml) {
-                            callback && callback(resultXml ? $(resultXml).find("CreateResult").text() : null);
-                        }, errorCallback);
-                    };
+                orgService.prototype.createAsync = function(entity) {
+                    /// <summary>Create like create in Microsoft.Xrm.Sdk</summary>
+                    return this.create(entity, true);
+                };
 
-                    orgService.prototype.Update = function(entity) {
-                        /// <summary>Update like update in Microsoft.Xrm.Sdk</summary>
-                        var resultXml = execute(entity.serialize(), "Update");
-
+                orgService.prototype.update = function(entity, async) {
+                    /// <summary>Update like update in Microsoft.Xrm.Sdk</summary>
+                    return execute(entity.serialize(), "Update", async).then(function(resultXml) {
                         return resultXml ? $(resultXml).find("UpdateResponse").text() : null;
-                    };
+                    });
+                };
 
-                    orgService.prototype.UpdateAsync = function(entity, callback, suppressError, errorCallback) {
-                        /// <summary>Update like update in Microsoft.Xrm.Sdk</summary>
-                        execute(entity.serialize(), "Update", true, suppressError, function(resultXml) {
-                            callback && callback(resultXml ? $(resultXml).find("UpdateResponse").text() : null);
-                        }, errorCallback);
-                    };
+                orgService.prototype.updateAsync = function(entity) {
+                    /// <summary>Update like update in Microsoft.Xrm.Sdk</summary>
+                    return this.update(entity, true);
+                };
 
-                    orgService.prototype.Delete = function(entityName, id) {
-                        /// <summary>Delete like delete in Microsoft.Xrm.Sdk</summary>
-                        var request = [
-                                "<entityName>",
-                                  entityName,
-                                "</entityName>",
-                               "<id>",
-                                 new self.Guid(id).value,
-                               "</id>"
-                            ].join("");
+                orgService.prototype.delete = function(entityName, id, async) {
+                    /// <summary>Delete like delete in Microsoft.Xrm.Sdk</summary>
+                    const request = [
+                            "<entityName>",
+                                entityName,
+                            "</entityName>",
+                            "<id>",
+                                new self.Guid(id).value,
+                            "</id>"
+                        ].join(emptyString);
 
-                        execute(request, "Delete");
-                    };
+                    return execute(request, "Delete", async);
+                };
 
-                    orgService.prototype.DeleteAsync = function(entityName, id, callback, errorCallback) {
-                        /// <summary>Delete like delete in Microsoft.Xrm.Sdk</summary>
-                        var request = [
-                                "<entityName>",
-                                  entityName,
-                                "</entityName>",
-                                "<id>",
-                                  new self.Guid(id).value,
-                                "</id>"
-                            ].join("");
+                orgService.prototype.deleteAsync = function(entityName, id) {
+                    /// <summary>Delete like delete in Microsoft.Xrm.Sdk</summary>
+                    return this.delete(entityName, id, true);
+                };
 
-                        execute(request, "Delete", true, false, callback, errorCallback);
-                    };
+                orgService.prototype.retrieve = function(entityName, id, columnSet, async) {
+                    /// <summary>Retrieve like in Microsoft.Xrm.Sdk</summary>
+                    const soapBodyTemplate = compile("<entityName><%= entityName %></entityName><id><%= id %></id><%= columnSet %>");
+                    if (columnSet && $.isArray(columnSet)) {
+                        columnSet = new self.ColumnSet(columnSet);
+                        columnSet = columnSet.serialize(false, true);
+                    } else if (columnSet && columnSet instanceof self.ColumnSet) {
+                        columnSet = columnSet.serialize(false, true);
+                    } else {
+                        columnSet = self.ColumnSet.GetAllColumnsSoap(false, true);
+                    }
 
-                    orgService.prototype.Retrieve = function(entityName, id, columnSet) {
-                        /// <summary>Retrieve like in Microsoft.Xrm.Sdk</summary>
-                        var soapBodyTemplate = compile("<entityName><%= entityName %></entityName><id><%= id %></id><%= columnSet %>");
-                        if (columnSet && $.isArray(columnSet)) {
-                            columnSet = new self.ColumnSet(columnSet);
-                            columnSet = columnSet.serialize(false, true);
-                        } else if (columnSet && columnSet instanceof self.ColumnSet) {
-                            columnSet = columnSet.serialize(false, true);
-                        } else {
-                            columnSet = self.ColumnSet.GetAllColumnsSoap(false, true);
-                        }
-
-                        var resultXml = execute(soapBodyTemplate({ entityName: entityName, id: new self.Guid(id).value, columnSet: columnSet }), "Retrieve"),
-                            retrieveResult = $(resultXml).find("RetrieveResult")[0],
-                            entity = new self.Entity();
-
+                    return execute(soapBodyTemplate({
+                            entityName: entityName,
+                            id: new self.Guid(id).value,
+                            columnSet: columnSet
+                        }), "Retrieve", async).then(function(resultXml) {
+                        const retrieveResult = $(resultXml).find("RetrieveResult")[0];
                         if (!retrieveResult) {
                             return null;
                         }
 
-                        entity.deserialize(retrieveResult);
-                        return entity;
-                    };
+                        return self.Entity.deserialize(retrieveResult);
+                    });
+                };
 
-                    orgService.prototype.RetrieveAsync = function(entityName, id, columnSet, callback, errorCallback) {
-                        /// <summary>Retrieve like in Microsoft.Xrm.Sdk</summary>
-                        var soapBodyTemplate = compile("<entityName><%= entityName %></entityName><id><%= id %></id><%= columnSet %>");
-                        if (columnSet && $.isArray(columnSet)) {
-                            columnSet = new self.ColumnSet(columnSet);
-                            columnSet = columnSet.serialize(false, true);
-                        } else if (columnSet && columnSet instanceof self.ColumnSet) {
-                            columnSet = columnSet.serialize(false, true);
-                        } else {
-                            columnSet = self.ColumnSet.GetAllColumnsSoap(false, true);
-                        }
+                orgService.prototype.retrieveAsync = function(entityName, id, columnSet) {
+                    /// <summary>Retrieve like in Microsoft.Xrm.Sdk</summary>
+                    return this.retrieve(entityName, id, columnSet, true);
+                };
 
-                        execute(soapBodyTemplate({ entityName: entityName, id: new self.Guid(id).value, columnSet: columnSet }), "Retrieve", true, false, function(resultXml) {
-                            var retrieveResult = $(resultXml).find("RetrieveResult")[0],
-                                entity = null;
-
-                            if (retrieveResult) {
-                                entity = new self.Entity();
-                                entity.deserialize(retrieveResult);
-                            }
-
-                            callback && callback(entity);
-                        }, errorCallback);
-                    };
-
-                    orgService.prototype.RetrieveMultiple = function(query) {
-                        /// <summary>RetrieveMultiple like in Microsoft.Xrm.Sdk</summary>
-                        /// <param name="query" type="QueryExpression|QueryByAttribute">Query for perform retrieve operation</param>
-                        var $resultXml = $(execute(query.serialize(), "RetrieveMultiple")),
-                            resultNodes,
-                            retriveMultipleResults = [],
-                            entity;
+                orgService.prototype.retrieveMultiple = function(query, async) {
+                    /// <summary>RetrieveMultiple like in Microsoft.Xrm.Sdk</summary>
+                    /// <param name="query" type="QueryExpression|QueryByAttribute">Query for perform retrieve operation</param>
+                    return execute(query.serialize(), "RetrieveMultiple", async).then(function(result) {
+                        const $resultXml = $(result);
+                        var resultNodes;
+                        const retriveMultipleResults = [];
 
                         if ($resultXml.find("a\\:Entities").length) {
                             resultNodes = $resultXml.find("a\\:Entities")[0];
@@ -2111,290 +2074,256 @@ Type.registerNamespace("Xrm.Soap");
                             return retriveMultipleResults; // return empty results
                         }
 
-                        for (var i = 0, l = resultNodes.childNodes.length; i < l; i++) {
-                            entity = new self.Entity();
-                            entity.deserialize(resultNodes.childNodes[i]);
-                            retriveMultipleResults[i] = entity;
+                        for (let i = 0, l = resultNodes.childNodes.length; i < l; i++) {
+                            retriveMultipleResults[i] = self.Entity.deserialize(resultNodes.childNodes[i]);
                         }
 
                         return retriveMultipleResults;
-                    };
+                    });
+                };
 
-                    orgService.prototype.RetrieveMultipleAsync = function(query, callback, errorCallback) {
-                        /// <summary>RetrieveMultiple like in Microsoft.Xrm.Sdk</summary>
-                        /// <param name="query" type="QueryExpression|QueryByAttribute">Query for perform retrieve operation</param>
-                        $(execute(query.serialize(), "RetrieveMultiple", true, false, function(resultXml) {
-                            var $resultXml = $(resultXml),
-                                resultNodes,
-                                retriveMultipleResults = [],
-                                entity;
+                orgService.prototype.retrieveMultipleAsync = function(query) {
+                    /// <summary>RetrieveMultiple like in Microsoft.Xrm.Sdk</summary>
+                    /// <param name="query" type="QueryExpression|QueryByAttribute">Query for perform retrieve operation</param>
+                    return this.retrieveMultiple(query, true);
+                };
 
-                            if ($resultXml.find("a\\:Entities").length) {
-                                resultNodes = $resultXml.find("a\\:Entities")[0];
-                            } else {
-                                resultNodes = $resultXml.find("Entities")[0]; // chrome could not load node properly
-                            }
+                orgService.prototype.execute = function(request, async) {
+                    /// <summary>Execute like in Microsoft.Xrm.Sdk</summary>
+                    /// <param name="request" type="OrganizationRequest">Current request</param>
+                    return execute(request.serialize(), "Execute", async);
+                };
 
-                            if (!resultNodes) {
-                                callback && callback(retriveMultipleResults); // return empty results
-                            }
+                orgService.prototype.executeAsync = function(request) {
+                    /// <summary>Execute like in Microsoft.Xrm.Sdk</summary>
+                    /// <param name="request" type="OrganizationRequest">Current request</param>
+                    return this.execute(request, true);
+                };
 
-                            for (var i = 0, l = resultNodes.childNodes.length; i < l; i++) {
-                                entity = new self.Entity();
-                                entity.deserialize(resultNodes.childNodes[i]);
-                                retriveMultipleResults[i] = entity;
-                            }
-
-                            callback && callback(retriveMultipleResults);
-                        }, errorCallback));
-                    };
-
-                    orgService.prototype.Execute = function(request) {
-                        /// <summary>Execute like in Microsoft.Xrm.Sdk</summary>
-                        /// <param name="request" type="OrganizationRequest">Current request</param>
-                        return execute(request.serialize(), "Execute");
-                    };
-
-                    orgService.prototype.ExecuteAsync = function(request, callback, errorCallback) {
-                        /// <summary>Execute like in Microsoft.Xrm.Sdk</summary>
-                        /// <param name="request" type="OrganizationRequest">Current request</param>
-                        execute(request.serialize(), "Execute", true, false, callback, errorCallback);
-                    };
-
-                    orgService.prototype.Fetch = function(fetchXml) {
-                        /// <summary>Execute fetch Xml query</summary>
-                        /// <param name="fetchXml" type="String">Fetch xml expression</param>
-                        // ToDo: implement fetchXmlBuilder
-                        var fetchQuery = [
-                                "<query i:type='a:FetchExpression' xmlns:a='" + contractsXrmNs + "'>",
-                                  "<a:Query>",
+                orgService.prototype.fetch = function(fetchXml, async) {
+                    /// <summary>Execute fetch Xml query</summary>
+                    /// <param name="fetchXml" type="String">Fetch xml expression</param>
+                    // ToDo: implement fetchXmlBuilder
+                    const fetchQuery = [
+                            "<query i:type='a:FetchExpression' xmlns:a='" + contractsXrmNs + "'>",
+                                "<a:Query>",
                                     crmXmlEncode(fetchXml),
-                                  "</a:Query>",
-                                "</query>"
-                            ].join(""),
-                            resultXml = execute(fetchQuery, "RetrieveMultiple"),
-                            fetchResult,
-                            fetchResults = [],
-                            counter = 0,
-                            $entities = $(resultXml).find("a\\:Entities");
+                                "</a:Query>",
+                            "</query>"
+                        ].join(emptyString);
 
-                        if ($entities.length !== 0) {
+                    return execute(fetchQuery, "RetrieveMultiple", async).then(function(resultXml) {
+                        let fetchResult;
+                        const fetchResults = [];
+                        let $entities = $(resultXml).find("a\\:Entities");
+
+                        if ($entities.length) {
                             fetchResult = $entities[0];
                         } else {
                             $entities = $(resultXml).find("Entities");
                             fetchResult = $entities[0]; // chrome could not load node
                         }
 
-                        for (var i = 0, l = fetchResult.childNodes.length; i < l; i++) {
-                            var entity = new self.Entity();
-                            entity.deserialize(fetchResult.childNodes[i]);
-                            fetchResults[counter++] = entity;
+                        for (let i = 0, l = fetchResult.childNodes.length; i < l; i++) {
+                            fetchResults[fetchResults.length] = self.Entity.deserialize(fetchResult.childNodes[i]);
                         }
 
                         return fetchResults;
-                    };
-
-                    orgService.prototype.FetchAsync = function(fetchXml, callback, errorCallback) {
-                        /// <summary>Execute fetch Xml query</summary>
-                        // ToDo: implement fetchXmlBuilder
-                        var fetchQuery = [
-                                "<query i:type='a:FetchExpression' xmlns:a='" + contractsXrmNs + "'>",
-                                  "<a:Query>",
-                                    crmXmlEncode(fetchXml),
-                                  "</a:Query>",
-                                "</query>"
-                            ].join("");
-
-                        execute(fetchQuery, "RetrieveMultiple", true, false, function(resultXml) {
-                            var fetchResult,
-                                fetchResults = [],
-                                counter = 0,
-                                $entities = $(resultXml).find("a\\:Entities");
-
-                            if ($entities.length) {
-                                fetchResult = $entities[0];
-                            } else {
-                                $entities = $(resultXml).find("Entities");
-                                fetchResult = $entities[0]; // chrome couldn't load node
-                            }
-
-                            for (var i = 0, l = fetchResult.childNodes.length; i < l; i++) {
-                                var entity = new self.Entity();
-                                entity.deserialize(fetchResult.childNodes[i]);
-                                fetchResults[counter++] = entity;
-                            }
-
-                            callback && callback(fetchResults);
-                        }, errorCallback);
-                    };
+                    });
                 };
 
-            /* jshint newcap: false */
-            return new orgService();
-        })(splittedUrl[0] + "//" + splittedUrl[1]);
-    };
-
-    this.GetCrmProvider = function() {
-        return (function() {
-            var crmProvider = function() {
-                var orgService = self.GetOrganizationService(),
-                    entityMetadataType = "EntityMetadata";
-
-                crmProvider.prototype.ExecuteWorkflow = function(entityId, workflowId) {
-                    /// <summary>Execute ExecuteWorkflowRequest like in Microsoft.Xrm.Sdk</summary>
-                    /// <param name="entityId" type="Guid">Current entity Id</param>
-                    /// <param name="workflowId" type="Guid">Executing workflow Id</param>
-                    /// <returns type="Guid">Async operation Id</returns>
-                    var request = new self.ExecuteWorkflowRequest(entityId, workflowId),
-                        result;
-
-                    try {
-                        result = orgService.Execute(request);
-                    } catch (ex) {
-                        notify("Ошибка:\n" + ex);
-                        return null;
-                    }
-
-                    var $xml = $(typeof result.xml === "undefined" ? result : result.xml),
-                        id = $xml.find("c\\:value").text() || $xml.find("value").text();
-
-                    return id ? new self.Guid(id) : null;
-                };
-
-                crmProvider.prototype.GetSystemUserTeams = function(userId, teamColumnSet) {
-                    /// <summary>Get user teams</summary>
-                    /// <param name="userId" type="Guid">Current user Identifier</param>
-                    userId = new self.Guid(userId);
-                    var query = new self.QueryExpression("team", [], teamColumnSet || new self.ColumnSet("name")),
-                        linkEntity = new self.LinkEntity("team", "teammembership", "teamid", "teamid", self.JoinOperator.Inner),
-                        filterExpression = new self.FilterExpression();
-
-                    filterExpression.AddCondition(new self.ConditionExpression("systemuserid", self.ConditionOperator.Equal, [userId]));
-                    linkEntity.SetLinkCriteria(filterExpression);
-                    query.AddLink(linkEntity);
-
-                    return orgService.RetrieveMultiple(query);
-                };
-
-                crmProvider.prototype.GetSystemUserTeamsAsync = function(userId, teamColumnSet, callback) {
-                    /// <summary>Get user teams</summary>
-                    /// <param name="userId" type="Guid">Current user Identifier</param>
-                    userId = new self.Guid(userId);
-                    var query = new self.QueryExpression("team", [], teamColumnSet || new self.ColumnSet("name")),
-                        linkEntity = new self.LinkEntity("team", "teammembership", "teamid", "teamid", self.JoinOperator.Inner),
-                        filterExpression = new self.FilterExpression();
-
-                    filterExpression.AddCondition(new self.ConditionExpression("systemuserid", self.ConditionOperator.Equal, [userId]));
-                    linkEntity.SetLinkCriteria(filterExpression);
-                    query.AddLink(linkEntity);
-
-                    orgService.RetrieveMultipleAsync(query, callback);
-                };
-
-                crmProvider.prototype.GetSystemUserBusinessUnit = function(userId) {
-                    /// <summary>Get user businessunit</summary>
-                    /// <param name="userId" type="Guid">Current user Identifier</param>
-                    userId = new self.Guid(userId);
-                    var user = orgService.Retrieve("systemuser", userId.value, ["businessunitid"]);
-
-                    return user.attributes.businessunitid;
-                };
-
-                crmProvider.prototype.RetrieveSharedPrincipalsAndAccess = function(entityName, entityId) {
-                    /// <summary>Execute RetrieveSharedPrincipalsAndAccessRequest like in Microsoft.Xrm.Sdk</summary>
-                    /// <param name="entityName" type="String">EntityLogicalName</param>
-                    /// <param name="entityId" type="Guid">Entity Id for check access</param>
-                    entityId = new self.Guid(entityId);
-                    var request = new self.RetrieveSharedPrincipalsAndAccessRequest(entityName, entityId),
-                        result,
-                        counter = 0,
-                        sharedAccessRights = [];
-
-                    try {
-                        result = orgService.Execute(request);
-                    } catch (ex) {
-                        notify("Ошибка:\n" + (ex && ex.description ? ex.description : ex));
-                        return null;
-                    }
-
-                    result = $(typeof result.xml === "undefined" ? result : result.xml).find("PrincipalAccess");
-                    for (var i = 0, l = result.length; i < l; i++) {
-                        var parsedResult = result[i].childNodes,
-                            rights = $(parsedResult[0]).text().split(" "),
-                            guid = $(parsedResult[1].childNodes[0]).text(),
-                            principalName = $(parsedResult[1].childNodes[1]).text();
-
-                        sharedAccessRights[counter++] = { Rights: rights, Id: guid, Principal: principalName };
-                    }
-
-                    return sharedAccessRights.length ? sharedAccessRights : null;
-                };
-
-                crmProvider.prototype.SetState = function(entityName, entityId, state, status) {
-                    /// <summary>Execute SetStateRequest like in Microsoft.Xrm.Sdk</summary>
-                    var request = new self.SetStateRequest(entityName, entityId, state, status),
-                        result = orgService.Execute(request),
-                        response = $(result).find("ExecuteResult").eq(0);
-
-                    return crmXmlDecode(response.text());
-                };
-
-                crmProvider.prototype.RetrieveEntityMetadata = function(logicalName, entityFilters, retrieveAsIfPublished) {
-                    entityFilters = $.isArray(entityFilters) ? entityFilters : [entityFilters];
-                    entityFilters = entityFilters.join(" ");
-                    var request = new self.RetrieveEntityRequest(logicalName, entityFilters, retrieveAsIfPublished),
-                        $resultXml = $(orgService.Execute(request)),
-                        results = [],
-                        counter = 0,
-                        $value = $resultXml.find("b\\:value"),
-                        response = $value.length ? $value : $resultXml.find("value");
-
-                    for (var i = 0, l = response.length; i < l; i++) {
-                        var a = objectifyNode(response[i]);
-                        a._type = entityMetadataType;
-                        results[counter++] = a;
-                    }
-
-                    return results;
-                };
-
-                crmProvider.prototype.RetrieveAttributeMetadata = function(entityLogicalName, attributeLogicalName, retrieveAsIfPublished) {
-                    var request = new self.RetrieveAttributeRequest(entityLogicalName, attributeLogicalName, retrieveAsIfPublished),
-                        $resultXml = $(orgService.Execute(request)),
-                        results = [],
-                        counter = 0,
-                        $value = $resultXml.find("b\\:value"),
-                        response = $value.length ? $value : $resultXml.find("value");
-
-                    for (var i = 0, l = response.length; i < l; i++) {
-                        results[counter++] = objectifyNode(response[i]);
-                    }
-
-                    return results;
-                };
-
-                crmProvider.prototype.RetrieveAllEntitiesMetadata = function(entityFilters, retrieveIfPublished) {
-                    entityFilters = $.isArray(entityFilters) ? entityFilters : [entityFilters];
-                    entityFilters = entityFilters.join(" ");
-                    var request = new self.RetrieveAllEntitiesRequest(entityFilters, retrieveIfPublished),
-                        $resultXml = $(orgService.Execute(request)),
-                        results = [],
-                        counter = 0,
-                        $metadata = $resultXml.find("c\\:" + entityMetadataType),
-                        response = $metadata.length ? $metadata : $resultXml.find(entityMetadataType);
-
-                    for (var i = 0, l = response.length; i < l; i++) {
-                        var a = objectifyNode(response[i]);
-                        a._type = entityMetadataType;
-                        results[counter] = a;
-                    }
-
-                    return results;
+                orgService.prototype.fetchAsync = function(fetchXml) {
+                    /// <summary>Execute fetch Xml query</summary>
+                    /// <param name="fetchXml" type="String">Fetch xml expression</param>
+                    return this.fetch(fetchXml, true);
                 };
             };
 
-            /* jshint newcap: false */
-            return new crmProvider();
-        })();
-    };
+        return orgService;
+    })();
+
+    this.CrmProvider = (function() {
+        var crmProvider = function() {
+            var orgService = new self.OrganizationService(),
+                entityMetadataType = "EntityMetadata";
+
+            crmProvider.prototype.executeWorkflow = function(entityId, workflowId, async) {
+                /// <summary>Execute ExecuteWorkflowRequest like in Microsoft.Xrm.Sdk</summary>
+                /// <param name="entityId" type="Guid">Current entity Id</param>
+                /// <param name="workflowId" type="Guid">Executing workflow Id</param>
+                /// <returns type="Guid">Async operation Id</returns>
+                const request = new self.ExecuteWorkflowRequest(entityId, workflowId);
+
+                return orgService.execute(request, async).then(function(result) {
+                    const $xml = $(typeof result.xml === "undefined" ? result : result.xml);
+                    const id = $xml.find("c\\:value").text() || $xml.find("value").text();
+
+                    return id ? new self.Guid(id) : null;
+                }).catch(function(err) {
+                    notify(err);
+                });
+            };
+
+            crmProvider.prototype.executeWorkflowAsync = function(entityId, workflowId) {
+                /// <summary>Execute ExecuteWorkflowRequest like in Microsoft.Xrm.Sdk</summary>
+                /// <param name="entityId" type="Guid">Current entity Id</param>
+                /// <param name="workflowId" type="Guid">Executing workflow Id</param>
+                /// <returns type="Guid">Async operation Id</returns>
+                return this.executeWorkflow(entityId, workflowId, true);
+            };
+
+            crmProvider.prototype.getSystemUserTeams = function(userId, teamColumnSet, async) {
+                /// <summary>Get user teams</summary>
+                /// <param name="userId" type="Guid">Current user Identifier</param>
+                const query = new self.QueryExpression("team", [], teamColumnSet || new self.ColumnSet("name"));
+                const linkEntity = new self.LinkEntity("team", "teammembership", "teamid", "teamid", self.JoinOperator.Inner);
+                const filterExpression = new self.FilterExpression();
+
+                filterExpression.AddCondition(new self.ConditionExpression("systemuserid", self.ConditionOperator.Equal, [new self.Guid(userId)]));
+                linkEntity.SetLinkCriteria(filterExpression);
+                query.AddLink(linkEntity);
+
+                return orgService.retrieveMultiple(query, async);
+            };
+
+            crmProvider.prototype.getSystemUserTeamsAsync = function(userId, teamColumnSet) {
+                /// <summary>Get user teams</summary>
+                /// <param name="userId" type="Guid">Current user Identifier</param>
+                return this.getSystemUserTeams(userId, teamColumnSet, true);
+            };
+
+            crmProvider.prototype.getSystemUserBusinessUnit = function(userId, async) {
+                /// <summary>Get user businessunit</summary>
+                /// <param name="userId" type="Guid">Current user Identifier</param>
+                return orgService.retrieve("systemuser", new self.Guid(userId).value, ["businessunitid"], async).then(function(user) {
+                    return user.getAttributeValue("businessunitid");
+                });
+            };
+
+            crmProvider.prototype.getSystemUserBusinessUnitAsync = function(userId) {
+                /// <summary>Get user businessunit</summary>
+                /// <param name="userId" type="Guid">Current user Identifier</param>
+                return this.getSystemUserBusinessUnit(userId, true);
+            };
+
+            crmProvider.prototype.retrieveSharedPrincipalsAndAccess = function(entityName, entityId, async) {
+                /// <summary>Execute RetrieveSharedPrincipalsAndAccessRequest like in Microsoft.Xrm.Sdk</summary>
+                /// <param name="entityName" type="String">EntityLogicalName</param>
+                /// <param name="entityId" type="Guid">Entity Id for check access</param>
+                const request = new self.RetrieveSharedPrincipalsAndAccessRequest(entityName, new self.Guid(entityId));
+
+                return orgService.execute(request, async).then(function(result) {
+                    const sharedAccessRights = [];
+                    const principalAccess = $(typeof result.xml === "undefined" ? result : result.xml).find("PrincipalAccess");
+                    for (let i = 0, l = principalAccess.length; i < l; i++) {
+                        const parsedResult = principalAccess[i].childNodes;
+                        sharedAccessRights[sharedAccessRights.length] = {
+                            Rights: $(parsedResult[0]).text().split(" "),
+                            Id: $(parsedResult[1].childNodes[0]).text(),
+                            Principal: $(parsedResult[1].childNodes[1]).text()
+                        };
+                    }
+
+                    return sharedAccessRights.length ? sharedAccessRights : null;
+                }).catch(function(err) {
+                    notify(`Ошибка:\n${err && err.description ? err.description : err}`);
+                });
+            };
+
+            crmProvider.prototype.retrieveSharedPrincipalsAndAccessAsync = function(entityName, entityId) {
+                /// <summary>Execute RetrieveSharedPrincipalsAndAccessRequest like in Microsoft.Xrm.Sdk</summary>
+                /// <param name="entityName" type="String">EntityLogicalName</param>
+                /// <param name="entityId" type="Guid">Entity Id for check access</param>
+                return this.retrieveSharedPrincipalsAndAccess(entityName, entityId, true);
+            };
+
+            crmProvider.prototype.setState = function(entityName, entityId, state, status, async) {
+                /// <summary>Execute SetStateRequest like in Microsoft.Xrm.Sdk</summary>
+                const request = new self.SetStateRequest(entityName, entityId, state, status);
+
+                return orgService.execute(request, async).then(function(result) {
+                    const $response = $(result).find("ExecuteResult").eq(0);
+                    return crmXmlDecode($response.text());
+                });
+            };
+
+            crmProvider.prototype.setStateAsync = function(entityName, entityId, state, status) {
+                /// <summary>Execute SetStateRequest like in Microsoft.Xrm.Sdk</summary>
+                return this.setState(entityName, entityId, state, status, true);
+            };
+
+            crmProvider.prototype.retrieveEntityMetadata = function(logicalName, entityFilters, retrieveAsIfPublished, async) {
+                entityFilters = $.isArray(entityFilters) ? entityFilters : [entityFilters];
+                entityFilters = entityFilters.join(" ");
+                const request = new self.RetrieveEntityRequest(logicalName, entityFilters, retrieveAsIfPublished);
+
+                return orgService.execute(request, async).then(function(result) {
+                    const $resultXml = $(result);
+                    const results = [];
+                    const $value = $resultXml.find("b\\:value");
+                    const response = $value.length ? $value : $resultXml.find("value");
+
+                    for (let i = 0, l = response.length; i < l; i++) {
+                        const a = objectifyNode(response[i]);
+                        a._type = entityMetadataType;
+                        results[results.length] = a;
+                    }
+
+                    return results;
+                });
+            };
+
+            crmProvider.prototype.retrieveEntityMetadataAsync = function(logicalName, entityFilters, retrieveAsIfPublished) {
+                return this.retrieveEntityMetadata(logicalName, entityFilters, retrieveAsIfPublished, true);
+            };
+
+            crmProvider.prototype.retrieveAttributeMetadata = function(entityLogicalName, attributeLogicalName, retrieveAsIfPublished, async) {
+                const request = new self.RetrieveAttributeRequest(entityLogicalName, attributeLogicalName, retrieveAsIfPublished);
+
+                return orgService.execute(request, async).then(function(result) {
+                    const $resultXml = $(result);
+                    const results = [];
+                    const $value = $resultXml.find("b\\:value");
+                    const response = $value.length ? $value : $resultXml.find("value");
+
+                    for (let i = 0, l = response.length; i < l; i++) {
+                        results[results.length] = objectifyNode(response[i]);
+                    }
+
+                    return results;
+                });
+            };
+
+            crmProvider.prototype.retrieveAttributeMetadataAsync = function(entityLogicalName, attributeLogicalName, retrieveAsIfPublished) {
+                return this.retrieveAttributeMetadata(entityLogicalName, attributeLogicalName, retrieveAsIfPublished, true);
+            };
+
+            crmProvider.prototype.retrieveAllEntitiesMetadata = function(entityFilters, retrieveIfPublished, async) {
+                entityFilters = $.isArray(entityFilters) ? entityFilters : [entityFilters];
+                entityFilters = entityFilters.join(" ");
+                const request = new self.RetrieveAllEntitiesRequest(entityFilters, retrieveIfPublished);
+
+                return orgService.execute(request, async).then(function(result) {
+                    const $resultXml = $(result);
+                    const results = [];
+                    const $metadata = $resultXml.find("c\\:" + entityMetadataType);
+                    const response = $metadata.length ? $metadata : $resultXml.find(entityMetadataType);
+
+                    for (let i = 0, l = response.length; i < l; i++) {
+                        const a = objectifyNode(response[i]);
+                        a._type = entityMetadataType;
+                        results[results.length] = a;
+                    }
+
+                    return results;
+                });
+            };
+
+            crmProvider.prototype.retrieveAllEntitiesMetadataAsync = function(entityFilters, retrieveIfPublished) {
+                return this.retrieveAllEntitiesMetadata(entityFilters, retrieveIfPublished, true);
+            };
+        };
+
+        return crmProvider;
+    })();
 }).call(Xrm.Soap, this);

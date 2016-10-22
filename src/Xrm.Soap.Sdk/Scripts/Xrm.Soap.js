@@ -1,12 +1,16 @@
-;define(["underscore"], function(_) {
+Type.registerNamespace("Xrm.Soap");
+
+(function(global) {
     "use strict";
 
     /* jshint -W030 */
+
     var self = this,
-        undefConst = "undefined",
-        unknownConst = "unknown",
-        trueString = "true",
-        falseString = "false",
+        undefTypeConst = "undefined",
+        unknownTypeConst = "unknown",
+        emptyString = "",
+        trueString = true + emptyString,
+        falseString = false + emptyString,
 
         notify = function(msg) {
             Xrm && Xrm.Utility && Xrm.Utility.alertDialog ? Xrm.Utility.alertDialog(msg) : alert(msg);
@@ -17,8 +21,8 @@
                 return s;
             }
 
-            var buffer = "",
-                encoded = "";
+            var buffer = emptyString,
+                encoded = emptyString;
 
             for (var count = 0, cnt = 0, l = s.length; cnt < l; cnt++) {
                 var c = s.charCodeAt(cnt);
@@ -30,7 +34,7 @@
 
                 if (++count === 500) {
                     encoded += buffer;
-                    buffer = "";
+                    buffer = emptyString;
                     count = 0;
                 }
             }
@@ -44,10 +48,10 @@
 
         removeBraces = function(value) {
             if (!!!value) {
-                return "";
+                return emptyString;
             }
 
-            return value.replace("{", "").replace("}", "").toLowerCase();
+            return value.replace("{", emptyString).replace("}", emptyString).toLowerCase();
         },
 
         stringToDate = function(s) {
@@ -56,7 +60,7 @@
         },
 
         innerSurrogateAmpersandWorkaround = function(s) {
-            var buffer = "",
+            var buffer = emptyString,
                 c0,
                 cnt,
                 l;
@@ -81,7 +85,7 @@
             }
 
             s = buffer;
-            buffer = "";
+            buffer = emptyString;
             for (cnt = 0, l = s.length; cnt < l; cnt++) {
                 c0 = s.charCodeAt(cnt);
                 if (c0 >= 55296 && c0 <= 57343) {
@@ -91,22 +95,21 @@
                 }
             }
 
-            return htmlEncode(buffer).replace(/CRMEntityReferenceOpen/g, "&#x")
-                                     .replace(/CRMEntityReferenceClose/g, ";");
+            return htmlEncode(buffer).replace(/CRMEntityReferenceOpen/g, "&#x").replace(/CRMEntityReferenceClose/g, ";");
         },
 
         xmlToString = function(response) {
-            var xmlString = "";
+            var xmlString = emptyString;
 
             try {
                 if (response) {
-                    if (typeof XMLSerializer !== undefConst &&
-                        typeof response.xml === undefConst) {
+                    if (typeof XMLSerializer !== undefTypeConst &&
+                        typeof response.xml === undefTypeConst) {
                         xmlString = (new XMLSerializer()).serializeToString(response[0]);
                     } else {
-                        if (typeof response.xml !== undefConst) {
+                        if (typeof response.xml !== undefTypeConst) {
                             xmlString = response.xml;
-                        } else if (typeof response[0].xml !== undefConst) {
+                        } else if (typeof response[0].xml !== undefTypeConst) {
                             xmlString = response[0].xml;
                         }
                     }
@@ -123,7 +126,7 @@
                     notify("Cannot convert the XML string to a cross-browser XML object.");
                 };
 
-            if (window.DOMParser) {
+            if (global.DOMParser) {
                 parseXml = function(data) {
                     // code for Mozilla, Firefox, Opera, and other normal browsers
                     try {
@@ -137,7 +140,7 @@
                 parseXml = function(data) {
                     // IE
                     try {
-                        var xmlDoc = new window.ActiveXObject("Microsoft.XMLDOM");
+                        var xmlDoc = new global.ActiveXObject("Microsoft.XMLDOM");
                         xmlDoc.async = false;
                         xmlDoc.loadXML(data);
                         return xmlDoc;
@@ -156,7 +159,7 @@
 
         crmXmlEncode = function(s) {
             var stype = typeof s;
-            if (undefConst === stype || unknownConst === stype) {
+            if (undefTypeConst === stype || unknownTypeConst === stype) {
                 return s;
             } else if (stype !== "string") {
                 s = s.toString();
@@ -166,7 +169,7 @@
         },
 
         encodeValue = function(value) {
-            if (value === null || value === undefConst) {
+            if (value === null || value === undefTypeConst) {
                 return null;
             }
 
@@ -174,7 +177,7 @@
                 return value.value;
             }
 
-            if (value && typeof value === typeof "" && value.slice(0, 1) === "{" && value.slice(-1) === "}") {
+            if (value && typeof value === typeof emptyString && value.slice(0, 1) === "{" && value.slice(-1) === "}") {
                 value = value.slice(1, -1);
             }
 
@@ -213,7 +216,75 @@
         })(),
 
         getNodeName = function(node) {
-            return typeof node.baseName !== undefConst ? node.baseName : node.localName;
+            return typeof node.baseName !== undefTypeConst ? node.baseName : node.localName;
+        },
+
+        parseIntFunc = function(v) {
+            return parseInt(v, 10);
+        },
+
+        parseBoolFunc = function(v) {
+            return v === trueString ? true : false;
+        },
+
+        nodeNames = {
+            ActivityTypeMask: parseIntFunc,
+            ObjectTypeCode: parseIntFunc,
+            ColumnNumber: parseIntFunc,
+            DefaultFormValue: parseIntFunc,
+            MaxValue: parseIntFunc,
+            MinValue: parseIntFunc,
+            MaxLength: parseIntFunc,
+            Order: parseIntFunc,
+            Precision: parseIntFunc,
+            PrecisionSource: parseIntFunc,
+            LanguageCode: parseIntFunc,
+            AutoRouteToOwnerQueue: parseBoolFunc,
+            CanBeChanged: parseBoolFunc,
+            CanTriggerWorkflow: parseBoolFunc,
+            IsActivity: parseBoolFunc,
+            IsActivityParty: parseBoolFunc,
+            IsAvailableOffline: parseBoolFunc,
+            IsChildEntity: parseBoolFunc,
+            IsCustomEntity: parseBoolFunc,
+            IsCustomOptionSet: parseBoolFunc,
+            IsDocumentManagementEnabled: parseBoolFunc,
+            IsEnabledForCharts: parseBoolFunc,
+            IsGlobal: parseBoolFunc,
+            IsImportable: parseBoolFunc,
+            IsIntersect: parseBoolFunc,
+            IsManaged: parseBoolFunc,
+            IsReadingPaneEnabled: parseBoolFunc,
+            IsValidForAdvancedFind: parseBoolFunc,
+            CanBeSecuredForCreate: parseBoolFunc,
+            CanBeSecuredForRead: parseBoolFunc,
+            CanBeSecuredForUpdate: parseBoolFunc,
+            IsCustomAttribute: parseBoolFunc,
+            IsPrimaryId: parseBoolFunc,
+            IsPrimaryName: parseBoolFunc,
+            IsSecured: parseBoolFunc,
+            IsValidForCreate: parseBoolFunc,
+            IsValidForRead: parseBoolFunc,
+            IsValidForUpdate: parseBoolFunc,
+            IsCustomRelationship: parseBoolFunc,
+            CanBeBasic: parseBoolFunc,
+            CanBeDeep: parseBoolFunc,
+            CanBeGlobal: parseBoolFunc,
+            CanBeLocal: parseBoolFunc,
+            Value: function(v) {
+                if (v === trueString || v === falseString) {
+                    return nodeValue === trueString ? true : false;
+                }
+
+                if (v === "ApplicationRequired" ||
+                    v === "None" ||
+                    v === "Recommended" ||
+                    v === "SystemRequired") {
+                    return v;
+                } else {
+                    return parseIntFunc(v);
+                }
+            }
         },
 
         objectifyNode = function(node) {
@@ -226,78 +297,10 @@
 
             if (node.firstChild && node.firstChild.nodeType === 3) {
                 var nodeName = getNodeName(node),
-                    nodeValue = node.firstChild.nodeValue,
-
-                    parseIntFunc = function() {
-                        return parseInt(nodeValue, 10);
-                    },
-
-                    parseBoolFunc = function() {
-                        return nodeValue === trueString ? true : false;
-                    },
-
-                    nodeNames = {
-                        ActivityTypeMask: parseIntFunc,
-                        ObjectTypeCode: parseIntFunc,
-                        ColumnNumber: parseIntFunc,
-                        DefaultFormValue: parseIntFunc,
-                        MaxValue: parseIntFunc,
-                        MinValue: parseIntFunc,
-                        MaxLength: parseIntFunc,
-                        Order: parseIntFunc,
-                        Precision: parseIntFunc,
-                        PrecisionSource: parseIntFunc,
-                        LanguageCode: parseIntFunc,
-                        AutoRouteToOwnerQueue: parseBoolFunc,
-                        CanBeChanged: parseBoolFunc,
-                        CanTriggerWorkflow: parseBoolFunc,
-                        IsActivity: parseBoolFunc,
-                        IsActivityParty: parseBoolFunc,
-                        IsAvailableOffline: parseBoolFunc,
-                        IsChildEntity: parseBoolFunc,
-                        IsCustomEntity: parseBoolFunc,
-                        IsCustomOptionSet: parseBoolFunc,
-                        IsDocumentManagementEnabled: parseBoolFunc,
-                        IsEnabledForCharts: parseBoolFunc,
-                        IsGlobal: parseBoolFunc,
-                        IsImportable: parseBoolFunc,
-                        IsIntersect: parseBoolFunc,
-                        IsManaged: parseBoolFunc,
-                        IsReadingPaneEnabled: parseBoolFunc,
-                        IsValidForAdvancedFind: parseBoolFunc,
-                        CanBeSecuredForCreate: parseBoolFunc,
-                        CanBeSecuredForRead: parseBoolFunc,
-                        CanBeSecuredForUpdate: parseBoolFunc,
-                        IsCustomAttribute: parseBoolFunc,
-                        IsPrimaryId: parseBoolFunc,
-                        IsPrimaryName: parseBoolFunc,
-                        IsSecured: parseBoolFunc,
-                        IsValidForCreate: parseBoolFunc,
-                        IsValidForRead: parseBoolFunc,
-                        IsValidForUpdate: parseBoolFunc,
-                        IsCustomRelationship: parseBoolFunc,
-                        CanBeBasic: parseBoolFunc,
-                        CanBeDeep: parseBoolFunc,
-                        CanBeGlobal: parseBoolFunc,
-                        CanBeLocal: parseBoolFunc,
-                        Value: function() {
-                            if (nodeValue === trueString || nodeValue === falseString) {
-                                return nodeValue === trueString ? true : false;
-                            }
-
-                            if (nodeValue === "ApplicationRequired" ||
-                                nodeValue === "None" ||
-                                nodeValue === "Recommended" ||
-                                nodeValue === "SystemRequired") {
-                                return nodeValue;
-                            } else {
-                                return parseInt(nodeValue, 10);
-                            }
-                        }
-                    };
+                    nodeValue = node.firstChild.nodeValue;
 
                 if (nodeNames.hasOwnProperty(nodeName)) {
-                    return nodeNames[nodeName]();
+                    return nodeNames[nodeName](nodeValue);
                 } else {
                     return nodeValue;
                 }
@@ -348,9 +351,9 @@
             return c;
         },
 
-        publishersPrefixes = [""],
-        context = typeof window.GetGlobalContext === "function" ? window.GetGlobalContext() : window.Xrm.Page.context,
-        loc = window.location,
+        publishersPrefixes = ["new_"],
+        context = typeof global.GetGlobalContext === "function" ? global.GetGlobalContext() : global.Xrm.Page.context,
+        loc = global.location,
         clientUrl = context.getClientUrl(),
         splittedUrl = clientUrl.replace(/^(http|https):\/\/([_a-zA-Z0-9\-\.]+)(:([0-9]{1,5}))?/, loc.protocol + "//" + loc.host).split(/\/+/g),
         xrmServiceUrl = "/XRMServices/2011/Organization.svc/web",
@@ -646,7 +649,7 @@
                      "<%= filterOperator %>",
                  "</a:FilterOperator>",
              "</a:LinkCriteria>"
-            ].join("")),
+            ].join(emptyString)),
 
             filterExpression = function(logicalOperator) {
                 this.conditions = [];
@@ -722,7 +725,7 @@
                      "<%= linkToEntityName %>",
                    "</a:LinkToEntityName>",
                  "</a:LinkEntity>"
-            ].join("")),
+            ].join(emptyString)),
 
             linkEntity = function(linkFromEntityName, linkToEntityName, linkFromAttributeName, linkToAttributeName, joinOperator) {
                 /// <summary>LinkEntity like in Microsoft.Xrm.Sdk</summary>
@@ -747,7 +750,7 @@
             return template({
                 columns: (this.columns ? this.columns : new self.ColumnSet(false)).serialize(true),
                 joinOperator: this.joinOperator,
-                linkCriteria: this.linkCriteria ? this.linkCriteria.serialize() : "",
+                linkCriteria: this.linkCriteria ? this.linkCriteria.serialize() : emptyString,
                 linkFromAttributeName: this.linkFromAttributeName,
                 linkFromEntityName: this.linkFromEntityName,
                 linkToAttributeName: this.linkToAttributeName,
@@ -766,7 +769,7 @@
                   "<a:PagingCookie i:nil='true'/>",
                   "<a:ReturnTotalRecordCount><%= returnTotalRecordCount %></a:ReturnTotalRecordCount>",
                 "</a:PageInfo>"
-            ].join("")),
+            ].join(emptyString)),
 
             pageInfo = function(count, pageNumber, returnTotalRecordCount) {
                 this.count = count || 0;
@@ -858,7 +861,7 @@
         queryByAttribute.prototype.serialize = function() {
             /// <summary>Gets soap xml for query</summary>
             // ToDo: improve result creation
-            var result = "";
+            var result = emptyString;
             if (this.attributes.length) {
                 result += attributesTemplate({
                     attributes: _.map(this.attributes, function(attr) {
@@ -1067,7 +1070,7 @@
                     }
                 }
 
-                return "";
+                return emptyString;
             },
 
             LogicalName: function() {
@@ -1081,7 +1084,6 @@
             Id: function(id) {
                 if (id) {
                     this.id = id.type === "guid" ? id : new self.Guid(id);
-                    // this.setAttribute(this.logicalName + "id", id);
                 }
 
                 return this.id;
@@ -1103,7 +1105,7 @@
             },
 
             clone: function() {
-                var clone = new entity(this.logicalName),
+                var clone = new self.Entity(this.logicalName),
                     attributes = this.attributes;
 
                 for (var name in attributes) {
@@ -1232,7 +1234,7 @@
                 xml[counter++] = "<a:RelatedEntities xmlns:b='" + genericNs + "'/>";
                 xml[counter++] = "</entity>";
 
-                return xml.join("");
+                return xml.join(emptyString);
             },
 
             deserialize: function(resultNode) {
@@ -1252,12 +1254,12 @@
                             attr = resultNodes[j];
                             for (k = 0, cnl = attr.childNodes.length; k < cnl; k++) {
                                 sKey = $(attr.childNodes[k].firstChild).text();
-                                var sType = "",
+                                var sType = emptyString,
                                     attributes = attr.childNodes[k].childNodes[1].attributes;
 
                                 for (l = 0, al = attributes.length; l < al; l++) {
                                     if (attributes[l].nodeName === "i:type") {
-                                        sType = ($(attributes[l]).val() || "").replace("c:", "").replace("a:", "");
+                                        sType = ($(attributes[l]).val() || emptyString).replace("c:", emptyString).replace("a:", emptyString);
                                         break;
                                     }
                                 }
@@ -1369,13 +1371,13 @@
                     throw "value must be a number";
                 }
 
-                var nameIsExist = typeof name !== "undefined";
+                var nameIsExist = typeof name !== undefTypeConst;
                 if (nameIsExist && typeof name !== "string") {
                     throw "name must be a string";
                 }
 
                 this.value = value;
-                this.name = nameIsExist ? name : "";
+                this.name = nameIsExist ? name : emptyString;
                 this.type = "OptionSetValue";
             };
 
@@ -1471,15 +1473,9 @@
 
     this.EntityCollection = (function() {
         var entityCollection = function(value) {
-<<<<<<< HEAD
-            this.value = value;
-            this.type = "EntityCollection";
-        };
-=======
                 this.value = value;
                 this.type = "EntityCollection";
             };
->>>>>>> origin/master
 
         return entityCollection;
     })();
@@ -1491,8 +1487,8 @@
                 /// <param name="id" type="Guid">Entity Id</param>
                 /// <param name="name" type="String">Entity name</param>
                 this.id = id ? new self.Guid(id) : self.Guid.Empty();
-                this.logicalName = logicalName || "";
-                this.name = name || "";
+                this.logicalName = logicalName || emptyString;
+                this.name = name || emptyString;
                 this.type = "EntityReference";
             };
 
@@ -1583,9 +1579,9 @@
     })();
 
     this.OrganizationRequest = (function() {
-        /// <summary>Abstarct base class for all requests</summary>
+        /// <summary>Abstract base class for all requests</summary>
         var organizationRequest = function() {
-                this.RequestName = arguments[0] || "";
+                this.RequestName = arguments[0] || emptyString;
                 this.Parameters = arguments[1];
                 this.RequestId = self.Guid.Empty();
             };
@@ -1617,7 +1613,7 @@
                   "<a:RequestId i:nil='true'/>",
                   "<a:RequestName>RetrieveAllEntities</a:RequestName>",
                 "</request>"
-            ].join("")),
+            ].join(emptyString)),
             request = function(entityFilters, retrieveAsIfPublished) {
                 this.entityFilters = entityFilters;
                 this.retrieveAsIfPublished = !!retrieveAsIfPublished;
@@ -1672,7 +1668,7 @@
                   "<a:RequestId i:nil='true'/>",
                   "<a:RequestName>RetrieveEntity</a:RequestName>",
                 "</request>"
-            ].join("")),
+            ].join(emptyString)),
             request = function(logicalName, entityFilters, retrieveAsIfPublished) {
                 this.logicalName = logicalName;
                 this.entityFilters = entityFilters;
@@ -1729,7 +1725,7 @@
                   "<a:RequestId i:nil='true' />",
                   "<a:RequestName>RetrieveAttribute</a:RequestName>",
                 "</request>"
-            ].join("")),
+            ].join(emptyString)),
             request = function(entityLogicalName, attributeLogicalName, retrieveAsIfPublished) {
                 this.entityLogicalName = entityLogicalName;
                 this.attributeLogicalName = attributeLogicalName;
@@ -1790,7 +1786,7 @@
                   "<a:RequestId i:nil='true' />",
                   "<a:RequestName>SetState</a:RequestName>",
                 "</request>"
-            ].join("")),
+            ].join(emptyString)),
             request = function(entityName, entityId, state, status) {
                 this.entityName = entityName;
                 this.entityId = new self.Guid(entityId);
@@ -1837,7 +1833,7 @@
                   "<a:RequestId i:nil='true'/>",
                   "<a:RequestName>ExecuteWorkflow</a:RequestName>",
                 "</request>"
-            ].join("")),
+            ].join(emptyString)),
             request = function(entityId, workflowId) {
                 this.entityId = new self.Guid(entityId);
                 this.workflowId = new self.Guid(workflowId);
@@ -1876,7 +1872,7 @@
                   "<a:RequestId i:nil='true'/>",
                   "<a:RequestName>RetrieveSharedPrincipalsAndAccess</a:RequestName>",
                 "</request>"
-            ].join("")),
+            ].join(emptyString)),
             request = function(entityName, entityId) {
                 /// <summary>RetrieveSharedPrincipalsAndAccessRequest like in Microsoft.Xrm.Sdk</summary>
                 this.entityName = entityName;
@@ -1913,7 +1909,7 @@
                     };
 
                     var errorText,
-                        serviceUrl = serverUrl + (splittedUrl.length === 3 && splittedUrl[2] === orgName ? ("/" + orgName) : "") + xrmServiceUrl,
+                        serviceUrl = serverUrl + (splittedUrl.length === 3 && splittedUrl[2] === orgName ? ("/" + orgName) : emptyString) + xrmServiceUrl,
                         soapTemplate = compile([
                             utf8Root,
                              "<soap:Envelope xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'>",
@@ -1923,7 +1919,7 @@
                                  "</<%= soapAction %>>",
                                "</soap:Body>",
                              "</soap:Envelope>"
-                        ].join("")),
+                        ].join(emptyString)),
 
                         processResponse = function(response, suppressError, errorCallback) {
                             if (!response || (response.hasOwnProperty("xml") && !response.xml)) {
@@ -1944,9 +1940,9 @@
                                 error = $response.find("error").text(),
                                 faultString = $response.find("faultstring").text();
 
-                            if (error !== "" || faultString !== "") {
+                            if (error !== emptyString || faultString !== emptyString) {
                                 if (!!!suppressError) {
-                                    errorText = error !== "" ? $response.find("description").text() : faultString;
+                                    errorText = error !== emptyString ? $response.find("description").text() : faultString;
                                     if ($.isFunction(errorCallback)) {
                                         errorCallback(errorText);
                                         return null;
@@ -1961,7 +1957,7 @@
                             var currentType = typeof response,
                                 ieXmlType = typeof response.xml;
 
-                            if (currentType !== "object" && (ieXmlType === undefConst || ieXmlType === "unknown")) {
+                            if (currentType !== "object" && (ieXmlType === undefTypeConst || ieXmlType === unknownTypeConst)) {
                                 return parseXml(response);
                             } else if (currentType === "object") {
                                 return response;
@@ -1973,7 +1969,7 @@
                         execute = function(soapBody, soapAction, async, suppressError, callback, errorCallback) {
                             async = async || false;
                             var soapXml = soapTemplate({ soapAction: soapAction, soapBody: soapBody }),
-                                req = new window.XMLHttpRequest();
+                                req = new global.XMLHttpRequest();
 
                             req.open("POST", serviceUrl, async);
                             req.setRequestHeader("Accept", "application/xml, text/xml, */*");
@@ -2029,7 +2025,7 @@
                                "<id>",
                                  new self.Guid(id).value,
                                "</id>"
-                            ].join("");
+                            ].join(emptyString);
 
                         execute(request, "Delete");
                     };
@@ -2043,7 +2039,7 @@
                                 "<id>",
                                   new self.Guid(id).value,
                                 "</id>"
-                            ].join("");
+                            ].join(emptyString);
 
                         execute(request, "Delete", true, false, callback, errorCallback);
                     };
@@ -2175,7 +2171,7 @@
                                     crmXmlEncode(fetchXml),
                                   "</a:Query>",
                                 "</query>"
-                            ].join(""),
+                            ].join(emptyString),
                             resultXml = execute(fetchQuery, "RetrieveMultiple"),
                             fetchResult,
                             fetchResults = [],
@@ -2207,7 +2203,7 @@
                                     crmXmlEncode(fetchXml),
                                   "</a:Query>",
                                 "</query>"
-                            ].join("");
+                            ].join(emptyString);
 
                         execute(fetchQuery, "RetrieveMultiple", true, false, function(resultXml) {
                             var fetchResult,
@@ -2259,7 +2255,7 @@
                         return null;
                     }
 
-                    var $xml = $(typeof result.xml === "undefined" ? result : result.xml),
+                    var $xml = $(typeof result.xml === undefTypeConst ? result : result.xml),
                         id = $xml.find("c\\:value").text() || $xml.find("value").text();
 
                     return id ? new self.Guid(id) : null;
@@ -2321,7 +2317,7 @@
                         return null;
                     }
 
-                    result = $(typeof result.xml === "undefined" ? result : result.xml).find("PrincipalAccess");
+                    result = $(typeof result.xml === undefTypeConst ? result : result.xml).find("PrincipalAccess");
                     for (var i = 0, l = result.length; i < l; i++) {
                         var parsedResult = result[i].childNodes,
                             rights = $(parsedResult[0]).text().split(" "),
@@ -2401,4 +2397,4 @@
             return new crmProvider();
         })();
     };
-});
+}).call(Xrm.Soap, this);

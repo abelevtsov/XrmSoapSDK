@@ -21,6 +21,8 @@
   // RELAXING OPTIONS
   "debug": false,
   "esnext": true,
+  "esversion": 6,
+  "moz": true,
   "evil": false,
   "maxerr": 100,
 
@@ -52,7 +54,6 @@
     "Type": false,
     "Xrm": false,
     "Sys": false,
-    "Rosagroleasing": false,
     "XrmServiceToolkit": false,
     "Base64": false,
     "Mscrm": false,
