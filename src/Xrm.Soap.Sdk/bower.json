@@ -1,6 +1,6 @@
 {
   "name": "xrm.soap.sdk",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": "Aleksandr Belevtsov <belevtsov80@mail.ru>",
   "description": "Package to interact with Microsoft Dynamics CRM 2011/2013/2015 from entity form like CRM SDK manner.",
   "license": "MIT",
@@ -26,8 +26,8 @@
     "url": "git+https://github.com/abelevtsov/XrmSoapSDK.git"
   },
   "dependencies": {
-    "underscore": ">1.8.3",
-    "es6-promise": ">4.0.5",
+    "underscore": "^1.8.3",
+    "es6-promise": "^4.0.5",
     "jquery": "^3.1.1"
   },
   "devDependencies": {
