@@ -2,7 +2,7 @@
   "author": "Aleksandr Belevtsov <belevtsov80@mail.ru>",
   "name": "xrm.soap.sdk",
   "description": "Xrm.Soap.Sdk",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "preferGlobal": true,
   "analyze": false,
   "engines": {
