@@ -1,10 +1,19 @@
 {
   "author": "Aleksandr Belevtsov <belevtsov80@mail.ru>",
   "name": "xrm.soap.sdk",
-  "description": "Xrm.Soap.Sdk",
+  "description": "Package to interact with Microsoft Dynamics CRM 2011/2013/2015 from entity form like CRM SDK manner (C# or any other .NET lang e.g. VB or F#).",
+  "homepage": "https://github.com/abelevtsov/XrmSoapSDK.git#readme",
   "version": "1.0.0",
   "preferGlobal": true,
   "analyze": false,
+  "keywords": [
+    "xrm",
+    "soap",
+    "sdk",
+    "xrm.soap.sdk",
+    "crm",
+    "crm2015"
+  ],
   "engines": {
     "node": ">= 0.10.0"
   },
