@@ -21,6 +21,10 @@
     "type": "git",
     "url": "https://github.com/abelevtsov/XrmSoapSDK.git"
   },
+  "dependencies": {
+    "underscore": "^1.8.3",
+    "jquery": "^3.1.1"
+  },
   "devDependencies": {
     "better-console": "^0.2.4",
     "grunt": "~0.4.5",
