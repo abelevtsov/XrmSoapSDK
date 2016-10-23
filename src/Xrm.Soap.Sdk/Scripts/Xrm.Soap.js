@@ -1,4 +1,4 @@
-Type.registerNamespace("Xrm.Soap");
+Type.registerNamespace("Xrm.Soap.Sdk");
 
 (function(global) {
     "use strict";
@@ -395,17 +395,14 @@ Type.registerNamespace("Xrm.Soap");
             return child;
         };
 
-    (function() {
-        if (loc.host.indexOf("localhost") !== -1) {
-            splittedUrl[1] = loc.host;
-        }
+    if (loc.host.indexOf("localhost") !== -1) {
+        splittedUrl[1] = loc.host;
+    }
 
-        // ToDo: move all templates to external resource
-        attributeTemplate = compile("<b:string><%= value %></b:string>");
-        noLockTemplate = compile("<a:NoLock><%= noLock %></a:NoLock>");
-        distinctTemplate = compile("<a:Distinct><%= distinct %></a:Distinct>");
-        entityNameTemplate = compile("<a:EntityName><%= name %></a:EntityName>");
-    })();
+    attributeTemplate = compile("<b:string><%= value %></b:string>");
+    noLockTemplate = compile("<a:NoLock><%= noLock %></a:NoLock>");
+    distinctTemplate = compile("<a:Distinct><%= distinct %></a:Distinct>");
+    entityNameTemplate = compile("<a:EntityName><%= name %></a:EntityName>");
 
     this.init = function(prefixes) {
         publishersPrefixes = _.union(publishersPrefixes, prefixes);
@@ -2397,4 +2394,4 @@ Type.registerNamespace("Xrm.Soap");
             return new crmProvider();
         })();
     };
-}).call(Xrm.Soap, this);
+}).call(Xrm.Soap.Sdk, this);

@@ -6,6 +6,7 @@
   "version": "1.0.0",
   "preferGlobal": true,
   "analyze": false,
+  "main": "Scripts/es6/Xrm.Soap.js",
   "keywords": [
     "xrm",
     "soap",

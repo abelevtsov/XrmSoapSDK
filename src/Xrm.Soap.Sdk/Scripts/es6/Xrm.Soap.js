@@ -1,4 +1,4 @@
-Type.registerNamespace("Xrm.Soap");
+Type.registerNamespace("Xrm.Soap.Sdk");
 
 (function(global) {
     "use strict";
@@ -94,8 +94,7 @@ Type.registerNamespace("Xrm.Soap");
                 }
             }
 
-            return htmlEncode(buffer).replace(/CRMEntityReferenceOpen/g, "&#x")
-                                     .replace(/CRMEntityReferenceClose/g, ";");
+            return htmlEncode(buffer).replace(/CRMEntityReferenceOpen/g, "&#x").replace(/CRMEntityReferenceClose/g, ";");
         },
 
         xmlToString = function(response) {
@@ -368,10 +367,10 @@ Type.registerNamespace("Xrm.Soap");
         metadataNs = "http://schemas.microsoft.com/xrm/2011/Metadata",
         utf8Root = "<?xml version='1.0' encoding='utf-8'?>",
         orgName = context.getOrgUniqueName(),
-        attributeTemplate,
-        noLockTemplate,
-        distinctTemplate,
-        entityNameTemplate,
+        attributeTemplate = compile("<b:string><%= value %></b:string>"),
+        noLockTemplate = compile("<a:NoLock><%= noLock %></a:NoLock>"),
+        distinctTemplate = compile("<a:Distinct><%= distinct %></a:Distinct>"),
+        entityNameTemplate = compile("<a:EntityName><%= name %></a:EntityName>"),
         hasOwnProp = Object.prototype.hasOwnProperty,
         compile = _.template,
 
@@ -395,16 +394,9 @@ Type.registerNamespace("Xrm.Soap");
             return child;
         };
 
-    (function() {
-        if (loc.host.indexOf("localhost") !== -1) {
-            splittedUrl[1] = loc.host;
-        }
-
-        attributeTemplate = compile("<b:string><%= value %></b:string>");
-        noLockTemplate = compile("<a:NoLock><%= noLock %></a:NoLock>");
-        distinctTemplate = compile("<a:Distinct><%= distinct %></a:Distinct>");
-        entityNameTemplate = compile("<a:EntityName><%= name %></a:EntityName>");
-    })();
+    if (loc.host.indexOf("localhost") !== -1) {
+        splittedUrl[1] = loc.host;
+    }
 
     this.init = function(prefixes) {
         publishersPrefixes = _.union(publishersPrefixes, prefixes);
@@ -2326,4 +2318,4 @@ Type.registerNamespace("Xrm.Soap");
 
         return crmProvider;
     })();
-}).call(Xrm.Soap, this);
+}).call(Xrm.Soap.Sdk, this);
