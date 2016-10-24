@@ -367,12 +367,12 @@ Type.registerNamespace("Xrm.Soap.Sdk");
         metadataNs = "http://schemas.microsoft.com/xrm/2011/Metadata",
         utf8Root = "<?xml version='1.0' encoding='utf-8'?>",
         orgName = context.getOrgUniqueName(),
+        compile = _.template,
         attributeTemplate = compile("<b:string><%= value %></b:string>"),
         noLockTemplate = compile("<a:NoLock><%= noLock %></a:NoLock>"),
         distinctTemplate = compile("<a:Distinct><%= distinct %></a:Distinct>"),
         entityNameTemplate = compile("<a:EntityName><%= name %></a:EntityName>"),
         hasOwnProp = Object.prototype.hasOwnProperty,
-        compile = _.template,
 
         extend = function(child, base) {
             // ReSharper disable once MissingHasOwnPropertyInForeach
@@ -1899,421 +1899,414 @@ Type.registerNamespace("Xrm.Soap.Sdk");
 
     this.OrganizationService = (function() {
         /// <summary>Like IOrganizationService in Microsoft.Xrm.Sdk</summary>
-        var orgService = function() {
+        var url = splittedUrl[0] + "//" + splittedUrl[1],
+            serviceUrl = url + (splittedUrl.length === 3 && splittedUrl[2] === orgName ? (`/${orgName}`) : emptyString) + xrmServiceUrl,
+            soapTemplate = compile([
+                utf8Root,
+                "<soap:Envelope xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'>",
+                    "<soap:Body>",
+                        "<<%= soapAction %> xmlns='" + contractsXrmNs + "/Services' xmlns:i='" + xmlSchemaInstanceNs + "'>",
+                            "<%= soapBody %>",
+                        "</<%= soapAction %>>",
+                    "</soap:Body>",
+                "</soap:Envelope>"
+            ].join(emptyString)),
+
+            processResponse = function(response) {
+                if (!response || (response.hasOwnProperty("xml") && !response.xml)) {
+                    return "No response received from the server";
+                }
+
+                const $response = $(response);
+                const error = $response.find("error").text();
+                const faultString = $response.find("faultstring").text();
+
+                if (!(error === emptyString && faultString === emptyString)) {
+                    return error !== emptyString ? $response.find("description").text() : faultString;
+                }
+
+                const currentType = typeof response;
+                const ieXmlType = typeof response.xml;
+
+                if (currentType !== "object" && (ieXmlType === "undefined" || ieXmlType === "unknown")) {
+                    return parseXml(response);
+                } else if (currentType === "object") {
+                    return response;
+                } else {
+                    return parseXml(xmlToString(response));
+                }
+            },
+
+            execute = function(soapBody, soapAction, async) {
+                return new Promise(function(resolve, reject) {
+                    const soapXml = soapTemplate({ soapBody: soapBody, soapAction: soapAction });
+                    const req = new global.XMLHttpRequest();
+
+                    req.open("POST", serviceUrl, async || false);
+                    req.setRequestHeader("Accept", "application/xml, text/xml, */*");
+                    req.setRequestHeader("Content-Type", "text/xml; charset=utf-8");
+                    req.setRequestHeader("SOAPAction", xrmSoapActionPrefix + soapAction);
+
+                    req.onload = function() {
+                        const parsedResponse = processResponse(req.responseXML);
+                        if (req.status === 200) {
+                            req.onreadystatechange = null;
+                            resolve(parsedResponse);
+                        } else {
+                            reject(Error(parsedResponse));
+                        }
+                    };
+
+                    req.onerror = function() {
+                        req.onreadystatechange = null;
+                        reject(Error("network error occured"));
+                    };
+
+                    req.send(soapXml);
+                });
+            };
+
+        const orgService = function() {
                 this.url = function() {
-                    return splittedUrl[0] + "//" + splittedUrl[1];
+                    return url;
                 };
 
                 this.orgName = function() {
                     return orgName;
                 };
-
-                var serviceUrl = this.url() + (splittedUrl.length === 3 && splittedUrl[2] === orgName ? ("/" + orgName) : emptyString) + xrmServiceUrl,
-                    soapTemplate = compile([
-                        utf8Root,
-                            "<soap:Envelope xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'>",
-                            "<soap:Body>",
-                                "<<%= soapAction %> xmlns='" + contractsXrmNs + "/Services' xmlns:i='" + xmlSchemaInstanceNs + "'>",
-                                "<%= soapBody %>",
-                                "</<%= soapAction %>>",
-                            "</soap:Body>",
-                            "</soap:Envelope>"
-                    ].join(emptyString)),
-
-                    processResponse = function(response) {
-                        if (!response || (response.hasOwnProperty("xml") && !response.xml)) {
-                            return "No response received from the server";
-                        }
-
-                        const $response = $(response);
-                        const error = $response.find("error").text();
-                        const faultString = $response.find("faultstring").text();
-
-                        if (!(error === emptyString && faultString === emptyString)) {
-                            return error !== emptyString ? $response.find("description").text() : faultString;
-                        }
-
-                        const currentType = typeof response;
-                        const ieXmlType = typeof response.xml;
-
-                        if (currentType !== "object" && (ieXmlType === "undefined" || ieXmlType === "unknown")) {
-                            return parseXml(response);
-                        } else if (currentType === "object") {
-                            return response;
-                        } else {
-                            return parseXml(xmlToString(response));
-                        }
-                    },
-
-                    execute = function(soapBody, soapAction, async) {
-                        return new Promise(function(resolve, reject) {
-                            const soapXml = soapTemplate({ soapBody: soapBody, soapAction: soapAction });
-                            const req = new global.XMLHttpRequest();
-
-                            req.open("POST", serviceUrl, async || false);
-                            req.setRequestHeader("Accept", "application/xml, text/xml, */*");
-                            req.setRequestHeader("Content-Type", "text/xml; charset=utf-8");
-                            req.setRequestHeader("SOAPAction", xrmSoapActionPrefix + soapAction);
-
-                            req.onload = function() {
-                                const parsedResponse = processResponse(req.responseXML);
-                                if (req.status === 200) {
-                                    req.onreadystatechange = null;
-                                    resolve(parsedResponse);
-                                } else {
-                                    reject(Error(parsedResponse));
-                                }
-                            };
-
-                            req.onerror = function() {
-                                req.onreadystatechange = null;
-                                reject(Error("network error occured"));
-                            };
-
-                            req.send(soapXml);
-                        });
-                    };
-
-                orgService.prototype.create = function(entity, async) {
-                    /// <summary>Create like create in Microsoft.Xrm.Sdk</summary>
-                    return execute(entity.serialize(), "Create", async).then(function(resultXml) {
-                        return resultXml ? $(resultXml).find("CreateResult").text() : null;
-                    });
-                };
-
-                orgService.prototype.createAsync = function(entity) {
-                    /// <summary>Create like create in Microsoft.Xrm.Sdk</summary>
-                    return this.create(entity, true);
-                };
-
-                orgService.prototype.update = function(entity, async) {
-                    /// <summary>Update like update in Microsoft.Xrm.Sdk</summary>
-                    return execute(entity.serialize(), "Update", async).then(function(resultXml) {
-                        return resultXml ? $(resultXml).find("UpdateResponse").text() : null;
-                    });
-                };
-
-                orgService.prototype.updateAsync = function(entity) {
-                    /// <summary>Update like update in Microsoft.Xrm.Sdk</summary>
-                    return this.update(entity, true);
-                };
-
-                orgService.prototype.delete = function(entityName, id, async) {
-                    /// <summary>Delete like delete in Microsoft.Xrm.Sdk</summary>
-                    const request = [
-                            "<entityName>",
-                                entityName,
-                            "</entityName>",
-                            "<id>",
-                                new self.Guid(id).value,
-                            "</id>"
-                        ].join(emptyString);
-
-                    return execute(request, "Delete", async);
-                };
-
-                orgService.prototype.deleteAsync = function(entityName, id) {
-                    /// <summary>Delete like delete in Microsoft.Xrm.Sdk</summary>
-                    return this.delete(entityName, id, true);
-                };
-
-                orgService.prototype.retrieve = function(entityName, id, columnSet, async) {
-                    /// <summary>Retrieve like in Microsoft.Xrm.Sdk</summary>
-                    const soapBodyTemplate = compile("<entityName><%= entityName %></entityName><id><%= id %></id><%= columnSet %>");
-                    if (columnSet && $.isArray(columnSet)) {
-                        columnSet = new self.ColumnSet(columnSet);
-                        columnSet = columnSet.serialize(false, true);
-                    } else if (columnSet && columnSet instanceof self.ColumnSet) {
-                        columnSet = columnSet.serialize(false, true);
-                    } else {
-                        columnSet = self.ColumnSet.GetAllColumnsSoap(false, true);
-                    }
-
-                    return execute(soapBodyTemplate({
-                            entityName: entityName,
-                            id: new self.Guid(id).value,
-                            columnSet: columnSet
-                        }), "Retrieve", async).then(function(resultXml) {
-                        const retrieveResult = $(resultXml).find("RetrieveResult")[0];
-                        if (!retrieveResult) {
-                            return null;
-                        }
-
-                        return self.Entity.deserialize(retrieveResult);
-                    });
-                };
-
-                orgService.prototype.retrieveAsync = function(entityName, id, columnSet) {
-                    /// <summary>Retrieve like in Microsoft.Xrm.Sdk</summary>
-                    return this.retrieve(entityName, id, columnSet, true);
-                };
-
-                orgService.prototype.retrieveMultiple = function(query, async) {
-                    /// <summary>RetrieveMultiple like in Microsoft.Xrm.Sdk</summary>
-                    /// <param name="query" type="QueryExpression|QueryByAttribute">Query for perform retrieve operation</param>
-                    return execute(query.serialize(), "RetrieveMultiple", async).then(function(result) {
-                        const $resultXml = $(result);
-                        var resultNodes;
-                        const retriveMultipleResults = [];
-
-                        if ($resultXml.find("a\\:Entities").length) {
-                            resultNodes = $resultXml.find("a\\:Entities")[0];
-                        } else {
-                            resultNodes = $resultXml.find("Entities")[0]; // chrome could not load node properly
-                        }
-
-                        if (!resultNodes) {
-                            return retriveMultipleResults; // return empty results
-                        }
-
-                        for (let i = 0, l = resultNodes.childNodes.length; i < l; i++) {
-                            retriveMultipleResults[i] = self.Entity.deserialize(resultNodes.childNodes[i]);
-                        }
-
-                        return retriveMultipleResults;
-                    });
-                };
-
-                orgService.prototype.retrieveMultipleAsync = function(query) {
-                    /// <summary>RetrieveMultiple like in Microsoft.Xrm.Sdk</summary>
-                    /// <param name="query" type="QueryExpression|QueryByAttribute">Query for perform retrieve operation</param>
-                    return this.retrieveMultiple(query, true);
-                };
-
-                orgService.prototype.execute = function(request, async) {
-                    /// <summary>Execute like in Microsoft.Xrm.Sdk</summary>
-                    /// <param name="request" type="OrganizationRequest">Current request</param>
-                    return execute(request.serialize(), "Execute", async);
-                };
-
-                orgService.prototype.executeAsync = function(request) {
-                    /// <summary>Execute like in Microsoft.Xrm.Sdk</summary>
-                    /// <param name="request" type="OrganizationRequest">Current request</param>
-                    return this.execute(request, true);
-                };
-
-                orgService.prototype.fetch = function(fetchXml, async) {
-                    /// <summary>Execute fetch Xml query</summary>
-                    /// <param name="fetchXml" type="String">Fetch xml expression</param>
-                    // ToDo: implement fetchXmlBuilder
-                    const fetchQuery = [
-                            "<query i:type='a:FetchExpression' xmlns:a='" + contractsXrmNs + "'>",
-                                "<a:Query>",
-                                    crmXmlEncode(fetchXml),
-                                "</a:Query>",
-                            "</query>"
-                        ].join(emptyString);
-
-                    return execute(fetchQuery, "RetrieveMultiple", async).then(function(resultXml) {
-                        let fetchResult;
-                        const fetchResults = [];
-                        let $entities = $(resultXml).find("a\\:Entities");
-
-                        if ($entities.length) {
-                            fetchResult = $entities[0];
-                        } else {
-                            $entities = $(resultXml).find("Entities");
-                            fetchResult = $entities[0]; // chrome could not load node
-                        }
-
-                        for (let i = 0, l = fetchResult.childNodes.length; i < l; i++) {
-                            fetchResults[fetchResults.length] = self.Entity.deserialize(fetchResult.childNodes[i]);
-                        }
-
-                        return fetchResults;
-                    });
-                };
-
-                orgService.prototype.fetchAsync = function(fetchXml) {
-                    /// <summary>Execute fetch Xml query</summary>
-                    /// <param name="fetchXml" type="String">Fetch xml expression</param>
-                    return this.fetch(fetchXml, true);
-                };
             };
+
+        orgService.prototype.create = function(entity, async) {
+            /// <summary>Create like create in Microsoft.Xrm.Sdk</summary>
+            return execute(entity.serialize(), "Create", async).then(function(resultXml) {
+                return resultXml ? $(resultXml).find("CreateResult").text() : null;
+            });
+        };
+
+        orgService.prototype.createAsync = function(entity) {
+            /// <summary>Create like create in Microsoft.Xrm.Sdk</summary>
+            return this.create(entity, true);
+        };
+
+        orgService.prototype.update = function(entity, async) {
+            /// <summary>Update like update in Microsoft.Xrm.Sdk</summary>
+            return execute(entity.serialize(), "Update", async).then(function(resultXml) {
+                return resultXml ? $(resultXml).find("UpdateResponse").text() : null;
+            });
+        };
+
+        orgService.prototype.updateAsync = function(entity) {
+            /// <summary>Update like update in Microsoft.Xrm.Sdk</summary>
+            return this.update(entity, true);
+        };
+
+        orgService.prototype.delete = function(entityName, id, async) {
+            /// <summary>Delete like delete in Microsoft.Xrm.Sdk</summary>
+            const request = `<entityName>${entityName}</entityName><id>${new self.Guid(id).value}</id>`;
+
+            return execute(request, "Delete", async);
+        };
+
+        orgService.prototype.deleteAsync = function(entityName, id) {
+            /// <summary>Delete like delete in Microsoft.Xrm.Sdk</summary>
+            return this.delete(entityName, id, true);
+        };
+
+        orgService.prototype.retrieve = function(entityName, id, columnSet, async) {
+            /// <summary>Retrieve like in Microsoft.Xrm.Sdk</summary>
+            const soapBodyTemplate = compile("<entityName><%= entityName %></entityName><id><%= id %></id><%= columnSet %>");
+            if (columnSet && $.isArray(columnSet)) {
+                columnSet = new self.ColumnSet(columnSet);
+                columnSet = columnSet.serialize(false, true);
+            } else if (columnSet && columnSet instanceof self.ColumnSet) {
+                columnSet = columnSet.serialize(false, true);
+            } else {
+                columnSet = self.ColumnSet.GetAllColumnsSoap(false, true);
+            }
+
+            return execute(soapBodyTemplate({
+                    entityName: entityName,
+                    id: new self.Guid(id).value,
+                    columnSet: columnSet
+                }), "Retrieve", async).then(function(resultXml) {
+                const retrieveResult = $(resultXml).find("RetrieveResult")[0];
+                if (!retrieveResult) {
+                    return null;
+                }
+
+                return self.Entity.deserialize(retrieveResult);
+            });
+        };
+
+        orgService.prototype.retrieveAsync = function(entityName, id, columnSet) {
+            /// <summary>Retrieve like in Microsoft.Xrm.Sdk</summary>
+            return this.retrieve(entityName, id, columnSet, true);
+        };
+
+        orgService.prototype.retrieveMultiple = function(query, async) {
+            /// <summary>RetrieveMultiple like in Microsoft.Xrm.Sdk</summary>
+            /// <param name="query" type="QueryExpression|QueryByAttribute">Query for perform retrieve operation</param>
+            return execute(query.serialize(), "RetrieveMultiple", async).then(function(result) {
+                const $resultXml = $(result);
+                var resultNodes;
+                const retriveMultipleResults = [];
+
+                if ($resultXml.find("a\\:Entities").length) {
+                    resultNodes = $resultXml.find("a\\:Entities")[0];
+                } else {
+                    resultNodes = $resultXml.find("Entities")[0]; // chrome could not load node properly
+                }
+
+                if (!resultNodes) {
+                    return retriveMultipleResults; // return empty results
+                }
+
+                for (let i = 0, l = resultNodes.childNodes.length; i < l; i++) {
+                    retriveMultipleResults[i] = self.Entity.deserialize(resultNodes.childNodes[i]);
+                }
+
+                return retriveMultipleResults;
+            });
+        };
+
+        orgService.prototype.retrieveMultipleAsync = function(query) {
+            /// <summary>RetrieveMultiple like in Microsoft.Xrm.Sdk</summary>
+            /// <param name="query" type="QueryExpression|QueryByAttribute">Query for perform retrieve operation</param>
+            return this.retrieveMultiple(query, true);
+        };
+
+        orgService.prototype.execute = function(request, async) {
+            /// <summary>Execute like in Microsoft.Xrm.Sdk</summary>
+            /// <param name="request" type="OrganizationRequest">Current request</param>
+            return execute(request.serialize(), "Execute", async);
+        };
+
+        orgService.prototype.executeAsync = function(request) {
+            /// <summary>Execute like in Microsoft.Xrm.Sdk</summary>
+            /// <param name="request" type="OrganizationRequest">Current request</param>
+            return this.execute(request, true);
+        };
+
+        orgService.prototype.fetch = function(fetchXml, async) {
+            /// <summary>Execute fetch Xml query</summary>
+            /// <param name="fetchXml" type="String">Fetch xml expression</param>
+            // ToDo: implement fetchXmlBuilder
+            const fetchQuery = [
+                    `<query i:type='a:FetchExpression' xmlns:a='${contractsXrmNs}'>`,
+                        "<a:Query>",
+                            crmXmlEncode(fetchXml),
+                        "</a:Query>",
+                    "</query>"
+            ].join(emptyString);
+
+            return execute(fetchQuery, "RetrieveMultiple", async).then(function(resultXml) {
+                let fetchResult;
+                const fetchResults = [];
+                let $entities = $(resultXml).find("a\\:Entities");
+
+                if ($entities.length) {
+                    fetchResult = $entities[0];
+                } else {
+                    $entities = $(resultXml).find("Entities");
+                    fetchResult = $entities[0]; // chrome could not load node
+                }
+
+                for (let i = 0, l = fetchResult.childNodes.length; i < l; i++) {
+                    fetchResults[fetchResults.length] = self.Entity.deserialize(fetchResult.childNodes[i]);
+                }
+
+                return fetchResults;
+            });
+        };
+
+        orgService.prototype.fetchAsync = function(fetchXml) {
+            /// <summary>Execute fetch Xml query</summary>
+            /// <param name="fetchXml" type="String">Fetch xml expression</param>
+            return this.fetch(fetchXml, true);
+        };
 
         return orgService;
     })();
 
     this.CrmProvider = (function() {
-        var crmProvider = function() {
-            var orgService = new self.OrganizationService(),
-                entityMetadataType = "EntityMetadata";
+        const entityMetadataType = "EntityMetadata";
+        const orgService = new self.OrganizationService();
+        const crmProvider = function() {};
 
-            crmProvider.prototype.executeWorkflow = function(entityId, workflowId, async) {
-                /// <summary>Execute ExecuteWorkflowRequest like in Microsoft.Xrm.Sdk</summary>
-                /// <param name="entityId" type="Guid">Current entity Id</param>
-                /// <param name="workflowId" type="Guid">Executing workflow Id</param>
-                /// <returns type="Guid">Async operation Id</returns>
-                const request = new self.ExecuteWorkflowRequest(entityId, workflowId);
+        crmProvider.prototype.executeWorkflow = function(entityId, workflowId, async) {
+            /// <summary>Execute ExecuteWorkflowRequest like in Microsoft.Xrm.Sdk</summary>
+            /// <param name="entityId" type="Guid">Current entity Id</param>
+            /// <param name="workflowId" type="Guid">Executing workflow Id</param>
+            /// <returns type="Guid">Async operation Id</returns>
+            const request = new self.ExecuteWorkflowRequest(entityId, workflowId);
 
-                return orgService.execute(request, async).then(function(result) {
-                    const $xml = $(typeof result.xml === "undefined" ? result : result.xml);
-                    const id = $xml.find("c\\:value").text() || $xml.find("value").text();
+            return orgService.execute(request, async).then(function(result) {
+                const $xml = $(typeof result.xml === "undefined" ? result : result.xml);
+                const id = $xml.find("c\\:value").text() || $xml.find("value").text();
 
-                    return id ? new self.Guid(id) : null;
-                }).catch(function(err) {
-                    notify(err);
-                });
-            };
+                return id ? new self.Guid(id) : null;
+            }).catch(function(err) {
+                notify(err);
+            });
+        };
 
-            crmProvider.prototype.executeWorkflowAsync = function(entityId, workflowId) {
-                /// <summary>Execute ExecuteWorkflowRequest like in Microsoft.Xrm.Sdk</summary>
-                /// <param name="entityId" type="Guid">Current entity Id</param>
-                /// <param name="workflowId" type="Guid">Executing workflow Id</param>
-                /// <returns type="Guid">Async operation Id</returns>
-                return this.executeWorkflow(entityId, workflowId, true);
-            };
+        crmProvider.prototype.executeWorkflowAsync = function(entityId, workflowId) {
+            /// <summary>Execute ExecuteWorkflowRequest like in Microsoft.Xrm.Sdk</summary>
+            /// <param name="entityId" type="Guid">Current entity Id</param>
+            /// <param name="workflowId" type="Guid">Executing workflow Id</param>
+            /// <returns type="Guid">Async operation Id</returns>
+            return this.executeWorkflow(entityId, workflowId, true);
+        };
 
-            crmProvider.prototype.getSystemUserTeams = function(userId, teamColumnSet, async) {
-                /// <summary>Get user teams</summary>
-                /// <param name="userId" type="Guid">Current user Identifier</param>
-                const query = new self.QueryExpression("team", [], teamColumnSet || new self.ColumnSet("name"));
-                const linkEntity = new self.LinkEntity("team", "teammembership", "teamid", "teamid", self.JoinOperator.Inner);
-                const filterExpression = new self.FilterExpression();
+        crmProvider.prototype.getSystemUserTeams = function(userId, teamColumnSet, async) {
+            /// <summary>Get user teams</summary>
+            /// <param name="userId" type="Guid">Current user Identifier</param>
+            const query = new self.QueryExpression("team", [], teamColumnSet || new self.ColumnSet("name"));
+            const linkEntity = new self.LinkEntity("team", "teammembership", "teamid", "teamid", self.JoinOperator.Inner);
+            const filterExpression = new self.FilterExpression();
 
-                filterExpression.AddCondition(new self.ConditionExpression("systemuserid", self.ConditionOperator.Equal, [new self.Guid(userId)]));
-                linkEntity.SetLinkCriteria(filterExpression);
-                query.AddLink(linkEntity);
+            filterExpression.AddCondition(new self.ConditionExpression("systemuserid", self.ConditionOperator.Equal, [new self.Guid(userId)]));
+            linkEntity.SetLinkCriteria(filterExpression);
+            query.AddLink(linkEntity);
 
-                return orgService.retrieveMultiple(query, async);
-            };
+            return orgService.retrieveMultiple(query, async);
+        };
 
-            crmProvider.prototype.getSystemUserTeamsAsync = function(userId, teamColumnSet) {
-                /// <summary>Get user teams</summary>
-                /// <param name="userId" type="Guid">Current user Identifier</param>
-                return this.getSystemUserTeams(userId, teamColumnSet, true);
-            };
+        crmProvider.prototype.getSystemUserTeamsAsync = function(userId, teamColumnSet) {
+            /// <summary>Get user teams</summary>
+            /// <param name="userId" type="Guid">Current user Identifier</param>
+            return this.getSystemUserTeams(userId, teamColumnSet, true);
+        };
 
-            crmProvider.prototype.getSystemUserBusinessUnit = function(userId, async) {
-                /// <summary>Get user businessunit</summary>
-                /// <param name="userId" type="Guid">Current user Identifier</param>
-                return orgService.retrieve("systemuser", new self.Guid(userId).value, ["businessunitid"], async).then(function(user) {
-                    return user.getAttributeValue("businessunitid");
-                });
-            };
+        crmProvider.prototype.getSystemUserBusinessUnit = function(userId, async) {
+            /// <summary>Get user businessunit</summary>
+            /// <param name="userId" type="Guid">Current user Identifier</param>
+            return orgService.retrieve("systemuser", new self.Guid(userId).value, ["businessunitid"], async).then(function(user) {
+                return user.getAttributeValue("businessunitid");
+            });
+        };
 
-            crmProvider.prototype.getSystemUserBusinessUnitAsync = function(userId) {
-                /// <summary>Get user businessunit</summary>
-                /// <param name="userId" type="Guid">Current user Identifier</param>
-                return this.getSystemUserBusinessUnit(userId, true);
-            };
+        crmProvider.prototype.getSystemUserBusinessUnitAsync = function(userId) {
+            /// <summary>Get user businessunit</summary>
+            /// <param name="userId" type="Guid">Current user Identifier</param>
+            return this.getSystemUserBusinessUnit(userId, true);
+        };
 
-            crmProvider.prototype.retrieveSharedPrincipalsAndAccess = function(entityName, entityId, async) {
-                /// <summary>Execute RetrieveSharedPrincipalsAndAccessRequest like in Microsoft.Xrm.Sdk</summary>
-                /// <param name="entityName" type="String">EntityLogicalName</param>
-                /// <param name="entityId" type="Guid">Entity Id for check access</param>
-                const request = new self.RetrieveSharedPrincipalsAndAccessRequest(entityName, new self.Guid(entityId));
+        crmProvider.prototype.retrieveSharedPrincipalsAndAccess = function(entityName, entityId, async) {
+            /// <summary>Execute RetrieveSharedPrincipalsAndAccessRequest like in Microsoft.Xrm.Sdk</summary>
+            /// <param name="entityName" type="String">EntityLogicalName</param>
+            /// <param name="entityId" type="Guid">Entity Id for check access</param>
+            const request = new self.RetrieveSharedPrincipalsAndAccessRequest(entityName, new self.Guid(entityId));
 
-                return orgService.execute(request, async).then(function(result) {
-                    const sharedAccessRights = [];
-                    const principalAccess = $(typeof result.xml === "undefined" ? result : result.xml).find("PrincipalAccess");
-                    for (let i = 0, l = principalAccess.length; i < l; i++) {
-                        const parsedResult = principalAccess[i].childNodes;
-                        sharedAccessRights[sharedAccessRights.length] = {
-                            Rights: $(parsedResult[0]).text().split(" "),
-                            Id: $(parsedResult[1].childNodes[0]).text(),
-                            Principal: $(parsedResult[1].childNodes[1]).text()
-                        };
-                    }
+            return orgService.execute(request, async).then(function(result) {
+                const sharedAccessRights = [];
+                const principalAccess = $(typeof result.xml === "undefined" ? result : result.xml).find("PrincipalAccess");
+                for (let i = 0, l = principalAccess.length; i < l; i++) {
+                    const parsedResult = principalAccess[i].childNodes;
+                    sharedAccessRights[sharedAccessRights.length] = {
+                        Rights: $(parsedResult[0]).text().split(" "),
+                        Id: $(parsedResult[1].childNodes[0]).text(),
+                        Principal: $(parsedResult[1].childNodes[1]).text()
+                    };
+                }
 
-                    return sharedAccessRights.length ? sharedAccessRights : null;
-                }).catch(function(err) {
-                    notify(`Ошибка:\n${err && err.description ? err.description : err}`);
-                });
-            };
+                return sharedAccessRights.length ? sharedAccessRights : null;
+            }).catch(function(err) {
+                notify(`Ошибка:\n${err && err.description ? err.description : err}`);
+            });
+        };
 
-            crmProvider.prototype.retrieveSharedPrincipalsAndAccessAsync = function(entityName, entityId) {
-                /// <summary>Execute RetrieveSharedPrincipalsAndAccessRequest like in Microsoft.Xrm.Sdk</summary>
-                /// <param name="entityName" type="String">EntityLogicalName</param>
-                /// <param name="entityId" type="Guid">Entity Id for check access</param>
-                return this.retrieveSharedPrincipalsAndAccess(entityName, entityId, true);
-            };
+        crmProvider.prototype.retrieveSharedPrincipalsAndAccessAsync = function(entityName, entityId) {
+            /// <summary>Execute RetrieveSharedPrincipalsAndAccessRequest like in Microsoft.Xrm.Sdk</summary>
+            /// <param name="entityName" type="String">EntityLogicalName</param>
+            /// <param name="entityId" type="Guid">Entity Id for check access</param>
+            return this.retrieveSharedPrincipalsAndAccess(entityName, entityId, true);
+        };
 
-            crmProvider.prototype.setState = function(entityName, entityId, state, status, async) {
-                /// <summary>Execute SetStateRequest like in Microsoft.Xrm.Sdk</summary>
-                const request = new self.SetStateRequest(entityName, entityId, state, status);
+        crmProvider.prototype.setState = function(entityName, entityId, state, status, async) {
+            /// <summary>Execute SetStateRequest like in Microsoft.Xrm.Sdk</summary>
+            const request = new self.SetStateRequest(entityName, entityId, state, status);
 
-                return orgService.execute(request, async).then(function(result) {
-                    const $response = $(result).find("ExecuteResult").eq(0);
-                    return crmXmlDecode($response.text());
-                });
-            };
+            return orgService.execute(request, async).then(function(result) {
+                const $response = $(result).find("ExecuteResult").eq(0);
+                return crmXmlDecode($response.text());
+            });
+        };
 
-            crmProvider.prototype.setStateAsync = function(entityName, entityId, state, status) {
-                /// <summary>Execute SetStateRequest like in Microsoft.Xrm.Sdk</summary>
-                return this.setState(entityName, entityId, state, status, true);
-            };
+        crmProvider.prototype.setStateAsync = function(entityName, entityId, state, status) {
+            /// <summary>Execute SetStateRequest like in Microsoft.Xrm.Sdk</summary>
+            return this.setState(entityName, entityId, state, status, true);
+        };
 
-            crmProvider.prototype.retrieveEntityMetadata = function(logicalName, entityFilters, retrieveAsIfPublished, async) {
-                entityFilters = $.isArray(entityFilters) ? entityFilters : [entityFilters];
-                entityFilters = entityFilters.join(" ");
-                const request = new self.RetrieveEntityRequest(logicalName, entityFilters, retrieveAsIfPublished);
+        crmProvider.prototype.retrieveEntityMetadata = function(logicalName, entityFilters, retrieveAsIfPublished, async) {
+            entityFilters = $.isArray(entityFilters) ? entityFilters : [entityFilters];
+            entityFilters = entityFilters.join(" ");
+            const request = new self.RetrieveEntityRequest(logicalName, entityFilters, retrieveAsIfPublished);
 
-                return orgService.execute(request, async).then(function(result) {
-                    const $resultXml = $(result);
-                    const results = [];
-                    const $value = $resultXml.find("b\\:value");
-                    const response = $value.length ? $value : $resultXml.find("value");
+            return orgService.execute(request, async).then(function(result) {
+                const $resultXml = $(result);
+                const results = [];
+                const $value = $resultXml.find("b\\:value");
+                const response = $value.length ? $value : $resultXml.find("value");
 
-                    for (let i = 0, l = response.length; i < l; i++) {
-                        const a = objectifyNode(response[i]);
-                        a._type = entityMetadataType;
-                        results[results.length] = a;
-                    }
+                for (let i = 0, l = response.length; i < l; i++) {
+                    const a = objectifyNode(response[i]);
+                    a._type = entityMetadataType;
+                    results[results.length] = a;
+                }
 
-                    return results;
-                });
-            };
+                return results;
+            });
+        };
 
-            crmProvider.prototype.retrieveEntityMetadataAsync = function(logicalName, entityFilters, retrieveAsIfPublished) {
-                return this.retrieveEntityMetadata(logicalName, entityFilters, retrieveAsIfPublished, true);
-            };
+        crmProvider.prototype.retrieveEntityMetadataAsync = function(logicalName, entityFilters, retrieveAsIfPublished) {
+            return this.retrieveEntityMetadata(logicalName, entityFilters, retrieveAsIfPublished, true);
+        };
 
-            crmProvider.prototype.retrieveAttributeMetadata = function(entityLogicalName, attributeLogicalName, retrieveAsIfPublished, async) {
-                const request = new self.RetrieveAttributeRequest(entityLogicalName, attributeLogicalName, retrieveAsIfPublished);
+        crmProvider.prototype.retrieveAttributeMetadata = function(entityLogicalName, attributeLogicalName, retrieveAsIfPublished, async) {
+            const request = new self.RetrieveAttributeRequest(entityLogicalName, attributeLogicalName, retrieveAsIfPublished);
 
-                return orgService.execute(request, async).then(function(result) {
-                    const $resultXml = $(result);
-                    const results = [];
-                    const $value = $resultXml.find("b\\:value");
-                    const response = $value.length ? $value : $resultXml.find("value");
+            return orgService.execute(request, async).then(function(result) {
+                const $resultXml = $(result);
+                const results = [];
+                const $value = $resultXml.find("b\\:value");
+                const response = $value.length ? $value : $resultXml.find("value");
 
-                    for (let i = 0, l = response.length; i < l; i++) {
-                        results[results.length] = objectifyNode(response[i]);
-                    }
+                for (let i = 0, l = response.length; i < l; i++) {
+                    results[results.length] = objectifyNode(response[i]);
+                }
 
-                    return results;
-                });
-            };
+                return results;
+            });
+        };
 
-            crmProvider.prototype.retrieveAttributeMetadataAsync = function(entityLogicalName, attributeLogicalName, retrieveAsIfPublished) {
-                return this.retrieveAttributeMetadata(entityLogicalName, attributeLogicalName, retrieveAsIfPublished, true);
-            };
+        crmProvider.prototype.retrieveAttributeMetadataAsync = function(entityLogicalName, attributeLogicalName, retrieveAsIfPublished) {
+            return this.retrieveAttributeMetadata(entityLogicalName, attributeLogicalName, retrieveAsIfPublished, true);
+        };
 
-            crmProvider.prototype.retrieveAllEntitiesMetadata = function(entityFilters, retrieveIfPublished, async) {
-                entityFilters = $.isArray(entityFilters) ? entityFilters : [entityFilters];
-                entityFilters = entityFilters.join(" ");
-                const request = new self.RetrieveAllEntitiesRequest(entityFilters, retrieveIfPublished);
+        crmProvider.prototype.retrieveAllEntitiesMetadata = function(entityFilters, retrieveIfPublished, async) {
+            entityFilters = $.isArray(entityFilters) ? entityFilters : [entityFilters];
+            entityFilters = entityFilters.join(" ");
+            const request = new self.RetrieveAllEntitiesRequest(entityFilters, retrieveIfPublished);
 
-                return orgService.execute(request, async).then(function(result) {
-                    const $resultXml = $(result);
-                    const results = [];
-                    const $metadata = $resultXml.find("c\\:" + entityMetadataType);
-                    const response = $metadata.length ? $metadata : $resultXml.find(entityMetadataType);
+            return orgService.execute(request, async).then(function(result) {
+                const $resultXml = $(result);
+                const results = [];
+                const $metadata = $resultXml.find("c\\:" + entityMetadataType);
+                const response = $metadata.length ? $metadata : $resultXml.find(entityMetadataType);
 
-                    for (let i = 0, l = response.length; i < l; i++) {
-                        const a = objectifyNode(response[i]);
-                        a._type = entityMetadataType;
-                        results[results.length] = a;
-                    }
+                for (let i = 0, l = response.length; i < l; i++) {
+                    const a = objectifyNode(response[i]);
+                    a._type = entityMetadataType;
+                    results[results.length] = a;
+                }
 
-                    return results;
-                });
-            };
+                return results;
+            });
+        };
 
-            crmProvider.prototype.retrieveAllEntitiesMetadataAsync = function(entityFilters, retrieveIfPublished) {
-                return this.retrieveAllEntitiesMetadata(entityFilters, retrieveIfPublished, true);
-            };
+        crmProvider.prototype.retrieveAllEntitiesMetadataAsync = function(entityFilters, retrieveIfPublished) {
+            return this.retrieveAllEntitiesMetadata(entityFilters, retrieveIfPublished, true);
         };
 
         return crmProvider;

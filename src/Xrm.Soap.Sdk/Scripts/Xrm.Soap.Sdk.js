@@ -368,12 +368,12 @@ Type.registerNamespace("Xrm.Soap.Sdk");
         metadataNs = "http://schemas.microsoft.com/xrm/2011/Metadata",
         utf8Root = "<?xml version='1.0' encoding='utf-8'?>",
         orgName = context.getOrgUniqueName(),
-        attributeTemplate,
-        noLockTemplate,
-        distinctTemplate,
-        entityNameTemplate,
-        hasOwnProp = Object.prototype.hasOwnProperty,
         compile = _.template,
+        attributeTemplate = compile("<b:string><%= value %></b:string>"),
+        noLockTemplate = compile("<a:NoLock><%= noLock %></a:NoLock>"),
+        distinctTemplate = compile("<a:Distinct><%= distinct %></a:Distinct>"),
+        entityNameTemplate = compile("<a:EntityName><%= name %></a:EntityName>"),
+        hasOwnProp = Object.prototype.hasOwnProperty,
 
         extend = function(child, base) {
             // ReSharper disable once MissingHasOwnPropertyInForeach
@@ -398,11 +398,6 @@ Type.registerNamespace("Xrm.Soap.Sdk");
     if (loc.host.indexOf("localhost") !== -1) {
         splittedUrl[1] = loc.host;
     }
-
-    attributeTemplate = compile("<b:string><%= value %></b:string>");
-    noLockTemplate = compile("<a:NoLock><%= noLock %></a:NoLock>");
-    distinctTemplate = compile("<a:Distinct><%= distinct %></a:Distinct>");
-    entityNameTemplate = compile("<a:EntityName><%= name %></a:EntityName>");
 
     this.init = function(prefixes) {
         publishersPrefixes = _.union(publishersPrefixes, prefixes);
