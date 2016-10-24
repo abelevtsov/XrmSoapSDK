@@ -1,5 +1,6 @@
 (function() {
     "use strict";
+
     /* jshint esnext: true */
 
     const appScriptEl = document.getElementById("xrm.app");
@@ -30,9 +31,9 @@
             },
             soap: {
                 deps: ["underscore", "es6Promise"],
-                exports: "Xrm.Soap",
+                exports: "Xrm.Soap.Sdk",
                 init: function() {
-                    return this.Xrm.Soap.init(["new_"]);
+                    return this.Xrm.Soap.Sdk.init(["new_"]);
                 }
             },
             common: {
@@ -44,6 +45,7 @@
 
     require(["form", "underscore", "es6Promise"], function(form, _, es6Promise) {
         es6Promise.polifill();
+
         if (parameters && parameters.length) {
             parameters = parameters.split("|");
         }
