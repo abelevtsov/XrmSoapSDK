@@ -46,12 +46,12 @@
     <Content Include="Scripts\es6\Xrm.App.js" />
     <Content Include="Scripts\es6\Xrm.Common.js" />
     <Content Include="Scripts\es6\Xrm.Main.js" />
-    <Content Include="Scripts\es6\Xrm.Soap.js" />
+    <Content Include="Scripts\es6\Xrm.Soap.Sdk.js" />
     <Content Include="Scripts\examples.js" />
     <Content Include="Scripts\Xrm.App.js" />
     <Content Include="Scripts\Xrm.Common.js" />
     <Content Include="Scripts\Xrm.Main.js" />
-    <Content Include="Scripts\Xrm.Soap.js" />
+    <Content Include="Scripts\Xrm.Soap.Sdk.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -64,9 +64,6 @@
   <ItemGroup>
     <Content Include=".jscsrc" />
     <Content Include=".jshintrc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include=".gitignore" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
