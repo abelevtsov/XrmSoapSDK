@@ -1,6 +1,6 @@
 {
   "name": "xrm.soap.sdk",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "author": "Aleksandr Belevtsov <belevtsov80@mail.ru>",
   "description": "Package to interact with Microsoft Dynamics CRM 2011/2013/2015 from entity form like CRM SDK manner.",
   "license": "MIT",
@@ -10,9 +10,9 @@
     "**/*",
     "node_modules",
     "bower_components",
-	"Scripts",
-	"!Scripts/es6",
-	"!LICENSE",
+    "Scripts",
+    "!Scripts/es6",
+    "!LICENSE",
     "!README.md"
   ],
   "keywords": [
