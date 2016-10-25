@@ -4,3 +4,5 @@ These libraries [Xrm.Soap.js](https://github.com/abelevtsov/XrmSoapSDK/blob/mast
 See:
  - [examples](https://github.com/abelevtsov/XrmSoapSDK/blob/master/src/Xrm.Soap.Sdk/Scripts/examples.js)
  - [examples using es6 Promise API](https://github.com/abelevtsov/XrmSoapSDK/blob/master/src/Xrm.Soap.Sdk/Scripts/es6/examples.js)
+ 
+ ## NOTE: if you plan to use es6 version for browsers not supporting Promise API please use [es6-promise polyfill](https://github.com/stefanpenner/es6-promise)
