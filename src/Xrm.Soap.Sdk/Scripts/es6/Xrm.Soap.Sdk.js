@@ -1139,80 +1139,80 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                         value = attribute.hasOwnProperty("value") ? attribute.value : attribute;
                         encodedValue = encodeValue(value);
                         switch (sType) {
-                        case "OptionSetValue":
-                            xml[counter++] = "<b:value i:type='a:OptionSetValue'>";
-                            xml[counter++] = "<a:Value>" + encodedValue + "</a:Value>" + "</b:value>";
-                            break;
-                        case "EntityCollection":
-                            xml[counter++] = "<b:value i:type='a:EntityCollection'>";
-                            xml[counter++] = "<a:Entities>";
-                            var collections = $.isArray(value) ? value : [value];
-                            for (var i = 0, l = collections.length; i < l; i++) {
-                                var item = collections[i];
-                                id = item.hasOwnProperty("id") ? item.id : item;
+                            case "OptionSetValue":
+                                xml[counter++] = "<b:value i:type='a:OptionSetValue'>";
+                                xml[counter++] = "<a:Value>" + encodedValue + "</a:Value>" + "</b:value>";
+                                break;
+                            case "EntityCollection":
+                                xml[counter++] = "<b:value i:type='a:EntityCollection'>";
+                                xml[counter++] = "<a:Entities>";
+                                var collections = $.isArray(value) ? value : [value];
+                                for (var i = 0, l = collections.length; i < l; i++) {
+                                    var item = collections[i];
+                                    id = item.hasOwnProperty("id") ? item.id : item;
+                                    encodedId = encodeValue(id);
+                                    logicalName = item.hasOwnProperty("logicalName") ? item.logicalName : item;
+                                    encodedLogicalName = encodeValue(logicalName);
+                                    xml[counter++] = "<a:Entity>";
+                                    xml[counter++] = "<a:Attributes>";
+                                    xml[counter++] = "<a:KeyValuePairOfstringanyType>";
+                                    xml[counter++] = "<b:key>partyid</b:key>";
+                                    xml[counter++] = "<b:value i:type='a:EntityReference'>";
+                                    xml[counter++] = "<a:Id>" + encodedId + "</a:Id>";
+                                    xml[counter++] = "<a:LogicalName>" + encodedLogicalName + "</a:LogicalName>";
+                                    xml[counter++] = "<a:Name i:nil='true'/>";
+                                    xml[counter++] = "</b:value>";
+                                    xml[counter++] = "</a:KeyValuePairOfstringanyType>";
+                                    xml[counter++] = "</a:Attributes>";
+                                    xml[counter++] = "<a:EntityState i:nil='true'/>";
+                                    xml[counter++] = "<a:FormattedValues />";
+                                    xml[counter++] = "<a:Id>" + self.Guid.Empty().value + "</a:Id>";
+                                    xml[counter++] = "<a:LogicalName>activityparty</a:LogicalName>";
+                                    xml[counter++] = "<a:RelatedEntities />";
+                                    xml[counter++] = "</a:Entity>";
+                                }
+
+                                xml[counter++] = "</a:Entities>";
+                                xml[counter++] = "<a:EntityName i:nil='true'/>";
+                                xml[counter++] = "<a:MinActiveRowVersion i:nil='true'/>";
+                                xml[counter++] = "<a:MoreRecords>false</a:MoreRecords>";
+                                xml[counter++] = "<a:PagingCookie i:nil='true'/>";
+                                xml[counter++] = "<a:TotalRecordCount>0</a:TotalRecordCount>";
+                                xml[counter++] = "<a:TotalRecordCountLimitExceeded>false</a:TotalRecordCountLimitExceeded>";
+                                xml[counter++] = "</b:value>";
+                                break;
+                            case "EntityReference":
+                                id = attribute.hasOwnProperty("id") ? attribute.id : attribute;
                                 encodedId = encodeValue(id);
-                                logicalName = item.hasOwnProperty("logicalName") ? item.logicalName : item;
+                                logicalName = attribute.hasOwnProperty("logicalName") ? attribute.logicalName : attribute;
                                 encodedLogicalName = encodeValue(logicalName);
-                                xml[counter++] = "<a:Entity>";
-                                xml[counter++] = "<a:Attributes>";
-                                xml[counter++] = "<a:KeyValuePairOfstringanyType>";
-                                xml[counter++] = "<b:key>partyid</b:key>";
                                 xml[counter++] = "<b:value i:type='a:EntityReference'>";
                                 xml[counter++] = "<a:Id>" + encodedId + "</a:Id>";
                                 xml[counter++] = "<a:LogicalName>" + encodedLogicalName + "</a:LogicalName>";
-                                xml[counter++] = "<a:Name i:nil='true'/>";
-                                xml[counter++] = "</b:value>";
-                                xml[counter++] = "</a:KeyValuePairOfstringanyType>";
-                                xml[counter++] = "</a:Attributes>";
-                                xml[counter++] = "<a:EntityState i:nil='true'/>";
-                                xml[counter++] = "<a:FormattedValues />";
-                                xml[counter++] = "<a:Id>" + self.Guid.Empty().value + "</a:Id>";
-                                xml[counter++] = "<a:LogicalName>activityparty</a:LogicalName>";
-                                xml[counter++] = "<a:RelatedEntities />";
-                                xml[counter++] = "</a:Entity>";
-                            }
-
-                            xml[counter++] = "</a:Entities>";
-                            xml[counter++] = "<a:EntityName i:nil='true'/>";
-                            xml[counter++] = "<a:MinActiveRowVersion i:nil='true'/>";
-                            xml[counter++] = "<a:MoreRecords>false</a:MoreRecords>";
-                            xml[counter++] = "<a:PagingCookie i:nil='true'/>";
-                            xml[counter++] = "<a:TotalRecordCount>0</a:TotalRecordCount>";
-                            xml[counter++] = "<a:TotalRecordCountLimitExceeded>false</a:TotalRecordCountLimitExceeded>";
-                            xml[counter++] = "</b:value>";
-                            break;
-                        case "EntityReference":
-                            id = attribute.hasOwnProperty("id") ? attribute.id : attribute;
-                            encodedId = encodeValue(id);
-                            logicalName = attribute.hasOwnProperty("logicalName") ? attribute.logicalName : attribute;
-                            encodedLogicalName = encodeValue(logicalName);
-                            xml[counter++] = "<b:value i:type='a:EntityReference'>";
-                            xml[counter++] = "<a:Id>" + encodedId + "</a:Id>";
-                            xml[counter++] = "<a:LogicalName>" + encodedLogicalName + "</a:LogicalName>";
-                            xml[counter++] = "<a:Name i:nil='true'/>" + "</b:value>";
-                            break;
-                        case "Money":
-                            xml[counter++] = "<b:value i:type='a:Money'>";
-                            xml[counter++] = "<a:Value>" + encodedValue + "</a:Value>" + "</b:value>";
-                            break;
-                        case "guid":
-                            xml[counter++] = "<b:value i:type='c:guid' xmlns:c='" + serializationNs + "'>";
-                            xml[counter++] = encodedValue + "</b:value>";
-                            break;
-                        case "decimal":
-                            xml[counter++] = "<b:value i:type='c:decimal' xmlns:c='" + xmlSchemaNs + "'>";
-                            xml[counter++] = encodedValue + "</b:value>";
-                            break;
-                        case "number":
-                            /* jshint eqeqeq: false */
-                            var oType = parseInt(encodedValue, 10) == encodedValue ? "int" : "double";
-                            xml[counter++] = "<b:value i:type='c:" + oType + "' xmlns:c='" + xmlSchemaNs + "'>";
-                            xml[counter++] = encodedValue + "</b:value>";
-                            break;
-                        default:
-                            sType = typeof value === "object" && value.getTime ? "dateTime" : sType;
-                            xml[counter++] = "<b:value i:type='c:" + sType + "' xmlns:c='" + xmlSchemaNs + "'>" + encodedValue + "</b:value>";
-                            break;
+                                xml[counter++] = "<a:Name i:nil='true'/>" + "</b:value>";
+                                break;
+                            case "Money":
+                                xml[counter++] = "<b:value i:type='a:Money'>";
+                                xml[counter++] = "<a:Value>" + encodedValue + "</a:Value>" + "</b:value>";
+                                break;
+                            case "guid":
+                                xml[counter++] = "<b:value i:type='c:guid' xmlns:c='" + serializationNs + "'>";
+                                xml[counter++] = encodedValue + "</b:value>";
+                                break;
+                            case "decimal":
+                                xml[counter++] = "<b:value i:type='c:decimal' xmlns:c='" + xmlSchemaNs + "'>";
+                                xml[counter++] = encodedValue + "</b:value>";
+                                break;
+                            case "number":
+                                /* jshint eqeqeq: false */
+                                var oType = parseInt(encodedValue, 10) == encodedValue ? "int" : "double";
+                                xml[counter++] = "<b:value i:type='c:" + oType + "' xmlns:c='" + xmlSchemaNs + "'>";
+                                xml[counter++] = encodedValue + "</b:value>";
+                                break;
+                            default:
+                                sType = typeof value === "object" && value.getTime ? "dateTime" : sType;
+                                xml[counter++] = "<b:value i:type='c:" + sType + "' xmlns:c='" + xmlSchemaNs + "'>" + encodedValue + "</b:value>";
+                                break;
                         }
                     }
 
@@ -1900,7 +1900,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
     this.OrganizationService = (function() {
         /// <summary>Like IOrganizationService in Microsoft.Xrm.Sdk</summary>
         var url = splittedUrl[0] + "//" + splittedUrl[1],
-            serviceUrl = url + (splittedUrl.length === 3 && splittedUrl[2] === orgName ? (`/${orgName}`) : emptyString) + xrmServiceUrl,
+            serviceUrl = url + (splittedUrl.length === 3 && splittedUrl[2] === orgName ? ("/" + orgName) : emptyString) + xrmServiceUrl,
             soapTemplate = compile([
                 utf8Root,
                 "<soap:Envelope xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'>",
@@ -1934,6 +1934,131 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                     return response;
                 } else {
                     return parseXml(xmlToString(response));
+                }
+            },
+
+            executeSync = function(soapBody, soapAction, suppressError, callback, errorCallback) {
+                const soapXml = soapTemplate({ soapAction: soapAction, soapBody: soapBody });
+                const req = new global.XMLHttpRequest();
+
+                req.open("POST", serviceUrl, false);
+                req.setRequestHeader("Accept", "application/xml, text/xml, */*");
+                req.setRequestHeader("Content-Type", "text/xml; charset=utf-8");
+                req.setRequestHeader("SOAPAction", xrmSoapActionPrefix + soapAction);
+                req.send(soapXml);
+
+                return processResponse(req.responseXML, suppressError, errorCallback);
+            },
+
+            sync = {
+                create: function(entity, suppressError, errorCallback) {
+                    /// <summary>Create like create in Microsoft.Xrm.Sdk</summary>
+                    const resultXml = executeSync(entity.serialize(), "Create", suppressError, errorCallback);
+                    return resultXml ? $(resultXml).find("CreateResult").text() : null;
+                },
+
+                update: function(entity, suppressError, errorCallback) {
+                    /// <summary>Update like update in Microsoft.Xrm.Sdk</summary>
+                    const resultXml = executeSync(entity.serialize(), "Update", suppressError, errorCallback);
+                    return resultXml ? $(resultXml).find("UpdateResponse").text() : null;
+                },
+
+                "delete": function(entityName, id, suppressError, errorCallback) {
+                    /// <summary>Delete like delete in Microsoft.Xrm.Sdk</summary>
+                    const request = "<entityName>" + entityName + "</entityName><id>" + new self.Guid(id).value + "</id>";
+                    return executeSync(request, "Delete", suppressError, errorCallback);
+                },
+
+                retrieve: function(entityName, id, columnSet, suppressError, errorCallback) {
+                    /// <summary>Retrieve like in Microsoft.Xrm.Sdk</summary>
+                    const soapBodyTemplate = compile("<entityName><%= entityName %></entityName><id><%= id %></id><%= columnSet %>");
+                    if (columnSet && $.isArray(columnSet)) {
+                        columnSet = new self.ColumnSet(columnSet);
+                        columnSet = columnSet.serialize(false, true);
+                    } else if (columnSet && columnSet instanceof self.ColumnSet) {
+                        columnSet = columnSet.serialize(false, true);
+                    } else {
+                        columnSet = self.ColumnSet.GetAllColumnsSoap(false, true);
+                    }
+
+                    const resultXml = executeSync(
+                        soapBodyTemplate({
+                            entityName: entityName,
+                            id: new self.Guid(id).value,
+                            columnSet: columnSet
+                        }),
+                        "Retrieve",
+                        suppressError,
+                        errorCallback);
+
+                    const retrieveResult = $(resultXml).find("RetrieveResult")[0];
+                    if (!retrieveResult) {
+                        return null;
+                    }
+
+                    return self.Entity.deserialize(retrieveResult);
+                },
+
+                retrieveMultiple: function(query, suppressError, errorCallback) {
+                    /// <summary>RetrieveMultiple like in Microsoft.Xrm.Sdk</summary>
+                    /// <param name="query" type="QueryExpression|QueryByAttribute">Query for perform retrieve operation</param>
+                    const result = executeSync(query.serialize(), "RetrieveMultiple", suppressError, errorCallback);
+                    const $resultXml = $(result);
+                    var resultNodes;
+                    const retriveMultipleResults = [];
+
+                    if ($resultXml.find("a\\:Entities").length) {
+                        resultNodes = $resultXml.find("a\\:Entities")[0];
+                    } else {
+                        resultNodes = $resultXml.find("Entities")[0]; // chrome could not load node properly
+                    }
+
+                    if (!resultNodes) {
+                        return retriveMultipleResults; // return empty results
+                    }
+
+                    for (let i = 0, l = resultNodes.childNodes.length; i < l; i++) {
+                        retriveMultipleResults[i] = self.Entity.deserialize(resultNodes.childNodes[i]);
+                    }
+
+                    return retriveMultipleResults;
+                },
+
+                execute: function(request, suppressError, errorCallback) {
+                    /// <summary>Execute like in Microsoft.Xrm.Sdk</summary>
+                    /// <param name="request" type="OrganizationRequest">Current request</param>
+                    return executeSync(request.serialize(), "Execute", suppressError, errorCallback);
+                },
+
+                fetch: function(fetchXml, suppressError, errorCallback) {
+                    /// <summary>Execute fetch Xml query</summary>
+                    /// <param name="fetchXml" type="String">Fetch xml expression</param>
+                    // ToDo: implement fetchXmlBuilder
+                    const fetchQuery = [
+                            "<query i:type='a:FetchExpression' xmlns:a='" + contractsXrmNs +"'>",
+                                "<a:Query>",
+                                    crmXmlEncode(fetchXml),
+                                "</a:Query>",
+                            "</query>"
+                    ].join(emptyString);
+
+                    const resultXml = executeSync(fetchQuery, "RetrieveMultiple", suppressError, errorCallback);
+                    let fetchResult;
+                    const fetchResults = [];
+                    let $entities = $(resultXml).find("a\\:Entities");
+
+                    if ($entities.length) {
+                        fetchResult = $entities[0];
+                    } else {
+                        $entities = $(resultXml).find("Entities");
+                        fetchResult = $entities[0]; // chrome could not load node
+                    }
+
+                    for (let i = 0, l = fetchResult.childNodes.length; i < l; i++) {
+                        fetchResults[fetchResults.length] = self.Entity.deserialize(fetchResult.childNodes[i]);
+                    }
+
+                    return fetchResults;
                 }
             },
 
@@ -1976,6 +2101,8 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                 };
             };
 
+        orgService.prototype.sync = sync;
+
         orgService.prototype.create = function(entity, async) {
             /// <summary>Create like create in Microsoft.Xrm.Sdk</summary>
             return execute(entity.serialize(), "Create", async).then(function(resultXml) {
@@ -2002,7 +2129,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
 
         orgService.prototype.delete = function(entityName, id, async) {
             /// <summary>Delete like delete in Microsoft.Xrm.Sdk</summary>
-            const request = `<entityName>${entityName}</entityName><id>${new self.Guid(id).value}</id>`;
+            const request = "<entityName>" + entityName + "</entityName><id>" + new self.Guid(id).value + "</id>";
 
             return execute(request, "Delete", async);
         };
@@ -2092,7 +2219,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             /// <param name="fetchXml" type="String">Fetch xml expression</param>
             // ToDo: implement fetchXmlBuilder
             const fetchQuery = [
-                    `<query i:type='a:FetchExpression' xmlns:a='${contractsXrmNs}'>`,
+                    "<query i:type='a:FetchExpression' xmlns:a='" + contractsXrmNs + "'>",
                         "<a:Query>",
                             crmXmlEncode(fetchXml),
                         "</a:Query>",
@@ -2212,7 +2339,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
 
                 return sharedAccessRights.length ? sharedAccessRights : null;
             }).catch(function(err) {
-                notify(`Ошибка:\n${err && err.description ? err.description : err}`);
+                notify("Ошибка:\n" + (err && err.description ? err.description : err));
             });
         };
 
