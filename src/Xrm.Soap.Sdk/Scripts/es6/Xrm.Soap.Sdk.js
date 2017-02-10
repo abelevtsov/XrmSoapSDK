@@ -789,7 +789,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             attributesTemplate = compile("<a:Attributes xmlns:b='" + arraysNs + "'><% _.each(attributes, function(attribute) { %><%= attribute %><% }) %></a:Attributes>"),
             valuesTemplate = compile("<a:Values xmlns:b='" + arraysNs + "'><% _.each(values, function(value) { %><%= value %><% }) %></a:Values>"),
             valueTemplate = compile("<b:anyType i:type='c:<%= type %>' xmlns:c='" + xmlSchemaNs + "'><%= value %></b:anyType>"),
-            topCountTemplate = compile("<a:TopCount <% if (topCount === null) { %> i:nil='true'<% } %>><%= topCount %></a:TopCount>"),
+            topCountTemplate = compile("<a:TopCount<% if (topCount === null) { %> i:nil='true'<% } %>><%= topCount %></a:TopCount>"),
 
             queryByAttribute = function(entityName, attributes, values, columnSet, topCount) {
                 /// <summary>QueryByAttribute like in Microsoft.Xrm.Sdk</summary>
@@ -1937,7 +1937,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                 }
             },
 
-            executeSync = function(soapBody, soapAction, suppressError, callback, errorCallback) {
+            executeSync = function(soapBody, soapAction) {
                 const soapXml = soapTemplate({ soapAction: soapAction, soapBody: soapBody });
                 const req = new global.XMLHttpRequest();
 
@@ -1947,29 +1947,34 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                 req.setRequestHeader("SOAPAction", xrmSoapActionPrefix + soapAction);
                 req.send(soapXml);
 
-                return processResponse(req.responseXML, suppressError, errorCallback);
+                const parsedResponse = processResponse(req.responseXML);
+                if (req.status === 200) {
+                    return parsedResponse;
+                } else {
+                    return Error(parsedResponse);
+                }
             },
 
             sync = {
-                create: function(entity, suppressError, errorCallback) {
+                create: function(entity) {
                     /// <summary>Create like create in Microsoft.Xrm.Sdk</summary>
-                    const resultXml = executeSync(entity.serialize(), "Create", suppressError, errorCallback);
-                    return resultXml ? $(resultXml).find("CreateResult").text() : null;
+                    const result = executeSync(entity.serialize(), "Create");
+                    return result && !(result instanceof Error) ? $(result).find("CreateResult").text() : result;
                 },
 
-                update: function(entity, suppressError, errorCallback) {
+                update: function(entity) {
                     /// <summary>Update like update in Microsoft.Xrm.Sdk</summary>
-                    const resultXml = executeSync(entity.serialize(), "Update", suppressError, errorCallback);
-                    return resultXml ? $(resultXml).find("UpdateResponse").text() : null;
+                    const result = executeSync(entity.serialize(), "Update");
+                    return result && !(result instanceof Error) ? $(result).find("UpdateResponse").text() : result;
                 },
 
-                "delete": function(entityName, id, suppressError, errorCallback) {
+                "delete": function(entityName, id) {
                     /// <summary>Delete like delete in Microsoft.Xrm.Sdk</summary>
                     const request = "<entityName>" + entityName + "</entityName><id>" + new self.Guid(id).value + "</id>";
-                    return executeSync(request, "Delete", suppressError, errorCallback);
+                    return executeSync(request, "Delete");
                 },
 
-                retrieve: function(entityName, id, columnSet, suppressError, errorCallback) {
+                retrieve: function(entityName, id, columnSet) {
                     /// <summary>Retrieve like in Microsoft.Xrm.Sdk</summary>
                     const soapBodyTemplate = compile("<entityName><%= entityName %></entityName><id><%= id %></id><%= columnSet %>");
                     if (columnSet && $.isArray(columnSet)) {
@@ -1981,17 +1986,19 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                         columnSet = self.ColumnSet.GetAllColumnsSoap(false, true);
                     }
 
-                    const resultXml = executeSync(
+                    const result = executeSync(
                         soapBodyTemplate({
                             entityName: entityName,
                             id: new self.Guid(id).value,
                             columnSet: columnSet
                         }),
-                        "Retrieve",
-                        suppressError,
-                        errorCallback);
+                        "Retrieve");
 
-                    const retrieveResult = $(resultXml).find("RetrieveResult")[0];
+                    if (result && result instanceof Error) {
+                        return result;
+                    }
+
+                    const retrieveResult = $(result).find("RetrieveResult")[0];
                     if (!retrieveResult) {
                         return null;
                     }
@@ -1999,10 +2006,15 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                     return self.Entity.deserialize(retrieveResult);
                 },
 
-                retrieveMultiple: function(query, suppressError, errorCallback) {
+                retrieveMultiple: function(query) {
                     /// <summary>RetrieveMultiple like in Microsoft.Xrm.Sdk</summary>
                     /// <param name="query" type="QueryExpression|QueryByAttribute">Query for perform retrieve operation</param>
-                    const result = executeSync(query.serialize(), "RetrieveMultiple", suppressError, errorCallback);
+                    const result = executeSync(query.serialize(), "RetrieveMultiple");
+
+                    if (result && result instanceof Error) {
+                        return result;
+                    }
+
                     const $resultXml = $(result);
                     var resultNodes;
                     const retriveMultipleResults = [];
@@ -2024,13 +2036,13 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                     return retriveMultipleResults;
                 },
 
-                execute: function(request, suppressError, errorCallback) {
+                execute: function(request) {
                     /// <summary>Execute like in Microsoft.Xrm.Sdk</summary>
                     /// <param name="request" type="OrganizationRequest">Current request</param>
-                    return executeSync(request.serialize(), "Execute", suppressError, errorCallback);
+                    return executeSync(request.serialize(), "Execute");
                 },
 
-                fetch: function(fetchXml, suppressError, errorCallback) {
+                fetch: function(fetchXml) {
                     /// <summary>Execute fetch Xml query</summary>
                     /// <param name="fetchXml" type="String">Fetch xml expression</param>
                     // ToDo: implement fetchXmlBuilder
@@ -2042,15 +2054,21 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                             "</query>"
                     ].join(emptyString);
 
-                    const resultXml = executeSync(fetchQuery, "RetrieveMultiple", suppressError, errorCallback);
-                    let fetchResult;
+                    const result = executeSync(fetchQuery, "RetrieveMultiple");
+
+                    if (result && result instanceof Error) {
+                        return result;
+                    }
+
+                    const $resultXml = $(result);
                     const fetchResults = [];
-                    let $entities = $(resultXml).find("a\\:Entities");
+                    let fetchResult;
+                    let $entities = $resultXml.find("a\\:Entities");
 
                     if ($entities.length) {
                         fetchResult = $entities[0];
                     } else {
-                        $entities = $(resultXml).find("Entities");
+                        $entities = $resultXml.find("Entities");
                         fetchResult = $entities[0]; // chrome could not load node
                     }
 

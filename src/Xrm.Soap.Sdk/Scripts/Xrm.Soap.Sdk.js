@@ -790,7 +790,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             attributesTemplate = compile("<a:Attributes xmlns:b='" + arraysNs + "'><% _.each(attributes, function(attribute) { %><%= attribute %><% }) %></a:Attributes>"),
             valuesTemplate = compile("<a:Values xmlns:b='" + arraysNs + "'><% _.each(values, function(value) { %><%= value %><% }) %></a:Values>"),
             valueTemplate = compile("<b:anyType i:type='c:<%= type %>' xmlns:c='" + xmlSchemaNs + "'><%= value %></b:anyType>"),
-            topCountTemplate = compile("<a:TopCount <% if (topCount === null) { %> i:nil='true'<% } %>><%= topCount %></a:TopCount>"),
+            topCountTemplate = compile("<a:TopCount<% if (topCount === null) { %> i:nil='true'<% } %>><%= topCount %></a:TopCount>"),
 
             queryByAttribute = function(entityName, attributes, values, columnSet, topCount) {
                 /// <summary>QueryByAttribute like in Microsoft.Xrm.Sdk</summary>
