@@ -1137,7 +1137,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                             encodedLogicalName;
 
                         value = attribute.hasOwnProperty("value") ? attribute.value : attribute;
-                        encodedValue = encodeValue(value);
+                        encodedValue = attributeName === "documentbody" ? value : encodeValue(value);
                         switch (sType) {
                             case "OptionSetValue":
                                 xml[counter++] = "<b:value i:type='a:OptionSetValue'>";
