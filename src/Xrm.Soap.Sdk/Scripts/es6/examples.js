@@ -185,6 +185,19 @@ define(["soap"], function(soap) {
             });
         },
 
+        callCustomActionExample = function() {
+            const leadId = soap.Guid.Empty;
+            // entity logical name and Id
+            crmProvider.callActionAsync("new_NotifyLead", "lead", new soap.Guid(leadId), [new soap.RequestParameter("Message", "NICHT PARTY - ONLY HARD WORK")]).then(function(result) {
+                console.log(result);
+            });
+
+            // don't pass entity logical name and Id
+            crmProvider.callGlobalActionAsync("new_Trigger_Annoying_Notifications", [new soap.RequestParameter("Message", "NICHT PARTY - ONLY HARD WORK")]).then(function(res) {
+                console.log("Whoa ha ha!!!");
+            });
+        },
+
         crudExample = function() {
             let contact = new Entity("contact");
             contact.setAttribute("parentcustomerid", new EntityReference("account", new Guid("8A2C9BB0-2E7D-E311-A409-00155D011E01")));
@@ -246,6 +259,8 @@ define(["soap"], function(soap) {
                     console.log(`PhoneCall recipient ${i}: '${to[i].getName()}'`);
                 }
             });
+
+            callCustomActionExample();
         },
 
         init = function() {
