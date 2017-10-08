@@ -7,6 +7,8 @@ Type.registerNamespace("Xrm.Soap.Sdk");
     /* jshint esnext: true */
 
     var self = this,
+        $ = global.$,
+        _ = global._,
         emptyString = "",
         trueString = true + emptyString,
         falseString = false + emptyString,
@@ -1239,7 +1241,21 @@ Type.registerNamespace("Xrm.Soap.Sdk");
         entity.deserialize = function(resultNode) {
             var obj = {},
                 resultNodes = resultNode.childNodes,
-                instance = new self.Entity();
+                instance = new self.Entity(),
+
+                getEntityReference = function (nodesList) {
+                    var attrs = _.chain(nodesList).map(nodesList, function(n) {
+                            return {
+                                name: n.nodeName,
+                                value: $(n).text()
+                            };
+                        }).reduce(function(o, a) {
+                            o[a.name] = a.value;
+                            return o;
+                        }, {}).value();
+
+                    return new self.EntityReference(attrs["a:LogicalName"], attrs["a:Id"], attrs["a:Name"]);
+                };
 
             for (var j = 0, rl = resultNodes.length; j < rl; j++) {
                 var k,
@@ -1259,7 +1275,8 @@ Type.registerNamespace("Xrm.Soap.Sdk");
 
                             for (l = 0, al = attributes.length; l < al; l++) {
                                 if (attributes[l].nodeName === "i:type") {
-                                    sType = ($(attributes[l]).val() || emptyString).replace("c:", emptyString)
+                                    sType = ($(attributes[l]).val() || emptyString)
+                                        .replace("c:", emptyString)
                                         .replace("a:", emptyString);
                                     break;
                                 }
@@ -1275,7 +1292,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                                     break;
                                 case "EntityReference":
                                     nodes = attr.childNodes[k].childNodes[1].childNodes;
-                                    obj[sKey] = new self.EntityReference($(nodes[1]).text(), $(nodes[0]).text(), $(nodes[2]).text());
+                                    obj[sKey] = getEntityReference(nodes);
                                     break;
                                 case "EntityCollection":
                                     var items = [],
@@ -1289,8 +1306,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                                             }
 
                                             nodes = itemNodes[z].childNodes[1].childNodes;
-                                            var itemRef = new self
-                                                .EntityReference($(nodes[1]).text(), $(nodes[0]).text(), $(nodes[2]).text());
+                                            var itemRef = getEntityReference(nodes);
                                             items[y] = itemRef;
                                         }
                                     }
@@ -1320,11 +1336,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                                             aliasedType = $attr.attr("i:type");
 
                                         if (aliasedType === "a:EntityReference") {
-                                            var aliasedRef = $attr.children();
-                                            entCv = new self
-                                                .EntityReference(aliasedRef.eq(1).text(),
-                                                    aliasedRef.eq(0).text(),
-                                                    aliasedRef.eq(2).text());
+                                            entCv = getEntityReference($attr.children());
                                         } else if (aliasedType === "c:boolean") {
                                             entCv.value = $attr.text() === trueString;
                                         } else {
