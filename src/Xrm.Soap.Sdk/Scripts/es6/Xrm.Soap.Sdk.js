@@ -5,9 +5,8 @@ Type.registerNamespace("Xrm.Soap.Sdk");
 
     /* jshint -W030 */
     /* jshint esnext: true */
-
     var self = this,
-        $ = global.$,
+        $ = global.$ || global.parent.$,
         _ = global._,
         emptyString = "",
         trueString = true + emptyString,
@@ -45,14 +44,6 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             }
 
             return encoded;
-        },
-
-        removeBraces = function(value) {
-            if (!!!value) {
-                return emptyString;
-            }
-
-            return value.replace("{", emptyString).replace("}", emptyString).toLowerCase();
         },
 
         stringToDate = function(s) {
@@ -1096,10 +1087,10 @@ Type.registerNamespace("Xrm.Soap.Sdk");
 
             toLookupValue: function() {
                 return [{
-                        id: this.getIdValue(),
-                        name: this.getName(),
-                        entityType: this.LogicalName()
-                    }];
+                    id: this.getIdValue(),
+                    name: this.getName(),
+                    entityType: this.LogicalName()
+                }];
             },
 
             clone: function() {
@@ -1244,15 +1235,15 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                 instance = new self.Entity(),
 
                 getEntityReference = function (nodesList) {
-                    var attrs = _.chain(nodesList).map(nodesList, function(n) {
-                            return {
-                                name: n.nodeName,
-                                value: $(n).text()
-                            };
-                        }).reduce(function(o, a) {
-                            o[a.name] = a.value;
-                            return o;
-                        }, {}).value();
+                    const attrs = _.chain(nodesList).map(function(n) {
+                        return {
+                            name: n.nodeName,
+                            value: $(n).text()
+                        };
+                    }).reduce(function(o, a) {
+                        o[a.name] = a.value;
+                        return o;
+                    }, {}).value();
 
                     return new self.EntityReference(attrs["a:LogicalName"], attrs["a:Id"], attrs["a:Name"]);
                 };
@@ -1431,21 +1422,26 @@ Type.registerNamespace("Xrm.Soap.Sdk");
     })();
 
     this.Guid = (function() {
-        var regex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
-            empty = "00000000-0000-0000-0000-000000000000",
+        var regex = /^(\{){0,1}[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(\}){0,1}$/,
+            empty = "{00000000-0000-0000-0000-000000000000}",
             guid = function(value) {
                 if (typeof value === "object" &&
                     ((value instanceof self.Guid) ||
                     (value instanceof self.XrmValue && value.type === "guid"))) {
-                    this.value = removeBraces(value.value);
+                    this.value = value.value.toUpperCase();
                     this.type = value.type;
                 } else {
-                    value = removeBraces(value);
+                    value = value ? value.toUpperCase() : "";
                     if (!regex.test(value)) {
                         throw new TypeError("value must be a valid Guid");
                     }
 
-                    this.value = removeBraces(value);
+                    if (value.indexOf("{") === 0) {
+                        this.value = value;
+                    } else {
+                        this.value = "{" + value + "}";
+                    }
+
                     this.type = "guid";
                 }
             };
@@ -1456,11 +1452,13 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             }
 
             if (typeof other === "object" &&
-                ((other instanceof self.Guid) ||
-                 (other instanceof self.XrmValue && other.type === "guid"))) {
-                return this.value === removeBraces(other.value);
+                other instanceof self.XrmValue &&
+                other.type === "guid") {
+                return this.Equals(self.Guid.TryParse(other.value));
+            } else if (typeof other === "object" && other instanceof self.Guid) {
+                return this.value === other.value;
             } else if (typeof other === "string") {
-                return this.value === removeBraces(other);
+                return this.Equals(self.Guid.TryParse(other));
             }
 
             return false;

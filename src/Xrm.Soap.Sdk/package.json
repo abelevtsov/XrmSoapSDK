@@ -3,7 +3,7 @@
   "name": "xrm.soap.sdk",
   "description": "Package to interact with Microsoft Dynamics CRM 2011/2013/2015 from entity form like CRM SDK manner (C# or any other .NET lang e.g. VB or F#).",
   "homepage": "https://github.com/abelevtsov/XrmSoapSDK.git#readme",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "preferGlobal": true,
   "analyze": false,
   "main": "Scripts/es6/Xrm.Soap.Sdk.js",
