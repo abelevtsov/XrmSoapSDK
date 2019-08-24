@@ -1,8 +1,6 @@
 (function(global) {
     "use strict";
 
-    /* jshint esnext: true */
-
     const appScriptEl = document.getElementById("xrm.app");
     const baseUrl = appScriptEl.getAttribute("data-baseurl");
     var parameters = appScriptEl.getAttribute("data-parameters");

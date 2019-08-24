@@ -9,7 +9,8 @@ const yarn = require("gulp-yarn");
 
 const watchFiles = [
         "js/**/*.js",
-        "!js/lib/**/*.js"
+        "!js/lib/**/*.js",
+        "!node_modules/**/*.js"
     ];
 
 const handleJscsError = function(err) {
@@ -20,18 +21,9 @@ const handleJscsError = function(err) {
 gulp.task("yarn", function() {
     return gulp
         .src(["./package.json", "./yarn.lock"])
-        .pipe(gulp.dest("./dist"))
         .pipe(yarn({
             production: true
         }));
-});
-
-gulp.task("copy", function() {
-    return gulp
-        .src("./dist/**/*.js")
-        .pipe(flatten())
-        .pipe(flatten())
-        .pipe(gulp.dest("./js/lib"));
 });
 
 gulp.task("jscs", function() {
@@ -54,7 +46,7 @@ gulp.task("watch", function() {
     return gulp.watch(watchFiles, function() {
         console.clear();
 
-        runSequence("yarn", "copy", "jscs", "jshint", function() {
+        runSequence("jscs", "jshint", function() {
            console.log("Tasks Completed.");
         });
     });

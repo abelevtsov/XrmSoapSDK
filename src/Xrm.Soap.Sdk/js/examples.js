@@ -3,7 +3,6 @@
 */
 define(["soap"], function(soap) {
     "use strict";
-    /* jshint esnext: true */
     var orgService,
         crmProvider,
 

@@ -4,7 +4,6 @@ Type.registerNamespace("Xrm.Common");
     "use strict";
 
     /* jshint -W030 */
-    /* jshint esnext: true */
 
     var self = this,
         mscrm = global.Mscrm,

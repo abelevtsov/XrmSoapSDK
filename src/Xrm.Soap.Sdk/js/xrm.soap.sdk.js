@@ -4,7 +4,6 @@ Type.registerNamespace("Xrm.Soap.Sdk");
     "use strict";
 
     /* jshint -W030 */
-    /* jshint esnext: true */
     var self = this,
         $ = global.$ || global.parent.$,
         _ = global._,
@@ -25,7 +24,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                 encoded = emptyString;
 
             for (var count = 0, cnt = 0, l = s.length; cnt < l; cnt++) {
-                var c = s.charCodeAt(cnt);
+                const c = s.charCodeAt(cnt);
                 if (c > 96 && c < 123 || c > 64 && c < 91 || c === 32 || c > 47 && c < 58 || c === 46 || c === 44 || c === 45 || c === 95) {
                     buffer += String.fromCharCode(c);
                 } else {
@@ -61,7 +60,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                 c0 = s.charCodeAt(cnt);
                 if (c0 >= 55296 && c0 <= 57343) {
                     if (cnt + 1 < s.length) {
-                        var c1 = s.charCodeAt(cnt + 1);
+                        const c1 = s.charCodeAt(cnt + 1);
                         if (c1 >= 56320 && c1 <= 57343) {
                             buffer += `CRMEntityReferenceOpen${((c0 - 55296) * 1024 + (c1 & 1023) + 65536).toString(16)}CRMEntityReferenceClose`;
                             cnt++;
@@ -429,12 +428,11 @@ Type.registerNamespace("Xrm.Soap.Sdk");
 
             getSoap = function(asLink, simple, allColumns, columns) {
                 return getColumnSetTemplate(asLink, simple)({ columnSet: columnsTemplate({ allColumns: allColumns, columns: columns }) });
-            },
-
-            columnSet = function() {
-                this.columns = initColumns(arguments);
-                this.count = this.columns.length;
             };
+        const columnSet = function() {
+            this.columns = initColumns(arguments);
+            this.count = this.columns.length;
+        };
 
         columnSet.prototype.addColumn = function(columnName) {
             if (typeof this.columns[0] !== "boolean") {
@@ -556,14 +554,14 @@ Type.registerNamespace("Xrm.Soap.Sdk");
     })();
 
     this.OrderExpression = (function() {
-        var orderTemplate = compile("<a:OrderExpression><a:AttributeName><%= attributeName %></a:AttributeName><a:OrderType><%= orderType %></a:OrderType></a:OrderExpression>"),
-            orderExpression = function(attributeName, orderType) {
-                /// <summary>OrderExpression for use with QueryByAttribute</summary>
-                /// <param name="attributeName" type="String">Name of ordering by attribute</param>
-                /// <param name="orderType" type="OrderType">Ascending or Descending</param>
-                this.attributeName = attributeName;
-                this.orderType = !orderType ? self.OrderType.Descending : orderType;
-            };
+        var orderTemplate = compile("<a:OrderExpression><a:AttributeName><%= attributeName %></a:AttributeName><a:OrderType><%= orderType %></a:OrderType></a:OrderExpression>");
+        const orderExpression = function(attributeName, orderType) {
+            /// <summary>OrderExpression for use with QueryByAttribute</summary>
+            /// <param name="attributeName" type="String">Name of ordering by attribute</param>
+            /// <param name="orderType" type="OrderType">Ascending or Descending</param>
+            this.attributeName = attributeName;
+            this.orderType = !orderType ? self.OrderType.Descending : orderType;
+        };
 
         orderExpression.prototype.serialize = function() {
             return orderTemplate({
@@ -578,17 +576,16 @@ Type.registerNamespace("Xrm.Soap.Sdk");
     this.ConditionExpression = (function() {
         var valueTemplate = compile("<b:anyType i:type='c:<%= type %>' xmlns:c='<%= xmlns %>'><%= value %></b:anyType>"),
             valuesTemplate = compile(`<a:Values xmlns:b='${arraysNs}'><% _.each(values, function(value) { %><%= value %><% }) %></a:Values>`),
-            conditionExpressionTemplate = compile("<a:ConditionExpression><a:AttributeName><%= attributeName %></a:AttributeName><a:Operator><%= operator %></a:Operator><%= values %></a:ConditionExpression>"),
-
-            conditionExpression = function(attributeName, operator, values) {
-                /// <summary>ConditionExpression for use with QueryByAttribute/QueryExpression</summary>
-                /// <param name="attributeName" type="String">Name of ordering by attribute</param>
-                /// <param name="operator" type="ConditionOperator">Condition operator</param>
-                /// <param name="values" type="Array">Condition values</param>
-                this.attributeName = attributeName;
-                this.operator = operator;
-                this.values = values; // ToDo: param array
-            };
+            conditionExpressionTemplate = compile("<a:ConditionExpression><a:AttributeName><%= attributeName %></a:AttributeName><a:Operator><%= operator %></a:Operator><%= values %></a:ConditionExpression>");
+        const conditionExpression = function(attributeName, operator, values) {
+            /// <summary>ConditionExpression for use with QueryByAttribute/QueryExpression</summary>
+            /// <param name="attributeName" type="String">Name of ordering by attribute</param>
+            /// <param name="operator" type="ConditionOperator">Condition operator</param>
+            /// <param name="values" type="Array">Condition values</param>
+            this.attributeName = attributeName;
+            this.operator = operator;
+            this.values = values; // ToDo: param array
+        };
 
         conditionExpression.prototype.serialize = function() {
             if (this.values && this.values.length) {
@@ -635,12 +632,11 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                      "<%= filterOperator %>",
                  "</a:FilterOperator>",
              "</a:LinkCriteria>"
-            ].join(emptyString)),
-
-            filterExpression = function(logicalOperator) {
-                this.conditions = [];
-                this.filterOperator = logicalOperator ? logicalOperator : self.FilterOperator.And;
-            };
+            ].join(emptyString));
+        const filterExpression = function(logicalOperator) {
+            this.conditions = [];
+            this.filterOperator = logicalOperator ? logicalOperator : self.FilterOperator.And;
+        };
 
         filterExpression.prototype.addCondition = function(condition) {
             /// <summary>Add condition expression to conditions list</summary>
@@ -711,16 +707,15 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                      "<%= linkToEntityName %>",
                    "</a:LinkToEntityName>",
                  "</a:LinkEntity>"
-            ].join(emptyString)),
-
-            linkEntity = function(linkFromEntityName, linkToEntityName, linkFromAttributeName, linkToAttributeName, joinOperator) {
-                /// <summary>LinkEntity like in Microsoft.Xrm.Sdk</summary>
-                this.linkFromEntityName = linkFromEntityName;
-                this.linkToEntityName = linkToEntityName;
-                this.linkFromAttributeName = linkFromAttributeName;
-                this.linkToAttributeName = linkToAttributeName;
-                this.joinOperator = joinOperator;
-            };
+            ].join(emptyString));
+        const linkEntity = function(linkFromEntityName, linkToEntityName, linkFromAttributeName, linkToAttributeName, joinOperator) {
+            /// <summary>LinkEntity like in Microsoft.Xrm.Sdk</summary>
+            this.linkFromEntityName = linkFromEntityName;
+            this.linkToEntityName = linkToEntityName;
+            this.linkFromAttributeName = linkFromAttributeName;
+            this.linkToAttributeName = linkToAttributeName;
+            this.joinOperator = joinOperator;
+        };
 
         linkEntity.prototype.setLinkCriteria = function(filterExpression) {
             /// <summary>Set filter expression as link criteria</summary>
@@ -757,13 +752,12 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                 "</a:PageInfo>"
             ].join(emptyString)),
 
-            instance,
-
-            pageInfo = function(count, pageNumber, returnTotalRecordCount) {
-                this.count = count || 0;
-                this.pageNumber = pageNumber || 0;
-                this.returnTotalRecordCount = returnTotalRecordCount || false;
-            };
+            instance;
+        const pageInfo = function(count, pageNumber, returnTotalRecordCount) {
+            this.count = count || 0;
+            this.pageNumber = pageNumber || 0;
+            this.returnTotalRecordCount = returnTotalRecordCount || false;
+        };
 
         pageInfo.prototype.serialize = function() {
             return template({
@@ -787,25 +781,24 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             attributesTemplate = compile(`<a:Attributes xmlns:b='${arraysNs}'><% _.each(attributes, function(attribute) { %><%= attribute %><% }) %></a:Attributes>`),
             valuesTemplate = compile(`<a:Values xmlns:b='${arraysNs}'><% _.each(values, function(value) { %><%= value %><% }) %></a:Values>`),
             valueTemplate = compile(`<b:anyType i:type='c:<%= type %>' xmlns:c='${xmlSchemaNs}'><%= value %></b:anyType>`),
-            topCountTemplate = compile("<a:topCount<% if (topCount === null) { %> i:nil='true'<% } %>><%= topCount %></a:topCount>"),
-
-            queryByAttribute = function(entityName, attributes, values, columnSet, topCount) {
-                /// <summary>QueryByAttribute like in Microsoft.Xrm.Sdk</summary>
-                /// <param name="entityName" type="String">Name of object for retrieve</param>
-                /// <param name="attributes" type="Array">Attributes for conditions</param>
-                /// <param name="values" type="Array">Values of the attributes for conditions</param>
-                /// <param name="columnSet" type="ColumnSet">Columns of the entity for retrieve</param>
-                /// <param name="topCount" type="Integer">Count for retrieve</param>
-                this.entityName = entityName;
-                this.attributes = attributes;
-                this.values = values;
-                this.columns = columnSet || new self.ColumnSet(false);
-                this.distinct = false;
-                this.noLock = false;
-                this.orders = [];
-                this.topCount = topCount || null;
-                this.pageInfo = self.PageInfo.Instance();
-            };
+            topCountTemplate = compile("<a:topCount<% if (topCount === null) { %> i:nil='true'<% } %>><%= topCount %></a:topCount>");
+        const queryByAttribute = function(entityName, attributes, values, columnSet, topCount) {
+            /// <summary>QueryByAttribute like in Microsoft.Xrm.Sdk</summary>
+            /// <param name="entityName" type="String">Name of object for retrieve</param>
+            /// <param name="attributes" type="Array">Attributes for conditions</param>
+            /// <param name="values" type="Array">Values of the attributes for conditions</param>
+            /// <param name="columnSet" type="ColumnSet">Columns of the entity for retrieve</param>
+            /// <param name="topCount" type="Integer">Count for retrieve</param>
+            this.entityName = entityName;
+            this.attributes = attributes;
+            this.values = values;
+            this.columns = columnSet || new self.ColumnSet(false);
+            this.distinct = false;
+            this.noLock = false;
+            this.orders = [];
+            this.topCount = topCount || null;
+            this.pageInfo = self.PageInfo.Instance();
+        };
 
         queryByAttribute.prototype.addOrder = function(order) {
             /// <summary>Add order expression to current query</summary>
@@ -875,7 +868,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             if (this.attributes.length) {
                 result += valuesTemplate({
                     values: _.map(this.values, function(value) {
-                        var typed = value.hasOwnProperty("type");
+                        const typed = value.hasOwnProperty("type");
                         return valueTemplate({
                             type: typed ? value.type : "string",
                             value: value.hasOwnProperty("value") ? value.value : value
@@ -900,24 +893,23 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             conditionsTemplate = compile("<a:Conditions><% _.each(conditions, function(condition) { %><%= condition.serialize() %><% }) %></a:Conditions>"),
             linkEntitiesTemplate = compile("<a:LinkEntities><% _.each(linkEntities, function(entity) { %><%= entity.serialize() %><% }) %></a:LinkEntities>"),
             ordersTemplate = compile("<a:Orders><% _.each(orders, function(order) { %><%= order.serialize() %><% }) %></a:Orders>"),
-            topCountTemplate = compile("<a:topCount <% if (topCount === null) { %> i:nil='true'<% } %>><%= topCount %></a:topCount>"),
-
-            queryExpression = function(entityName, conditions, columnSet) {
-                /// <summary>QueryByAttribute like in Microsoft.Xrm.Sdk</summary>
-                /// <param name="entityName" type="String">Logical name of entity for retrieve</param>
-                /// <param name="conditions" type="Array of ConditionExpression">Condition expressions</param>
-                /// <param name="columnSet" type="Array of ColumnSet">Attributes of the entity for retrieve</param>
-                this.entityName = entityName;
-                this.conditions = conditions;
-                this.filterOperator = self.FilterOperator.And;
-                this.columnSet = columnSet || new self.ColumnSet(false);
-                this.distinct = false;
-                this.noLock = false;
-                this.orders = [];
-                this.linkEntities = [];
-                this.pageInfo = self.PageInfo.Instance();
-                this.topCount = null;
-            };
+            topCountTemplate = compile("<a:topCount <% if (topCount === null) { %> i:nil='true'<% } %>><%= topCount %></a:topCount>");
+        const queryExpression = function(entityName, conditions, columnSet) {
+            /// <summary>QueryByAttribute like in Microsoft.Xrm.Sdk</summary>
+            /// <param name="entityName" type="String">Logical name of entity for retrieve</param>
+            /// <param name="conditions" type="Array of ConditionExpression">Condition expressions</param>
+            /// <param name="columnSet" type="Array of ColumnSet">Attributes of the entity for retrieve</param>
+            this.entityName = entityName;
+            this.conditions = conditions;
+            this.filterOperator = self.FilterOperator.And;
+            this.columnSet = columnSet || new self.ColumnSet(false);
+            this.distinct = false;
+            this.noLock = false;
+            this.orders = [];
+            this.linkEntities = [];
+            this.pageInfo = self.PageInfo.Instance();
+            this.topCount = null;
+        };
 
         queryExpression.prototype.addOrder = function(order) {
             /// <summary>Add order expression to current query</summary>
@@ -1038,7 +1030,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             },
 
             getAttributeValue: function(name) {
-                var attr = this.getAttribute(name);
+                const attr = this.getAttribute(name);
                 if (attr) {
                     return attr.hasOwnProperty("value") ? attr.value : attr;
                 }
@@ -1384,7 +1376,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                 throw "value must be a number";
             }
 
-            var nameIsExist = typeof name !== "undefined";
+            const nameIsExist = typeof name !== "undefined";
             if (nameIsExist && typeof name !== "string") {
                 throw "name must be a string";
             }
@@ -1427,28 +1419,28 @@ Type.registerNamespace("Xrm.Soap.Sdk");
 
     this.Guid = (function() {
         var regex = /^(\{){0,1}[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(\}){0,1}$/,
-            empty = "{00000000-0000-0000-0000-000000000000}",
-            guid = function(value) {
-                if (typeof value === "object" &&
-                    ((value instanceof self.Guid) ||
-                    (value instanceof self.XrmValue && value.type === "guid"))) {
-                    this.value = value.value.toUpperCase();
-                    this.type = value.type;
-                } else {
-                    value = value ? value.toUpperCase() : "";
-                    if (!regex.test(value)) {
-                        throw new TypeError("value must be a valid Guid");
-                    }
-
-                    if (value.indexOf("{") === 0) {
-                        this.value = value;
-                    } else {
-                        this.value = `{${value}}`;
-                    }
-
-                    this.type = "guid";
+            empty = "{00000000-0000-0000-0000-000000000000}";
+        const guid = function(value) {
+            if (typeof value === "object" &&
+            ((value instanceof self.Guid) ||
+                (value instanceof self.XrmValue && value.type === "guid"))) {
+                this.value = value.value.toUpperCase();
+                this.type = value.type;
+            } else {
+                value = value ? value.toUpperCase() : "";
+                if (!regex.test(value)) {
+                    throw new TypeError("value must be a valid Guid");
                 }
-            };
+
+                if (value.indexOf("{") === 0) {
+                    this.value = value;
+                } else {
+                    this.value = `{${value}}`;
+                }
+
+                this.type = "guid";
+            }
+        };
 
         guid.prototype.equals = function(other) {
             if (!other) {
@@ -2107,161 +2099,159 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                 } else {
                     return Error(parsedResponse);
                 }
-            },
-
-            sync = {
-                create: function(entity) {
-                    /// <summary>Create like create in Microsoft.Xrm.Sdk</summary>
-                    const result = executeSync(entity.serialize(), "Create");
-                    return result && !(result instanceof Error) ? $(result).find("CreateResult").text() : result;
-                },
-
-                update: function(entity) {
-                    /// <summary>Update like update in Microsoft.Xrm.Sdk</summary>
-                    const result = executeSync(entity.serialize(), "Update");
-                    return result && !(result instanceof Error) ? $(result).find("UpdateResponse").text() : result;
-                },
-
-                "delete": function(entityName, id) {
-                    /// <summary>Delete like delete in Microsoft.Xrm.Sdk</summary>
-                    const request = `<entityName>${entityName}</entityName><id>${new self.Guid(id).value}</id>`;
-                    return executeSync(request, "Delete");
-                },
-
-                retrieve: function(entityName, id, columnSet) {
-                    /// <summary>Retrieve like in Microsoft.Xrm.Sdk</summary>
-                    const soapBodyTemplate = compile("<entityName><%= entityName %></entityName><id><%= id %></id><%= columnSet %>");
-                    if (columnSet && $.isArray(columnSet)) {
-                        columnSet = new self.ColumnSet(columnSet);
-                        columnSet = columnSet.serialize(false, true);
-                    } else if (columnSet && columnSet instanceof self.ColumnSet) {
-                        columnSet = columnSet.serialize(false, true);
-                    } else {
-                        columnSet = self.ColumnSet.getAllColumnsSoap(false, true);
-                    }
-
-                    const result = executeSync(
-                        soapBodyTemplate({
-                            entityName: entityName,
-                            id: new self.Guid(id).value,
-                            columnSet: columnSet
-                        }),
-                        "Retrieve");
-
-                    if (result && result instanceof Error) {
-                        return result;
-                    }
-
-                    const retrieveResult = $(result).find("RetrieveResult")[0];
-                    if (!retrieveResult) {
-                        return null;
-                    }
-
-                    return self.Entity.deserialize(retrieveResult);
-                },
-
-                retrieveMultiple: function(query) {
-                    /// <summary>RetrieveMultiple like in Microsoft.Xrm.Sdk</summary>
-                    /// <param name="query" type="QueryExpression|QueryByAttribute">Query for perform retrieve operation</param>
-                    const result = executeSync(query.serialize(), "RetrieveMultiple");
-
-                    if (result && result instanceof Error) {
-                        return result;
-                    }
-
-                    const $resultXml = $(result);
-                    var resultNodes;
-                    const retriveMultipleResults = [];
-
-                    if ($resultXml.find("a\\:Entities").length) {
-                        resultNodes = $resultXml.find("a\\:Entities")[0];
-                    } else {
-                        resultNodes = $resultXml.find("Entities")[0]; // chrome could not load node properly
-                    }
-
-                    if (!resultNodes) {
-                        return retriveMultipleResults; // return empty results
-                    }
-
-                    for (let i = 0, l = resultNodes.childNodes.length; i < l; i++) {
-                        retriveMultipleResults[i] = self.Entity.deserialize(resultNodes.childNodes[i]);
-                    }
-
-                    return retriveMultipleResults;
-                },
-
-                execute: function(request) {
-                    /// <summary>Execute like in Microsoft.Xrm.Sdk</summary>
-                    /// <param name="request" type="OrganizationRequest">Current request</param>
-                    return executeSync(request.serialize(), "Execute");
-                },
-
-                fetch: function(fetchXml) {
-                    /// <summary>Execute fetch Xml query</summary>
-                    /// <param name="fetchXml" type="String">Fetch xml expression</param>
-                    // ToDo: implement fetchXmlBuilder
-                    const fetchQuery = [
-                            `<query i:type='a:FetchExpression' xmlns:a='${contractsXrmNs}'>`,
-                                "<a:Query>",
-                                    crmXmlEncode(fetchXml),
-                                "</a:Query>",
-                            "</query>"
-                    ].join(emptyString);
-
-                    const result = executeSync(fetchQuery, "RetrieveMultiple");
-
-                    if (result && result instanceof Error) {
-                        return result;
-                    }
-
-                    const $resultXml = $(result);
-                    const fetchResults = [];
-                    let fetchResult;
-                    let $entities = $resultXml.find("a\\:Entities");
-
-                    if ($entities.length) {
-                        fetchResult = $entities[0];
-                    } else {
-                        $entities = $resultXml.find("Entities");
-                        fetchResult = $entities[0]; // chrome could not load node
-                    }
-
-                    for (let i = 0, l = fetchResult.childNodes.length; i < l; i++) {
-                        fetchResults[fetchResults.length] = self.Entity.deserialize(fetchResult.childNodes[i]);
-                    }
-
-                    return fetchResults;
-                }
-            },
-
-            execute = function(soapBody, soapAction, async) {
-                return new Promise(function(resolve, reject) {
-                    const soapXml = soapTemplate({ soapBody: soapBody, soapAction: soapAction });
-                    const req = new global.XMLHttpRequest();
-
-                    req.open("POST", serviceUrl, async || false);
-                    req.setRequestHeader("Accept", "application/xml, text/xml, */*");
-                    req.setRequestHeader("Content-Type", "text/xml; charset=utf-8");
-                    req.setRequestHeader("SOAPAction", xrmSoapActionPrefix + soapAction);
-
-                    req.onload = function() {
-                        const parsedResponse = processResponse(req.responseXML);
-                        if (req.status === 200) {
-                            req.onreadystatechange = null;
-                            resolve(parsedResponse);
-                        } else {
-                            reject(Error(parsedResponse));
-                        }
-                    };
-
-                    req.onerror = function() {
-                        req.onreadystatechange = null;
-                        reject(Error("network error occured"));
-                    };
-
-                    req.send(soapXml);
-                });
             };
+        const sync = {
+            create: function(entity) {
+                /// <summary>Create like create in Microsoft.Xrm.Sdk</summary>
+                const result = executeSync(entity.serialize(), "Create");
+                return result && !(result instanceof Error) ? $(result).find("CreateResult").text() : result;
+            },
+
+            update: function(entity) {
+                /// <summary>Update like update in Microsoft.Xrm.Sdk</summary>
+                const result = executeSync(entity.serialize(), "Update");
+                return result && !(result instanceof Error) ? $(result).find("UpdateResponse").text() : result;
+            },
+
+            "delete": function(entityName, id) {
+                /// <summary>Delete like delete in Microsoft.Xrm.Sdk</summary>
+                const request = `<entityName>${entityName}</entityName><id>${new self.Guid(id).value}</id>`;
+                return executeSync(request, "Delete");
+            },
+
+            retrieve: function(entityName, id, columnSet) {
+                /// <summary>Retrieve like in Microsoft.Xrm.Sdk</summary>
+                const soapBodyTemplate = compile("<entityName><%= entityName %></entityName><id><%= id %></id><%= columnSet %>");
+                if (columnSet && $.isArray(columnSet)) {
+                    columnSet = new self.ColumnSet(columnSet);
+                    columnSet = columnSet.serialize(false, true);
+                } else if (columnSet && columnSet instanceof self.ColumnSet) {
+                    columnSet = columnSet.serialize(false, true);
+                } else {
+                    columnSet = self.ColumnSet.getAllColumnsSoap(false, true);
+                }
+
+                const result = executeSync(
+                    soapBodyTemplate({
+                        entityName: entityName,
+                        id: new self.Guid(id).value,
+                        columnSet: columnSet
+                    }),
+                    "Retrieve");
+
+                if (result && result instanceof Error) {
+                    return result;
+                }
+
+                const retrieveResult = $(result).find("RetrieveResult")[0];
+                if (!retrieveResult) {
+                    return null;
+                }
+
+                return self.Entity.deserialize(retrieveResult);
+            },
+
+            retrieveMultiple: function(query) {
+                /// <summary>RetrieveMultiple like in Microsoft.Xrm.Sdk</summary>
+                /// <param name="query" type="QueryExpression|QueryByAttribute">Query for perform retrieve operation</param>
+                const result = executeSync(query.serialize(), "RetrieveMultiple");
+
+                if (result && result instanceof Error) {
+                    return result;
+                }
+
+                const $resultXml = $(result);
+                var resultNodes;
+                const retriveMultipleResults = [];
+
+                if ($resultXml.find("a\\:Entities").length) {
+                    resultNodes = $resultXml.find("a\\:Entities")[0];
+                } else {
+                    resultNodes = $resultXml.find("Entities")[0]; // chrome could not load node properly
+                }
+
+                if (!resultNodes) {
+                    return retriveMultipleResults; // return empty results
+                }
+
+                for (let i = 0, l = resultNodes.childNodes.length; i < l; i++) {
+                    retriveMultipleResults[i] = self.Entity.deserialize(resultNodes.childNodes[i]);
+                }
+
+                return retriveMultipleResults;
+            },
+
+            execute: function(request) {
+                /// <summary>Execute like in Microsoft.Xrm.Sdk</summary>
+                /// <param name="request" type="OrganizationRequest">Current request</param>
+                return executeSync(request.serialize(), "Execute");
+            },
+
+            fetch: function(fetchXml) {
+                /// <summary>Execute fetch Xml query</summary>
+                /// <param name="fetchXml" type="String">Fetch xml expression</param>
+                // ToDo: implement fetchXmlBuilder
+                const fetchQuery = [
+                    `<query i:type='a:FetchExpression' xmlns:a='${contractsXrmNs}'>`,
+                    "<a:Query>",
+                    crmXmlEncode(fetchXml),
+                    "</a:Query>",
+                    "</query>"
+                ].join(emptyString);
+
+                const result = executeSync(fetchQuery, "RetrieveMultiple");
+
+                if (result && result instanceof Error) {
+                    return result;
+                }
+
+                const $resultXml = $(result);
+                const fetchResults = [];
+                let fetchResult;
+                let $entities = $resultXml.find("a\\:Entities");
+
+                if ($entities.length) {
+                    fetchResult = $entities[0];
+                } else {
+                    $entities = $resultXml.find("Entities");
+                    fetchResult = $entities[0]; // chrome could not load node
+                }
+
+                for (let i = 0, l = fetchResult.childNodes.length; i < l; i++) {
+                    fetchResults[fetchResults.length] = self.Entity.deserialize(fetchResult.childNodes[i]);
+                }
+
+                return fetchResults;
+            }
+        };
+        var execute = function(soapBody, soapAction, async) {
+            return new Promise(function(resolve, reject) {
+                const soapXml = soapTemplate({ soapBody: soapBody, soapAction: soapAction });
+                const req = new global.XMLHttpRequest();
+
+                req.open("POST", serviceUrl, async || false);
+                req.setRequestHeader("Accept", "application/xml, text/xml, */*");
+                req.setRequestHeader("Content-Type", "text/xml; charset=utf-8");
+                req.setRequestHeader("SOAPAction", xrmSoapActionPrefix + soapAction);
+
+                req.onload = function() {
+                    const parsedResponse = processResponse(req.responseXML);
+                    if (req.status === 200) {
+                        req.onreadystatechange = null;
+                        resolve(parsedResponse);
+                    } else {
+                        reject(Error(parsedResponse));
+                    }
+                };
+
+                req.onerror = function() {
+                    req.onreadystatechange = null;
+                    reject(Error("network error occured"));
+                };
+
+                req.send(soapXml);
+            });
+        };
 
         const orgService = function() {
                 this.url = function() {

@@ -2,7 +2,6 @@ Type.registerNamespace("Xrm.App");
 
 (function(global) {
     "use strict";
-    /* jshint esnext: true */
 
     this.load = function(executionContext, requirejsResourceName, mainResourceName, etn, parameters) {
         const time = (new Date()).getTime();

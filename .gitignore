@@ -23,6 +23,7 @@ bld/
 [Ll]og/
 node_modules
 bower_components
+lib
 
 # Visual Studio 2015 cache/options directory
 src/.vs/

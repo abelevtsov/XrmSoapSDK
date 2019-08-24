@@ -20,7 +20,6 @@
 
   // RELAXING OPTIONS
   "debug": false,
-  "esnext": true,
   "esversion": 6,
   "moz": true,
   "evil": false,

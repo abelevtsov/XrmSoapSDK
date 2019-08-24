@@ -1,5 +1,5 @@
 {
-  // JSCS, version 1.13.1
+  // JSCS, version 3.0.7
   // https://github.com/jscs-dev/node-jscs/releases
   "disallowCapitalizedComments": false,
   "disallowDanglingUnderscores": {
@@ -51,8 +51,6 @@
   "disallowTrailingComma": true,
   "disallowTrailingWhitespace": true,
   "disallowYodaConditions": true,
-  "esnext": true,
-  "esprima": "esprima-fb",
   "maximumLineLength": {
     "value": 230,
     "tabSize": 4,
@@ -79,7 +77,6 @@
   "requireFunctionDeclarations": false,
   "requireLineBreakAfterVariableAssignment": true,
   "requireLineFeedAtFileEnd": true,
-  // "requireNamedUnassignedFunctions": true, // check (new chrome debugger)
   "requirePaddingNewLinesAfterBlocks": {
     "allExcept": [
       "inCallExpressions",
@@ -148,7 +145,6 @@
   "safeContextKeyword": "self",
   "validateAlignedFunctionParameters": true,
   "validateIndentation": 4,
-  // "validateLineBreaks": "LF", // check (shouldn't be hardcoded and don't pass any test)
   "validateNewlineAfterArrayElements": {
     "maximum": 3,
     "ignoreBrackets": true
