@@ -13,7 +13,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Xrm.Soap.Sdk</RootNamespace>
     <AssemblyName>Xrm.Soap.Sdk</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
@@ -21,6 +21,8 @@
     <IISExpressUseClassicPipelineMode />
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>c82f1a72</NuGetPackageImportStamp>
+    <Use64BitIISExpress />
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -40,25 +42,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="Gruntfile.js" />
     <Content Include="Gulpfile.js" />
-    <Content Include="Scripts\es6\examples.js" />
-    <Content Include="Scripts\es6\Xrm.App.js" />
-    <Content Include="Scripts\es6\Xrm.Common.js" />
-    <Content Include="Scripts\es6\Xrm.Main.js" />
-    <Content Include="Scripts\es6\Xrm.Soap.Sdk.js" />
-    <Content Include="Scripts\examples.js" />
-    <Content Include="Scripts\Xrm.App.js" />
-    <Content Include="Scripts\Xrm.Common.js" />
-    <Content Include="Scripts\Xrm.Main.js" />
-    <Content Include="Scripts\Xrm.Soap.Sdk.js" />
+    <Content Include="js\examples.js" />
+    <Content Include="js\xrm.app.js" />
+    <Content Include="js\xrm.common.js" />
+    <Content Include="js\xrm.main.js" />
+    <Content Include="js\xrm.soap.sdk.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="bower.json" />
     <Content Include="package.json" />
   </ItemGroup>
   <ItemGroup>

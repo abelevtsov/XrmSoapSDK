@@ -1,11 +1,10 @@
+/**
+ * This file contains examples of usage Xrm.Soap.Sdk library now using es6 features, Promise API for example
+*/
 define(["soap"], function(soap) {
-    /// <summary>This file contains examples of usage Xrm.Soap.Sdk library now using es6 features, Promise API for example</summary>
-
     "use strict";
     /* jshint esnext: true */
-
-    var xrmPage,
-        orgService,
+    var orgService,
         crmProvider,
 
         // ReSharper disable InconsistentNaming
@@ -43,10 +42,10 @@ define(["soap"], function(soap) {
             orgService.fetch(fetchXml).then(function(contacts) {
                 for (let i = 0, l = contacts.length; i < l; i++) {
                     const contact = contacts[i];
-                    console.log([
-                        `FullName: ${contact.getAttributeValue("fullname")}`,
-                        `Owner email: ${contact.getAttributeValue("aa.internalemailaddress")}`
-                    ].join("\n"));
+                    console.table({
+                        fullName: contact.getAttributeValue("fullname"),
+                        internalEmailAddress: contact.getAttributeValue("aa.internalemailaddress")
+                    });
                 }
             });
         },
@@ -71,10 +70,10 @@ define(["soap"], function(soap) {
             orgService.fetchAsync(fetchXml).then(function(contacts) {
                 for (let i = 0, l = contacts.length; i < l; i++) {
                     const contact = contacts[i];
-                    console.log([
-                        `FullName: ${contact.getAttributeValue("fullname")}`,
-                        `Owner email: ${contact.getAttributeValue("aa.internalemailaddress")}`
-                    ].join("\n"));
+                    console.table({
+                        fullName: contact.getAttributeValue("fullname"),
+                        internalEmailAddress: contact.getAttributeValue("aa.internalemailaddress")
+                    });
                 }
             });
         },
@@ -137,11 +136,11 @@ define(["soap"], function(soap) {
                     new ColumnSet("name"));
 
                 const linkVatrate = new soap.LinkEntity("pricelevel", "new_vatrate", "new_vatrate", "new_vatrateid", soap.JoinOperator.LeftOuter);
-                linkVatrate.SetColumns(new ColumnSet("new_vatrate"));
+                linkVatrate.setColumns(new ColumnSet("new_vatrate"));
 
-                query.AddLink(linkVatrate);
-                query.NoLock(true);
-                query.AddOrders(
+                query.addLink(linkVatrate);
+                query.noLock(true);
+                query.addOrders(
                     new OrderExpression("name", soap.OrderType.Ascending),
                     new OrderExpression("enddate", soap.OrderType.Descending));
 
@@ -174,11 +173,12 @@ define(["soap"], function(soap) {
                     console.log(userTeams);
                     return currentUserId;
                 }).then(function(userId) {
-                    crmProvider.getSystemUserBusinessUnit(userId).then(function(currentUserBusinessunit) {
-                        console.log(currentUserBusinessunit);
+                    crmProvider.getSystemUserBusinessUnit(userId).then(function(currentUserBusinessUnit) {
+                        console.log(currentUserBusinessUnit);
                     });
                 });
             }).catch(function(err) {
+                console.error(err);
                 crmProvider.executeWorkflowAsync("dcbfe8f3-c5c0-e311-9777-00155d011e01", "2099D78C-94BF-4494-A21E-6ED46C111C98").then(function(asyncOperationId) {
                     console.log(asyncOperationId);
                 });
@@ -186,36 +186,36 @@ define(["soap"], function(soap) {
         },
 
         callCustomActionExample = function() {
-            const leadId = soap.Guid.Empty;
-            // entity logical name and Id
-            crmProvider.callActionAsync("new_NotifyLead", "lead", new soap.Guid(leadId), [new soap.RequestParameter("Message", "NICHT PARTY - ONLY HARD WORK")]).then(function(result) {
+            const leadId = soap.Guid.empty;
+            // pass entity logical name and Id
+            crmProvider.callActionAsync("new_NotifyLead", "lead", new soap.Guid(leadId), [new soap.RequestParameter("Message", "TEST MESSAGE")]).then(function(result) {
                 console.log(result);
             });
 
-            // don't pass entity logical name and Id
-            crmProvider.callGlobalActionAsync("new_Trigger_Annoying_Notifications", [new soap.RequestParameter("Message", "NICHT PARTY - ONLY HARD WORK")]).then(function(res) {
-                console.log("Whoa ha ha!!!");
+            // without pass entity logical name and Id
+            crmProvider.callGlobalActionAsync("new_Trigger_Annoying_Notifications", [new soap.RequestParameter("Message", "TEST MESSAGE")]).then(function(result) {
+                console.log(result);
             });
         },
 
         crudExample = function() {
-            let contact = new Entity("contact");
+            const contact = new Entity("contact");
             contact.setAttribute("parentcustomerid", new EntityReference("account", new Guid("8A2C9BB0-2E7D-E311-A409-00155D011E01")));
             contact.setAttribute("firstname", "test");
-            contact.setAttribute("rare_int", 123);
-            contact.setAttribute("rare_float", 123.55);
-            contact.setAttribute("rare_bool", true);
-            contact.setAttribute("rare_decimal", new soap.Decimal(222.33));
-            contact.setAttribute("rare_currency", new soap.Money(555.55));
-            contact.setAttribute("rare_datetime", new Date());
-            contact.setAttribute("rare_optionset", new soap.OptionSetValue(2, "Перерасчет по факту поставки"));
+            contact.setAttribute("new_int", 123);
+            contact.setAttribute("new_float", 123.55);
+            contact.setAttribute("new_bool", true);
+            contact.setAttribute("new_decimal", new soap.Decimal(222.33));
+            contact.setAttribute("new_currency", new soap.Money(555.55));
+            contact.setAttribute("new_datetime", new Date());
+            contact.setAttribute("new_optionset", new soap.OptionSetValue(2, "Recalculate"));
             orgService.create(contact).then(function(contactId) {
-                let contact = new Entity("contact", contactId);
-                contact.setAttribute("middlename", "testovich");
-                return contact;
-            }).then(function(contact) {
-                orgService.updateAsync(contact).catch(function(err) {
-                    Xrm.Utility.alertDialog("Contact update failed:" + err);
+                const contactWithMiddleName = new Entity("contact", contactId);
+                contactWithMiddleName.setAttribute("middlename", "testovich");
+                return contactWithMiddleName;
+            }).then(function(contactWithMiddleName) {
+                orgService.updateAsync(contactWithMiddleName).catch(function(err) {
+                    Xrm.Utility.alertDialog(`Contact update failed:${err}`);
                 });
             }).then(function() {
                 orgService.delete(contact.LogicalName(), contact.Id());
@@ -264,7 +264,6 @@ define(["soap"], function(soap) {
         },
 
         init = function() {
-            xrmPage = xrmPage || Xrm.Page;
             orgService = orgService || new OrganizationService();
             crmProvider = crmProvider || new CrmProvider();
         };

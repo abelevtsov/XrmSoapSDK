@@ -1,4 +1,4 @@
-(function() {
+(function(global) {
     "use strict";
 
     /* jshint esnext: true */
@@ -8,9 +8,9 @@
     var parameters = appScriptEl.getAttribute("data-parameters");
     const etn = appScriptEl.getAttribute("data-etn");
     const etnLowerCased = etn.toLowerCase();
-    const lastetnPart = etnLowerCased.split(".").reverse()[0];
+    const etnPart = etnLowerCased.split(".").reverse()[0];
 
-    require.config({
+    global.require.config({
         baseUrl: baseUrl,
         paths: {
             underscore: "new_lib.underscore",
@@ -19,8 +19,7 @@
             common: "new_lib.xrm.common",
             form: `new_form.${etnLowerCased}`,
             ribbon: `new_ribbon.${etnLowerCased}`,
-            formbase: `new_form.base.${lastetnPart}`,
-            es6Promise: "new_lib.es6promise"
+            formbase: `new_form.base.${etnPart}`
         },
         shim: {
             base64: {
@@ -30,10 +29,10 @@
                 exports: "_"
             },
             soap: {
-                deps: ["underscore", "es6Promise"],
+                deps: ["underscore"],
                 exports: "Xrm.Soap.Sdk",
                 init: function() {
-                    return this.Xrm.Soap.Sdk.init(["new_"]);
+                    return global.Xrm.Soap.Sdk.init(["new_"]);
                 }
             },
             common: {
@@ -43,9 +42,7 @@
         }
     });
 
-    require(["form", "underscore", "es6Promise"], function(form, _, es6Promise) {
-        es6Promise.polifill();
-
+    global.require(["form", "underscore"], function(form, _) {
         if (parameters && parameters.length) {
             parameters = parameters.split("|");
         }
@@ -54,4 +51,4 @@
             form.init.apply(null, parameters || []);
         }
     });
-})();
+})(this);
