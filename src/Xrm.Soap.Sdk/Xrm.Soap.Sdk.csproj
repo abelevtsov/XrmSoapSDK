@@ -57,8 +57,7 @@
     <Content Include="package.json" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include=".jscsrc" />
-    <Content Include=".jshintrc" />
+    <Content Include=".eslintrc.yaml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

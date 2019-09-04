@@ -30,7 +30,18 @@ Type.registerNamespace("Xrm.Common");
             }
         };
 
-    this.openCustomLookupDialog = function(callee, lookupStyle, lookupTypes, additionalParams, defaultType, defaultViewId, customViews, behavior, isMobileRefresh, isInlineMultiLookup, params) {
+    this.openCustomLookupDialog = function(config) {
+        const callee = config.callee;
+        const lookupStyle = config.lookupStyle;
+        const lookupTypes = config.lookupTypes;
+        const additionalParams = config.additionalParams;
+        const defaultType = config.defaultType;
+        const defaultViewId = config.defaultViewId;
+        const customViews = config.customViews;
+        const behavior = config.behavior;
+        const isMobileRefresh = config.isMobileRefresh;
+        const isInlineMultiLookup = config.isInlineMultiLookup;
+        const params = config.params;
         const args = new global.LookupArgsClass();
         const oUrl = mscrm.CrmUri.create("/_controls/lookup/lookupinfo.aspx");
         const query = oUrl.get_query();
@@ -54,8 +65,8 @@ Type.registerNamespace("Xrm.Common");
         query.mrsh = isMobileRefresh;
         if (isMobileRefresh) {
             const queryString = (new mscrm.GlobalContext()).getQueryStringParameters();
-            query.client_type = queryString.client_type;
-            query.user_lcid = queryString.user_lcid;
+            query["client_type"] = queryString.client_type;
+            query["user_lcid"] = queryString.user_lcid;
         }
 
         global.setMobilePopupMode();
@@ -113,8 +124,8 @@ Type.registerNamespace("Xrm.Common");
 
     this.setLookupBehavior = function(lookupName, behavior) {
         const lookupControl = document.getElementById(lookupName + "_i");
-        if (lookupControl && lookupControl._behaviors) {
-            const currentBehavior = lookupControl._behaviors[0];
+        if (lookupControl && lookupControl["_behaviors"]) {
+            const currentBehavior = lookupControl["_behaviors"][0];
             if (currentBehavior.AddParam) {
                 behavior = behavior || new self.LookupDialogBehavior(false, false, true, true, false, true);
                 currentBehavior.AddParam("ShowNewButton", behavior.showNew);
@@ -217,12 +228,12 @@ Type.registerNamespace("Xrm.Common");
     };
 
     this.setDisabledValueForAllFields = function(isDisabled) {
-        var doesControlHaveAttribute = function(control) {
-                const controlType = control.getControlType();
-                return !(controlType === "iframe" ||
-                         controlType === "webresource" ||
-                         controlType === "subgrid");
-            };
+        const doesControlHaveAttribute = function(control) {
+            const controlType = control.getControlType();
+            return !(controlType === "iframe" ||
+                     controlType === "webresource" ||
+                     controlType === "subgrid");
+        };
 
         xrmPage.ui.controls.forEach(function(control) {
             if (doesControlHaveAttribute(control)) {

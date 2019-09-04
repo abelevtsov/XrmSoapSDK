@@ -1,15 +1,15 @@
-Type.registerNamespace("Xrm.Soap.Sdk");
+(function(global) {
+    global.Type.registerNamespace("Xrm.Soap.Sdk");
+})(this);
 
 (function(global) {
     "use strict";
 
-    /* jshint -W030 */
     var self = this,
         $ = global.$ || global.parent.$,
         _ = global._,
-        emptyString = "",
-        trueString = true + emptyString,
-        falseString = false + emptyString,
+        trueString = true + "",
+        falseString = false + "",
 
         notify = function(msg) {
             Xrm && Xrm.Utility && Xrm.Utility.alertDialog ? Xrm.Utility.alertDialog(msg) : alert(msg);
@@ -20,8 +20,8 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                 return s;
             }
 
-            var buffer = emptyString,
-                encoded = emptyString;
+            var buffer = "",
+                encoded = "";
 
             for (var count = 0, cnt = 0, l = s.length; cnt < l; cnt++) {
                 const c = s.charCodeAt(cnt);
@@ -33,7 +33,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
 
                 if (++count === 500) {
                     encoded += buffer;
-                    buffer = emptyString;
+                    buffer = "";
                     count = 0;
                 }
             }
@@ -51,7 +51,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
         },
 
         innerSurrogateAmpersandWorkaround = function(s) {
-            var buffer = emptyString,
+            var buffer = "",
                 c0,
                 cnt,
                 l;
@@ -76,7 +76,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             }
 
             s = buffer;
-            buffer = emptyString;
+            buffer = "";
             for (cnt = 0, l = s.length; cnt < l; cnt++) {
                 c0 = s.charCodeAt(cnt);
                 if (c0 >= 55296 && c0 <= 57343) {
@@ -90,17 +90,17 @@ Type.registerNamespace("Xrm.Soap.Sdk");
         },
 
         xmlToString = function(response) {
-            var xmlString = emptyString;
+            var xmlString = "";
 
             try {
                 if (response) {
-                    if (typeof XMLSerializer !== "undefined" &&
-                        typeof response.xml === "undefined") {
+                    if (typeof(XMLSerializer) !== "undefined" &&
+                        typeof(response.xml) === "undefined") {
                         xmlString = (new XMLSerializer()).serializeToString(response[0]);
                     } else {
-                        if (typeof response.xml !== "undefined") {
+                        if (typeof(response.xml) !== "undefined") {
                             xmlString = response.xml;
-                        } else if (typeof response[0].xml !== "undefined") {
+                        } else if (typeof(response[0].xml) !== "undefined") {
                             xmlString = response[0].xml;
                         }
                     }
@@ -118,8 +118,8 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                 };
 
             if (global.DOMParser) {
+                // code for Mozilla, Firefox, Opera, and other normal browsers
                 parseXml = function(data) {
-                    // code for Mozilla, Firefox, Opera, and other normal browsers
                     try {
                         const parser = new DOMParser();
                         return parser.parseFromString(data, "text/xml");
@@ -128,8 +128,8 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                     }
                 };
             } else {
+                // IE
                 parseXml = function(data) {
-                    // IE
                     try {
                         const xmlDoc = new global.ActiveXObject("Microsoft.XMLDOM");
                         xmlDoc.async = false;
@@ -145,11 +145,12 @@ Type.registerNamespace("Xrm.Soap.Sdk");
         },
 
         crmXmlDecode = function(s) {
-            return typeof s !== "string" ? s.toString() : s;
+            return typeof(s) === "string" ? s : s.toString();
         },
 
         crmXmlEncode = function(s) {
-            const stype = typeof s;
+            const stype = typeof(s);
+            // ReSharper disable once ConditionIsAlwaysConst - weird IE it's for you
             if (stype === "undefined" || stype === "unknown") {
                 return s;
             } else if (stype !== "string") {
@@ -168,11 +169,11 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                 return value.value;
             }
 
-            if (value && typeof value === typeof emptyString && value.slice(0, 1) === "{" && value.slice(-1) === "}") {
+            if (value && typeof(value) === typeof("") && value.slice(0, 1) === "{" && value.slice(-1) === "}") {
                 value = value.slice(1, -1);
             }
 
-            return value && typeof value === "object" && value.getTime ? value.toISOString() : crmXmlEncode(value);
+            return value && typeof(value) === "object" && value.getTime ? value.toISOString() : crmXmlEncode(value);
         },
 
         isMetadataArray = (function() {
@@ -187,7 +188,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                     "Targets"
                 ];
 
-            if (typeof Array.prototype.some === "function") {
+            if (typeof(Array.prototype.some) === "function") {
                 return function(elementName) {
                     return arrayElements.some(function(value, index, array) {
                         return elementName === array[index];
@@ -207,7 +208,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
         })(),
 
         getNodeName = function(node) {
-            return typeof node.baseName !== "undefined" ? node.baseName : node.localName;
+            return typeof(node.baseName) !== "undefined" ? node.baseName : node.localName;
         },
 
         objectifyNode = function(node) {
@@ -343,8 +344,8 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             return c;
         },
 
-        publishersPrefixes = [emptyString],
-        context = typeof global.GetGlobalContext === "function" ? global.GetGlobalContext() : global.Xrm.Page.context,
+        publishersPrefixes = [""],
+        context = typeof(global.GetGlobalContext) === "function" ? global.GetGlobalContext() : global.Xrm.Page.context,
         loc = global.location,
         clientUrl = context.getClientUrl(),
         splittedUrl = clientUrl.replace(/^(http|https):\/\/([_a-zA-Z0-9\-\.]+)(:([0-9]{1,5}))?/, loc.protocol + "//" + loc.host).split(/\/+/g),
@@ -375,13 +376,12 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                 }
             }
 
-            const ctor = function() {
+            const Ctor = function() {
                 this.constructor = child;
             };
 
-            ctor.prototype = base.prototype;
-            /* jshint newcap: false */
-            child.prototype = new ctor();
+            Ctor.prototype = base.prototype;
+            child.prototype = new Ctor();
             child.base = base.prototype;
 
             return child;
@@ -396,52 +396,54 @@ Type.registerNamespace("Xrm.Soap.Sdk");
     };
 
     this.ColumnSet = (function() {
-        var columnsTemplate = compile(`<a:AllColumns><%= allColumns %></a:AllColumns><a:Columns xmlns:b='${arraysNs
-                }'><% _.each(columns, function(column) { %><%= column %><% }) %></a:Columns>`),
-            columnSetTemplate = compile("<a:ColumnSet><%= columnSet %></a:ColumnSet>"),
-            asLinkColumnSetTemplate = compile("<a:Columns><%= columnSet %></a:Columns>"),
-            simpleColumnSetTemplate = compile(`<columnSet xmlns:a='${contractsXrmNs}'><%= columnSet %></columnSet>`),
+        const columnsTemplate = compile(`<a:AllColumns><%= allColumns %></a:AllColumns><a:Columns xmlns:b='${arraysNs}'><% _.each(columns, function(column) { %><%= column %><% }) %></a:Columns>`);
+        const columnSetTemplate = compile("<a:ColumnSet><%= columnSet %></a:ColumnSet>");
+        const asLinkColumnSetTemplate = compile("<a:Columns><%= columnSet %></a:Columns>");
+        const simpleColumnSetTemplate = compile(`<columnSet xmlns:a='${contractsXrmNs}'><%= columnSet %></columnSet>`);
 
-            initColumns = function(columns) {
-                if (columns && columns.length) {
-                    if (columns.length === 1 && $.isArray(columns[0])) {
-                        return columns[0];
-                    } else if (typeof columns[0] === "boolean") {
-                        return [columns[0]];
-                    } else {
-                        return columns;
-                    }
+        const initColumns = function(columns) {
+            if (columns && columns.length) {
+                if (columns.length === 1 && $.isArray(columns[0])) {
+                    return columns[0];
+                } else if (typeof(columns[0]) === "boolean") {
+                    return [columns[0]];
+                } else {
+                    return columns;
                 }
+            }
 
-                return [false];
-            },
+            return [false];
+        };
 
-            getColumnSetTemplate = function(asLink, simple) {
-                if (asLink) {
-                    return asLinkColumnSetTemplate;
-                } else if (simple) {
-                    return simpleColumnSetTemplate;
-                }
+        const getColumnSetTemplate = function(asLink, simple) {
+            if (asLink) {
+                return asLinkColumnSetTemplate;
+            } else if (simple) {
+                return simpleColumnSetTemplate;
+            }
 
-                return columnSetTemplate;
-            },
+            return columnSetTemplate;
+        };
 
-            getSoap = function(asLink, simple, allColumns, columns) {
-                return getColumnSetTemplate(asLink, simple)({ columnSet: columnsTemplate({ allColumns: allColumns, columns: columns }) });
-            };
-        const columnSet = function() {
+        const getSoap = function(asLink, simple, allColumns, columns) {
+            return getColumnSetTemplate(asLink, simple)({
+                columnSet: columnsTemplate({ allColumns: allColumns, columns: columns })
+            });
+        };
+
+        const ctor = function() {
             this.columns = initColumns(arguments);
             this.count = this.columns.length;
         };
 
-        columnSet.prototype.addColumn = function(columnName) {
-            if (typeof this.columns[0] !== "boolean") {
+        ctor.prototype.addColumn = function(columnName) {
+            if (typeof(this.columns[0]) !== "boolean") {
                 this.columns[this.count] = columnName;
                 this.count++;
             }
         };
 
-        columnSet.prototype.serialize = function(asLink, simple) {
+        ctor.prototype.serialize = function(asLink, simple) {
             if (this.count) {
                 if (this.columns[0] === true) {
                     return getSoap(asLink, simple, true, []);
@@ -460,11 +462,11 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             }
         };
 
-        columnSet.getAllColumnsSoap = function(asLink, simple) {
+        ctor.getAllColumnsSoap = function(asLink, simple) {
             return getSoap(asLink, simple, true, []);
         };
 
-        return columnSet;
+        return ctor;
     })();
 
     this.ConditionOperator = (function() {
@@ -554,40 +556,46 @@ Type.registerNamespace("Xrm.Soap.Sdk");
     })();
 
     this.OrderExpression = (function() {
-        var orderTemplate = compile("<a:OrderExpression><a:AttributeName><%= attributeName %></a:AttributeName><a:OrderType><%= orderType %></a:OrderType></a:OrderExpression>");
-        const orderExpression = function(attributeName, orderType) {
-            /// <summary>OrderExpression for use with QueryByAttribute</summary>
-            /// <param name="attributeName" type="String">Name of ordering by attribute</param>
-            /// <param name="orderType" type="OrderType">Ascending or Descending</param>
+        const orderTemplate = compile("<a:OrderExpression><a:AttributeName><%= attributeName %></a:AttributeName><a:OrderType><%= orderType %></a:OrderType></a:OrderExpression>");
+
+        /**
+         * OrderExpression for use with QueryByAttribute
+         * @param {String} attributeName
+         * @param {OrderType} orderType
+         */
+        const ctor = function(attributeName, orderType) {
             this.attributeName = attributeName;
             this.orderType = !orderType ? self.OrderType.Descending : orderType;
         };
 
-        orderExpression.prototype.serialize = function() {
+        ctor.prototype.serialize = function() {
             return orderTemplate({
                 attributeName: this.attributeName,
                 orderType: this.orderType
             });
         };
 
-        return orderExpression;
+        return ctor;
     })();
 
     this.ConditionExpression = (function() {
-        var valueTemplate = compile("<b:anyType i:type='c:<%= type %>' xmlns:c='<%= xmlns %>'><%= value %></b:anyType>"),
-            valuesTemplate = compile(`<a:Values xmlns:b='${arraysNs}'><% _.each(values, function(value) { %><%= value %><% }) %></a:Values>`),
-            conditionExpressionTemplate = compile("<a:ConditionExpression><a:AttributeName><%= attributeName %></a:AttributeName><a:Operator><%= operator %></a:Operator><%= values %></a:ConditionExpression>");
-        const conditionExpression = function(attributeName, operator, values) {
-            /// <summary>ConditionExpression for use with QueryByAttribute/QueryExpression</summary>
-            /// <param name="attributeName" type="String">Name of ordering by attribute</param>
-            /// <param name="operator" type="ConditionOperator">Condition operator</param>
-            /// <param name="values" type="Array">Condition values</param>
+        const valueTemplate = compile("<b:anyType i:type='c:<%= type %>' xmlns:c='<%= xmlns %>'><%= value %></b:anyType>");
+        const valuesTemplate = compile(`<a:Values xmlns:b='${arraysNs}'><% _.each(values, function(value) { %><%= value %><% }) %></a:Values>`);
+        const conditionExpressionTemplate = compile("<a:ConditionExpression><a:AttributeName><%= attributeName %></a:AttributeName><a:Operator><%= operator %></a:Operator><%= values %></a:ConditionExpression>");
+
+        /**
+         * ConditionExpression for use with QueryByAttribute/QueryExpression
+         * @param {String} attributeName - Name of ordering by attribute
+         * @param {ConditionOperator} operator - Condition operator
+         * @param {Array} values - Condition values
+         */
+        const ctor = function(attributeName, operator, values) {
             this.attributeName = attributeName;
             this.operator = operator;
             this.values = values; // ToDo: param array
         };
 
-        conditionExpression.prototype.serialize = function() {
+        ctor.prototype.serialize = function() {
             if (this.values && this.values.length) {
                 const values = _.map(this.values, function(value) {
                     const typed = value.hasOwnProperty("type");
@@ -612,7 +620,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             }
         };
 
-        return conditionExpression;
+        return ctor;
     })();
 
     this.FilterOperator = (function() {
@@ -623,7 +631,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
     })();
 
     this.FilterExpression = (function() {
-        var template = compile([
+        const template = compile([
             "<a:LinkCriteria>",
                  "<a:Conditions>",
                      "<% _.each(conditions, function(condition) { %><%= condition %><% }) %>",
@@ -632,19 +640,22 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                      "<%= filterOperator %>",
                  "</a:FilterOperator>",
              "</a:LinkCriteria>"
-            ].join(emptyString));
-        const filterExpression = function(logicalOperator) {
+            ].join(""));
+
+        const ctor = function(logicalOperator) {
             this.conditions = [];
             this.filterOperator = logicalOperator ? logicalOperator : self.FilterOperator.And;
         };
 
-        filterExpression.prototype.addCondition = function(condition) {
-            /// <summary>Add condition expression to conditions list</summary>
-            /// <param name="condition" type="ConditionExpression">Condition</param>
+        /**
+         * Add condition expression to conditions list
+         * @param {ConditionExpression} condition
+         */
+        ctor.prototype.addCondition = function(condition) {
             condition && condition instanceof self.ConditionExpression && (this.conditions[this.conditions.length] = condition);
         };
 
-        filterExpression.prototype.addConditions = function(/* conditions list */) {
+        ctor.prototype.addConditions = function(/* conditions list */) {
             if (arguments && arguments.length) {
                 let count = this.conditions.length;
                 for (let i = arguments.length; i--;) {
@@ -654,11 +665,11 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             }
         };
 
-        filterExpression.prototype.setFilterOperator = function(logicalOperator) {
+        ctor.prototype.setFilterOperator = function(logicalOperator) {
             logicalOperator && (this.filterOperator = logicalOperator);
         };
 
-        filterExpression.prototype.serialize = function() {
+        ctor.prototype.serialize = function() {
             if (!this.conditions.length) {
                 return template({
                     conditions: [],
@@ -674,7 +685,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             });
         };
 
-        return filterExpression;
+        return ctor;
     })();
 
     this.JoinOperator = (function() {
@@ -686,30 +697,38 @@ Type.registerNamespace("Xrm.Soap.Sdk");
     })();
 
     this.LinkEntity = (function() {
-        var template = compile([
-                "<a:LinkEntity>",
-                   "<%= columns %>",
-                   "<a:EntityAlias i:nil='true'/>",
-                   "<a:JoinOperator>",
-                       "<%= joinOperator %>",
-                   "</a:JoinOperator>",
-                   "<%= linkCriteria %>",
-                   "<a:LinkFromAttributeName>",
-                     "<%= linkFromAttributeName %>",
-                   "</a:LinkFromAttributeName>",
-                   "<a:LinkFromEntityName>",
-                     "<%= linkFromEntityName %>",
-                   "</a:LinkFromEntityName>",
-                   "<a:LinkToAttributeName>",
-                     "<%= linkToAttributeName %>",
-                   "</a:LinkToAttributeName>",
-                   "<a:LinkToEntityName>",
-                     "<%= linkToEntityName %>",
-                   "</a:LinkToEntityName>",
-                 "</a:LinkEntity>"
-            ].join(emptyString));
-        const linkEntity = function(linkFromEntityName, linkToEntityName, linkFromAttributeName, linkToAttributeName, joinOperator) {
-            /// <summary>LinkEntity like in Microsoft.Xrm.Sdk</summary>
+        const template = compile([
+            "<a:LinkEntity>",
+              "<%= columns %>",
+              "<a:EntityAlias i:nil='true'/>",
+              "<a:JoinOperator>",
+                "<%= joinOperator %>",
+              "</a:JoinOperator>",
+              "<%= linkCriteria %>",
+              "<a:LinkFromAttributeName>",
+                "<%= linkFromAttributeName %>",
+              "</a:LinkFromAttributeName>",
+              "<a:LinkFromEntityName>",
+                "<%= linkFromEntityName %>",
+              "</a:LinkFromEntityName>",
+              "<a:LinkToAttributeName>",
+                "<%= linkToAttributeName %>",
+              "</a:LinkToAttributeName>",
+              "<a:LinkToEntityName>",
+                "<%= linkToEntityName %>",
+              "</a:LinkToEntityName>",
+            "</a:LinkEntity>"
+        ].join(""));
+
+        /**
+         * LinkEntity like in Microsoft.Xrm.Sdk
+         * @param {String} linkFromEntityName
+         * @param {String} linkToEntityName
+         * @param {String} linkFromAttributeName
+         * @param {String} linkToAttributeName
+         * @param {JoinOperator} joinOperator
+         */
+        const ctor = function(linkFromEntityName, linkToEntityName, linkFromAttributeName, linkToAttributeName, joinOperator) {
             this.linkFromEntityName = linkFromEntityName;
             this.linkToEntityName = linkToEntityName;
             this.linkFromAttributeName = linkFromAttributeName;
@@ -717,21 +736,23 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             this.joinOperator = joinOperator;
         };
 
-        linkEntity.prototype.setLinkCriteria = function(filterExpression) {
-            /// <summary>Set filter expression as link criteria</summary>
-            /// <param name="filterExpression" type="FilterExpression">Current filter criteria</param>
+        /**
+         * Set filter expression as link criteria
+         * @param {FilterExpression} filterExpression - Current filter criteria
+         */
+        ctor.prototype.setLinkCriteria = function(filterExpression) {
             this.linkCriteria = filterExpression;
         };
 
-        linkEntity.prototype.setColumns = function(columnSet) {
+        ctor.prototype.setColumns = function(columnSet) {
             columnSet && columnSet instanceof self.ColumnSet && (this.columns = columnSet);
         };
 
-        linkEntity.prototype.serialize = function() {
+        ctor.prototype.serialize = function() {
             return template({
                 columns: (this.columns ? this.columns : new self.ColumnSet(false)).serialize(true),
                 joinOperator: this.joinOperator,
-                linkCriteria: this.linkCriteria ? this.linkCriteria.serialize() : emptyString,
+                linkCriteria: this.linkCriteria ? this.linkCriteria.serialize() : "",
                 linkFromAttributeName: this.linkFromAttributeName,
                 linkFromEntityName: this.linkFromEntityName,
                 linkToAttributeName: this.linkToAttributeName,
@@ -739,27 +760,26 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             });
         };
 
-        return linkEntity;
+        return ctor;
     })();
 
     this.PageInfo = (function() {
-        var template = compile([
-                "<a:PageInfo>",
-                  "<a:Count><%= count %></a:Count>",
-                  "<a:PageNumber><%= pageNumber %></a:PageNumber>",
-                  "<a:PagingCookie i:nil='true'/>",
-                  "<a:ReturnTotalRecordCount><%= returnTotalRecordCount %></a:ReturnTotalRecordCount>",
-                "</a:PageInfo>"
-            ].join(emptyString)),
+        const template = compile([
+            "<a:PageInfo>",
+                "<a:Count><%= count %></a:Count>",
+                "<a:PageNumber><%= pageNumber %></a:PageNumber>",
+                "<a:PagingCookie i:nil='true'/>",
+                "<a:ReturnTotalRecordCount><%= returnTotalRecordCount %></a:ReturnTotalRecordCount>",
+            "</a:PageInfo>"
+        ].join(""));
 
-            instance;
-        const pageInfo = function(count, pageNumber, returnTotalRecordCount) {
+        const ctor = function(count, pageNumber, returnTotalRecordCount) {
             this.count = count || 0;
             this.pageNumber = pageNumber || 0;
             this.returnTotalRecordCount = returnTotalRecordCount || false;
         };
 
-        pageInfo.prototype.serialize = function() {
+        ctor.prototype.serialize = function() {
             return template({
                 count: this.count,
                 pageNumber: this.pageNumber,
@@ -767,28 +787,32 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             });
         };
 
-        pageInfo.Instance = function() {
+        var instance;
+        ctor.instance = function() {
             instance = instance || new self.PageInfo();
             return instance;
         };
 
-        return pageInfo;
+        return ctor;
     })();
 
     this.QueryByAttribute = (function() {
-        var queryTemplate = compile(`<query i:type='a:QueryByAttribute' xmlns:a='${contractsXrmNs}'><%= query %></query>`),
-            ordersTemplate = compile("<a:Orders><% _.each(orders, function(order) { %><%= order %><% }) %></a:Orders>"),
-            attributesTemplate = compile(`<a:Attributes xmlns:b='${arraysNs}'><% _.each(attributes, function(attribute) { %><%= attribute %><% }) %></a:Attributes>`),
-            valuesTemplate = compile(`<a:Values xmlns:b='${arraysNs}'><% _.each(values, function(value) { %><%= value %><% }) %></a:Values>`),
-            valueTemplate = compile(`<b:anyType i:type='c:<%= type %>' xmlns:c='${xmlSchemaNs}'><%= value %></b:anyType>`),
-            topCountTemplate = compile("<a:topCount<% if (topCount === null) { %> i:nil='true'<% } %>><%= topCount %></a:topCount>");
-        const queryByAttribute = function(entityName, attributes, values, columnSet, topCount) {
-            /// <summary>QueryByAttribute like in Microsoft.Xrm.Sdk</summary>
-            /// <param name="entityName" type="String">Name of object for retrieve</param>
-            /// <param name="attributes" type="Array">Attributes for conditions</param>
-            /// <param name="values" type="Array">Values of the attributes for conditions</param>
-            /// <param name="columnSet" type="ColumnSet">Columns of the entity for retrieve</param>
-            /// <param name="topCount" type="Integer">Count for retrieve</param>
+        const queryTemplate = compile(`<query i:type='a:QueryByAttribute' xmlns:a='${contractsXrmNs}'><%= query %></query>`);
+        const ordersTemplate = compile("<a:Orders><% _.each(orders, function(order) { %><%= order %><% }) %></a:Orders>");
+        const attributesTemplate = compile(`<a:Attributes xmlns:b='${arraysNs}'><% _.each(attributes, function(attribute) { %><%= attribute %><% }) %></a:Attributes>`);
+        const valuesTemplate = compile(`<a:Values xmlns:b='${arraysNs}'><% _.each(values, function(value) { %><%= value %><% }) %></a:Values>`);
+        const valueTemplate = compile(`<b:anyType i:type='c:<%= type %>' xmlns:c='${xmlSchemaNs}'><%= value %></b:anyType>`);
+        const topCountTemplate = compile("<a:topCount<% if (topCount === null) { %> i:nil='true'<% } %>><%= topCount %></a:topCount>");
+
+        /**
+         * QueryByAttribute like in Microsoft.Xrm.Sdk
+         * @param {String} entityName
+         * @param {Array<String>} attributes
+         * @param {Array} values
+         * @param {ColumnSet} columnSet
+         * @param {Number} topCount
+         */
+        const ctor = function(entityName, attributes, values, columnSet, topCount) {
             this.entityName = entityName;
             this.attributes = attributes;
             this.values = values;
@@ -797,16 +821,22 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             this.noLock = false;
             this.orders = [];
             this.topCount = topCount || null;
-            this.pageInfo = self.PageInfo.Instance();
+            this.pageInfo = self.PageInfo.instance();
         };
 
-        queryByAttribute.prototype.addOrder = function(order) {
-            /// <summary>Add order expression to current query</summary>
-            /// <param name="order" type="OrderExpression">Order</param>
+        /**
+         * Add order expression to current query
+         * @param {OrderExpression} order
+         */
+        ctor.prototype.addOrder = function(order) {
             order && order instanceof self.OrderExpression && (this.orders[this.orders.length] = order);
         };
 
-        queryByAttribute.prototype.addOrders = function(/* order list */) {
+        /**
+         * Add order expressions to current query
+         * @param {Array<OrderExpression>} orders
+         */
+        ctor.prototype.addOrders = function(/* order list */) {
             if (arguments && arguments.length) {
                 let counter = this.orders.length;
                 for (var i = 0, l = arguments.length; i < l; i++) {
@@ -816,7 +846,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             }
         };
 
-        queryByAttribute.prototype.distinct = function(/* value */) {
+        ctor.prototype.distinct = function(/* value */) {
             if (arguments && arguments.length === 1) {
                 this.distinct = !!arguments[0];
             }
@@ -824,7 +854,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             return this.distinct;
         };
 
-        queryByAttribute.prototype.noLock = function(/* value */) {
+        ctor.prototype.noLock = function(/* value */) {
             if (arguments && arguments.length === 1) {
                 this.noLock = !!arguments[0];
             }
@@ -832,7 +862,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             return this.noLock;
         };
 
-        queryByAttribute.prototype.pageInfo = function(/* value */) {
+        ctor.prototype.pageInfo = function(/* value */) {
             if (arguments && arguments.length === 1 && arguments[0] instanceof self.PageInfo) {
                 this.pageInfo = arguments[0];
             }
@@ -840,33 +870,32 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             return this.pageInfo;
         };
 
-        queryByAttribute.prototype.serialize = function() {
-            /// <summary>Gets soap xml for query</summary>
+        ctor.prototype.serialize = function() {
             // ToDo: improve result creation
-            var result = emptyString;
+            var result = [];
             if (this.attributes.length) {
-                result += attributesTemplate({
+                result.push(attributesTemplate({
                     attributes: _.map(this.attributes, function(attr) {
                         return attributeTemplate({ value: attr });
                     })
-                });
+                }));
             }
 
-            result += this.columns.serialize();
-            result += entityNameTemplate({ name: this.entityName });
+            result.push(this.columns.serialize());
+            result.push(entityNameTemplate({ name: this.entityName }));
 
             if (this.orders && this.orders.length) {
-                result += ordersTemplate({
+                result.push(ordersTemplate({
                     orders: _.map(this.orders, function(order) {
                         return order.serialize();
                     })
-                });
+                }));
             }
 
-            result += this.pageInfo.serialize();
+            result.push(this.pageInfo.serialize());
 
             if (this.attributes.length) {
-                result += valuesTemplate({
+                result.push(valuesTemplate({
                     values: _.map(this.values, function(value) {
                         const typed = value.hasOwnProperty("type");
                         return valueTemplate({
@@ -874,31 +903,34 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                             value: value.hasOwnProperty("value") ? value.value : value
                         });
                     })
-                });
+                }));
             }
 
-            result += distinctTemplate({ distinct: this.distinct });
-            result += noLockTemplate({ noLock: this.noLock });
-            result += topCountTemplate({ topCount: this.topCount });
+            result.push(distinctTemplate({ distinct: this.distinct }));
+            result.push(noLockTemplate({ noLock: this.noLock }));
+            result.push(topCountTemplate({ topCount: this.topCount }));
 
-            return queryTemplate({ query: result });
+            return queryTemplate({ query: result.join("") });
         };
 
-        return queryByAttribute;
+        return ctor;
     })();
 
     this.QueryExpression = (function() {
-        var queryTemplate = compile(`<query i:type='a:QueryExpression' xmlns:a='${contractsXrmNs}'><%= query %></query>`),
-            criteriaTemplate = compile("<a:Criteria><%= conditions %><a:FilterOperator><%= filterOperator %></a:FilterOperator><a:Filters></a:Filters></a:Criteria>"),
-            conditionsTemplate = compile("<a:Conditions><% _.each(conditions, function(condition) { %><%= condition.serialize() %><% }) %></a:Conditions>"),
-            linkEntitiesTemplate = compile("<a:LinkEntities><% _.each(linkEntities, function(entity) { %><%= entity.serialize() %><% }) %></a:LinkEntities>"),
-            ordersTemplate = compile("<a:Orders><% _.each(orders, function(order) { %><%= order.serialize() %><% }) %></a:Orders>"),
-            topCountTemplate = compile("<a:topCount <% if (topCount === null) { %> i:nil='true'<% } %>><%= topCount %></a:topCount>");
-        const queryExpression = function(entityName, conditions, columnSet) {
-            /// <summary>QueryByAttribute like in Microsoft.Xrm.Sdk</summary>
-            /// <param name="entityName" type="String">Logical name of entity for retrieve</param>
-            /// <param name="conditions" type="Array of ConditionExpression">Condition expressions</param>
-            /// <param name="columnSet" type="Array of ColumnSet">Attributes of the entity for retrieve</param>
+        const queryTemplate = compile(`<query i:type='a:QueryExpression' xmlns:a='${contractsXrmNs}'><%= query %></query>`);
+        const criteriaTemplate = compile("<a:Criteria><%= conditions %><a:FilterOperator><%= filterOperator %></a:FilterOperator><a:Filters></a:Filters></a:Criteria>");
+        const conditionsTemplate = compile("<a:Conditions><% _.each(conditions, function(condition) { %><%= condition.serialize() %><% }) %></a:Conditions>");
+        const linkEntitiesTemplate = compile("<a:LinkEntities><% _.each(linkEntities, function(entity) { %><%= entity.serialize() %><% }) %></a:LinkEntities>");
+        const ordersTemplate = compile("<a:Orders><% _.each(orders, function(order) { %><%= order.serialize() %><% }) %></a:Orders>");
+        const topCountTemplate = compile("<a:topCount <% if (topCount === null) { %> i:nil='true'<% } %>><%= topCount %></a:topCount>");
+
+        /**
+         * QueryByAttribute like in Microsoft.Xrm.Sdk
+         * @param {String} entityName
+         * @param {Array<ConditionExpression>} conditions
+         * @param {(Array|ColumnSet)} columnSet
+         */
+        const ctor = function(entityName, conditions, columnSet) {
             this.entityName = entityName;
             this.conditions = conditions;
             this.filterOperator = self.FilterOperator.And;
@@ -907,17 +939,19 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             this.noLock = false;
             this.orders = [];
             this.linkEntities = [];
-            this.pageInfo = self.PageInfo.Instance();
+            this.pageInfo = self.PageInfo.instance();
             this.topCount = null;
         };
 
-        queryExpression.prototype.addOrder = function(order) {
-            /// <summary>Add order expression to current query</summary>
-            /// <param name="order" type="OrderExpression">Order</param>
+        /**
+         * Add order expression to current query
+         * @param {OrderExpression} order
+         */
+        ctor.prototype.addOrder = function(order) {
             order && order instanceof self.OrderExpression && (this.orders[this.orders.length] = order);
         };
 
-        queryExpression.prototype.addOrders = function(/* order list */) {
+        ctor.prototype.addOrders = function(/* order list */) {
             if (arguments && arguments.length) {
                 let counter = this.orders.length;
                 for (var i = 0, l = arguments.length; i < l; i++) {
@@ -927,19 +961,24 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             }
         };
 
-        queryExpression.prototype.setFilterOperator = function(filterOperator) {
-            /// <summary>Set filter operator to current query</summary>
-            /// <param name="order" type="OrderExpression">Filter operator</param>
+        /**
+         * Set filter operator to current query
+         * @param {OrderExpression} filterOperator
+         */
+        ctor.prototype.setFilterOperator = function(filterOperator) {
             filterOperator && (this.filterOperator = filterOperator);
         };
 
-        queryExpression.prototype.addLink = function(linkEntity) {
-            /// <summary>Add linked entity to current query</summary>
-            /// <param name="linkEntity" type="LinkEntity">LinkEntity</param>
+        /**
+          * Add linked entity to current query
+          * @param {LinkEntity} linkEntity
+          * @returns {Void}
+          */
+        ctor.prototype.addLink = function(linkEntity) {
             linkEntity && linkEntity instanceof self.LinkEntity && (this.linkEntities[this.linkEntities.length] = linkEntity);
         };
 
-        queryExpression.prototype.addLinks = function(/* linkEntity list */) {
+        ctor.prototype.addLinks = function(/* linkEntity list */) {
             if (arguments && arguments.length) {
                 let counter = this.linkEntities.length;
                 for (var i = 0, l = arguments.length; i < l; i++) {
@@ -949,7 +988,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             }
         };
 
-        queryExpression.prototype.distinct = function(/* value */) {
+        ctor.prototype.distinct = function(/* value */) {
             if (arguments && arguments.length === 1) {
                 this.distinct = !!arguments[0];
             }
@@ -957,7 +996,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             return this.distinct;
         };
 
-        queryExpression.prototype.noLock = function(/* value */) {
+        ctor.prototype.noLock = function(/* value */) {
             if (arguments && arguments.length === 1) {
                 this.noLock = !!arguments[0];
             }
@@ -965,7 +1004,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             return this.noLock;
         };
 
-        queryExpression.prototype.pageInfo = function(/* value */) {
+        ctor.prototype.pageInfo = function(/* value */) {
             if (arguments && arguments.length === 1 && arguments[0] instanceof self.PageInfo) {
                 this.pageInfo = arguments[0];
             }
@@ -973,59 +1012,64 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             return this.pageInfo;
         };
 
-        queryExpression.prototype.topCount = function(/* value */) {
-            if (arguments && arguments.length === 1 && typeof arguments[0] === "number") {
+        ctor.prototype.topCount = function(/* value */) {
+            if (arguments && arguments.length === 1 && typeof(arguments[0]) === "number") {
                 this.topCount = parseInt(arguments[0], 10);
             }
 
             return this.topCount;
         };
 
-        queryExpression.prototype.serialize = function() {
-            /// <summary>Gets soap xml for query</summary>
+        ctor.prototype.serialize = function() {
             // ToDo: improve result accumulation
-            var result = this.columnSet ? this.columnSet.serialize() : self.ColumnSet.getAllColumnsSoap();
+            var result = [this.columnSet ? this.columnSet.serialize() : self.ColumnSet.getAllColumnsSoap()];
 
-            result += criteriaTemplate({
+            result.push(criteriaTemplate({
                 conditions: this.conditions && this.conditions.length ? conditionsTemplate({ conditions: this.conditions }) : "<a:Conditions/>",
                 filterOperator: this.filterOperator
-            });
+            }));
 
-            result += distinctTemplate({ distinct: this.distinct });
-            result += entityNameTemplate({ name: this.entityName });
+            result.push(distinctTemplate({ distinct: this.distinct }));
+            result.push(entityNameTemplate({ name: this.entityName }));
 
             if (this.orders && this.orders.length) {
-                result += ordersTemplate({ orders: this.orders });
+                result.push(ordersTemplate({ orders: this.orders }));
             }
 
             if (this.linkEntities && this.linkEntities.length) {
                 result += linkEntitiesTemplate({ linkEntities: this.linkEntities });
             } else {
-                result += "<a:LinkEntities/>";
+                result.push("<a:LinkEntities/>");
             }
 
-            result += this.pageInfo.serialize();
-            result += noLockTemplate({ noLock: this.noLock });
-            result += topCountTemplate({ topCount: this.topCount });
+            result.push(this.pageInfo.serialize());
+            result.push(noLockTemplate({ noLock: this.noLock }));
+            result.push(topCountTemplate({ topCount: this.topCount }));
 
-            return queryTemplate({ query: result });
+            return queryTemplate({ query: result.join("") });
         };
 
-        return queryExpression;
+        return ctor;
     })();
 
     this.Entity = (function() {
+        /**
+         * Universal class for creating, updating and deleting any entity
+         * @param {String} logicalName
+         * @param {Guid} id
+         */
         const entity = function(logicalName, id) {
-            /// <summary>Universal class for creating, updating and deleting any entity</summary>
-            /// <param name="logicalName" type="String">Logical name of entity. Example: av_sms</param>
             this.attributes = {};
             this.logicalName = logicalName;
-            this.id = id && id.type === "guid" ? id : new self.Guid(!id ? self.Guid.empty() : id);
+            this.guid = id && id.type === "guid" ? id : new self.Guid(!id ? self.Guid.empty() : id);
         };
 
         entity.prototype = {
+            /**
+             * Get entity attribute by name
+             * @param {String} name
+             */
             getAttribute: function(name) {
-                /// <summary>Get entity attribute by name</summary>
                 return this.attributes[name] || null;
             },
 
@@ -1038,8 +1082,12 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                 return null;
             },
 
+            /**
+             * Set entity attribute
+             * @param {String} name
+             * @param {any} attribute
+             */
             setAttribute: function(name, attribute) {
-                /// <summary>Set entity attribute</summary>
                 name && (this.attributes[name] = attribute);
             },
 
@@ -1055,29 +1103,29 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                     }
                 }
 
-                return emptyString;
+                return "";
             },
 
-            LogicalName: function() {
+            logicalName: function() {
                 return this.logicalName;
             },
 
             getIdValue: function() {
-                return this.id.value;
+                return this.guid.value;
             },
 
-            Id: function(id) {
+            id: function(id) {
                 if (id) {
-                    this.id = id.type === "guid" ? id : new self.Guid(id);
+                    this.guid = id.type === "guid" ? id : new self.Guid(id);
                 }
 
-                return this.id;
+                return this.guid;
             },
 
-            ToEntityReference: function() {
+            toEntityReference: function() {
                 return new self.EntityReference(
-                    this.LogicalName(),
-                    this.Id(),
+                    this.logicalName(),
+                    this.id(),
                     this.getName());
             },
 
@@ -1085,7 +1133,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                 return [{
                     id: this.getIdValue(),
                     name: this.getName(),
-                    entityType: this.LogicalName()
+                    entityType: this.logicalName()
                 }];
             },
 
@@ -1122,7 +1170,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                     if (attribute === null || attribute.value === null) {
                         xml[counter++] = "<b:value i:nil='true'/>";
                     } else {
-                        var sType = !attribute.type ? typeof attribute : crmXmlEncode(attribute.type),
+                        var sType = attribute.type ? crmXmlEncode(attribute.type) : typeof(attribute),
                             value,
                             encodedValue,
                             id,
@@ -1198,13 +1246,13 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                                 xml[counter++] = encodedValue + "</b:value>";
                                 break;
                             case "number":
-                                /* jshint eqeqeq: false */
+                                // eslint-disable-next-line eqeqeq
                                 var oType = parseInt(encodedValue, 10) == encodedValue ? "int" : "double";
                                 xml[counter++] = `<b:value i:type='c:${oType}' xmlns:c='${xmlSchemaNs}'>`;
                                 xml[counter++] = encodedValue + "</b:value>";
                                 break;
                             default:
-                                sType = typeof value === "object" && value.getTime ? "dateTime" : sType;
+                                sType = typeof(value) === "object" && value.getTime ? "dateTime" : sType;
                                 xml[counter++] = `<b:value i:type='c:${sType}' xmlns:c='${xmlSchemaNs}'>${encodedValue}</b:value>`;
                                 break;
                         }
@@ -1216,12 +1264,12 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                 xml[counter++] = "</a:Attributes>";
                 xml[counter++] = "<a:EntityState i:nil='true'/>";
                 xml[counter++] = `<a:FormattedValues xmlns:b='${genericNs}'/>`;
-                xml[counter++] = `<a:Id>${encodeValue(this.id)}</a:Id>`;
+                xml[counter++] = `<a:Id>${encodeValue(this.guid)}</a:Id>`;
                 xml[counter++] = `<a:LogicalName>${this.logicalName}</a:LogicalName>`;
                 xml[counter++] = `<a:RelatedEntities xmlns:b='${genericNs}'/>`;
                 xml[counter++] = "</entity>";
 
-                return xml.join(emptyString);
+                return xml.join("");
             }
         };
 
@@ -1257,14 +1305,14 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                         attr = resultNodes[j];
                         for (k = 0, cnl = attr.childNodes.length; k < cnl; k++) {
                             sKey = $(attr.childNodes[k].firstChild).text();
-                            var sType = emptyString,
+                            var sType = "",
                                 attributes = attr.childNodes[k].childNodes[1].attributes;
 
                             for (l = 0, al = attributes.length; l < al; l++) {
                                 if (attributes[l].nodeName === "i:type") {
-                                    sType = ($(attributes[l]).val() || emptyString)
-                                        .replace("c:", emptyString)
-                                        .replace("a:", emptyString);
+                                    sType = ($(attributes[l]).val() || "")
+                                        .replace("c:", "")
+                                        .replace("a:", "");
                                     break;
                                 }
                             }
@@ -1368,60 +1416,60 @@ Type.registerNamespace("Xrm.Soap.Sdk");
     })();
 
     this.OptionSetValue = (function() {
-        const optionSetValue = function(value, name) {
-            /// <summary>Like OptionSetValue in Microsoft.Xrm.Sdk</summary>
-            /// <param name="value" type="Number">Value of option</param>
-            /// <param name="name" type="String">Name of option</param>
-            if (typeof value !== "number") {
+        /**
+         * Like OptionSetValue in Microsoft.Xrm.Sdk
+         * @param {Number} value Value of option
+         * @param {String} name Name of option
+         */
+        const ctor = function(value, name) {
+            if (typeof(value) !== "number") {
                 throw "value must be a number";
             }
 
-            const nameIsExist = typeof name !== "undefined";
-            if (nameIsExist && typeof name !== "string") {
+            const nameIsExist = typeof(name) !== "undefined";
+            if (nameIsExist && typeof(name) !== "string") {
                 throw "name must be a string";
             }
 
             this.value = value;
-            this.name = nameIsExist ? name : emptyString;
+            this.name = nameIsExist ? name : "";
             this.type = "OptionSetValue";
         };
 
-        optionSetValue.prototype.getValue = function() {
-            /// <returns type="Number">value</returns>
+        ctor.prototype.getValue = function() {
             return this.value;
         };
 
-        optionSetValue.prototype.getName = function() {
-            /// <returns type="String">name</returns>
+        ctor.prototype.getName = function() {
             return this.name;
         };
 
-        return optionSetValue;
+        return ctor;
     })();
 
     this.Money = (function() {
-        const money = function(value) {
+        const ctor = function(value) {
             this.value = value;
             this.type = "Money";
         };
 
-        return money;
+        return ctor;
     })();
 
     this.Decimal = (function() {
-        const decimal = function(value) {
+        const ctor = function(value) {
             this.value = value;
             this.type = "decimal";
         };
 
-        return decimal;
+        return ctor;
     })();
 
     this.Guid = (function() {
-        var regex = /^(\{){0,1}[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(\}){0,1}$/,
-            empty = "{00000000-0000-0000-0000-000000000000}";
-        const guid = function(value) {
-            if (typeof value === "object" &&
+        const regex = /^(\{){0,1}[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(\}){0,1}$/;
+        const empty = "{00000000-0000-0000-0000-000000000000}";
+        const ctor = function(value) {
+            if (typeof(value) === "object" &&
             ((value instanceof self.Guid) ||
                 (value instanceof self.XrmValue && value.type === "guid"))) {
                 this.value = value.value.toUpperCase();
@@ -1442,33 +1490,33 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             }
         };
 
-        guid.prototype.equals = function(other) {
+        ctor.prototype.equals = function(other) {
             if (!other) {
                 return false;
             }
 
-            if (typeof other === "object" &&
+            if (typeof(other) === "object" &&
                 other instanceof self.XrmValue &&
                 other.type === "guid") {
                 return this.equals(self.Guid.tryParse(other.value));
-            } else if (typeof other === "object" && other instanceof self.Guid) {
+            } else if (typeof(other) === "object" && other instanceof self.Guid) {
                 return this.value === other.value;
-            } else if (typeof other === "string") {
+            } else if (typeof(other) === "string") {
                 return this.equals(self.Guid.tryParse(other));
             }
 
             return false;
         };
 
-        guid.prototype.notEquals = function(other) {
+        ctor.prototype.notEquals = function(other) {
             return !this.equals(other);
         };
 
-        guid.parse = function(value) {
+        ctor.parse = function(value) {
             return new self.Guid(value);
         };
 
-        guid.tryParse = function(value) {
+        ctor.tryParse = function(value) {
             try {
                 return new self.Guid(value);
             } catch (ex) {
@@ -1476,11 +1524,11 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             }
         };
 
-        guid.empty = function() {
+        ctor.empty = function() {
             return new self.Guid(empty);
         };
 
-        return guid;
+        return ctor;
     })();
 
     this.EntityCollection = (function() {
@@ -1493,38 +1541,36 @@ Type.registerNamespace("Xrm.Soap.Sdk");
     })();
 
     this.EntityReference = (function() {
-        const entityReference = function(logicalName, id, name) {
-            /// <summary>Like EntityReference in Microsoft.Xrm.Sdk</summary>
-            /// <param name="logicalName" type="String">Entity logical name</param>
-            /// <param name="id" type="Guid">Entity Id</param>
-            /// <param name="name" type="String">Entity name</param>
+        /**
+         * Like EntityReference in Microsoft.Xrm.Sdk
+         * @param {String} logicalName Entity logical name
+         * @param {Guid} id Entity Id
+         * @param {String} name Entity name
+         */
+        const ctor = function(logicalName, id, name) {
             this.id = id ? new self.Guid(id) : self.Guid.empty();
-            this.logicalName = logicalName || emptyString;
-            this.name = name || emptyString;
+            this.logicalName = logicalName || "";
+            this.name = name || "";
             this.type = "EntityReference";
         };
 
-        entityReference.prototype.getId = function() {
-            /// <returns type="Guid">id</returns>
+        ctor.prototype.getId = function() {
             return this.id;
         };
 
-        entityReference.prototype.getIdValue = function() {
-            /// <returns type="String">Guid value</returns>
+        ctor.prototype.getIdValue = function() {
             return this.id.value;
         };
 
-        entityReference.prototype.getLogicalName = function() {
-            /// <returns type="String">Logical name</returns>
+        ctor.prototype.getLogicalName = function() {
             return this.logicalName;
         };
 
-        entityReference.prototype.getName = function() {
-            /// <returns type="String">name</returns>
+        ctor.prototype.getName = function() {
             return this.name;
         };
 
-        entityReference.prototype.toLookupValue = function() {
+        ctor.prototype.toLookupValue = function() {
             return [{
                 id: this.getIdValue(),
                 name: this.getName(),
@@ -1532,55 +1578,55 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             }];
         };
 
-        entityReference.prototype.equals = function(other) {
+        ctor.prototype.equals = function(other) {
             if (!other) {
                 return false;
             }
 
-            if (typeof other === "object" && other instanceof self.EntityReference) {
+            if (typeof(other) === "object" && other instanceof self.EntityReference) {
                 return this.id.equals(other.id);
             }
 
             return false;
         };
 
-        return entityReference;
+        return ctor;
     })();
 
     this.StateCode = (function() {
-        const stateCode = function(value) {
+        const ctor = function(value) {
             this.value = value;
             this.type = "int";
         };
 
-        return stateCode;
+        return ctor;
     })();
 
     this.StatusCode = (function() {
-        const statusCode = function(value) {
+        const ctor = function(value) {
             this.value = value;
             this.type = "int";
         };
 
-        return statusCode;
+        return ctor;
     })();
 
     this.XrmValue = (function() {
-        const xrmValue = function(value, type) {
+        const ctor = function(value, type) {
             this.value = value;
             this.type = type;
         };
 
-        return xrmValue;
+        return ctor;
     })();
 
     this.RequestParameter = (function() {
-        const requestParameter = function(name, value) {
+        const ctor = function(name, value) {
             this.name = name;
             this.value = value;
         };
 
-        return requestParameter;
+        return ctor;
     })();
 
     this.EntityFilters = (function() {
@@ -1600,22 +1646,24 @@ Type.registerNamespace("Xrm.Soap.Sdk");
     })();
 
     this.OrganizationRequest = (function() {
-        /// <summary>Abstract base class for all requests</summary>
-        const organizationRequest = function() {
-            this.RequestName = arguments[0] || emptyString;
+        /**
+         * Abstract base class for all requests
+         */
+        const ctor = function() {
+            this.RequestName = arguments[0] || "";
             this.Parameters = arguments[1];
             this.RequestId = self.Guid.empty();
         };
 
-        organizationRequest.prototype.serialize = function() {
+        ctor.prototype.serialize = function() {
             return this.template(this.Parameters);
         };
 
-        return organizationRequest;
+        return ctor;
     })();
 
     this.RetrieveAllEntitiesRequest = (function(base) {
-        var template = compile([
+        const template = compile([
                 `<request i:type='a:RetrieveAllEntitiesRequest' xmlns:a='${contractsXrmNs}'>`,
                   `<a:Parameters xmlns:b='${genericNs}'>`,
                     "<a:KeyValuePairOfstringanyType>",
@@ -1634,13 +1682,13 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                   "<a:RequestId i:nil='true'/>",
                   "<a:RequestName>RetrieveAllEntities</a:RequestName>",
                 "</request>"
-            ].join(emptyString)),
+            ].join(""));
 
-            request = function(entityFilters, retrieveAsIfPublished) {
+        const ctor = function(entityFilters, retrieveAsIfPublished) {
                 this.entityFilters = entityFilters;
                 this.retrieveAsIfPublished = !!retrieveAsIfPublished;
                 this.template = template;
-                request.base.constructor.call(
+                ctor.base.constructor.call(
                     this,
                     "RetrieveAllEntitiesRequest",
                     {
@@ -1649,17 +1697,17 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                     });
             };
 
-        request.prototype.serialize = function() {
+        ctor.prototype.serialize = function() {
             return this.base.prototype.serialize.apply(this);
         };
 
-        extend(request, base);
+        extend(ctor, base);
 
-        return request;
+        return ctor;
     })(self.OrganizationRequest);
 
     this.RetrieveEntityRequest = (function(base) {
-        var template = compile([
+        const template = compile([
                 `<request i:type='a:RetrieveEntityRequest' xmlns:a='${contractsXrmNs}'>`,
                   `<a:Parameters xmlns:b='${genericNs}'>`,
                     "<a:KeyValuePairOfstringanyType>",
@@ -1690,34 +1738,34 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                   "<a:RequestId i:nil='true'/>",
                   "<a:RequestName>RetrieveEntity</a:RequestName>",
                 "</request>"
-            ].join(emptyString)),
+            ].join(""));
 
-            request = function(logicalName, entityFilters, retrieveAsIfPublished) {
-                this.logicalName = logicalName;
-                this.entityFilters = entityFilters;
-                this.retrieveAsIfPublished = !!retrieveAsIfPublished;
-                this.template = template;
-                request.base.constructor.call(
-                    this,
-                    "RetrieveEntityRequest",
-                    {
-                        logicalName: this.logicalName,
-                        entityFilters: this.entityFilters,
-                        retrieveAsIfPublished: this.retrieveAsIfPublished
-                    });
-            };
+        const ctor = function(logicalName, entityFilters, retrieveAsIfPublished) {
+            this.logicalName = logicalName;
+            this.entityFilters = entityFilters;
+            this.retrieveAsIfPublished = !!retrieveAsIfPublished;
+            this.template = template;
+            ctor.base.constructor.call(
+                this,
+                "RetrieveEntityRequest",
+                {
+                    logicalName: this.logicalName,
+                    entityFilters: this.entityFilters,
+                    retrieveAsIfPublished: this.retrieveAsIfPublished
+                });
+        };
 
-        request.prototype.serialize = function() {
+        ctor.prototype.serialize = function() {
             return this.base.prototype.serialize.apply(this);
         };
 
-        extend(request, base);
+        extend(ctor, base);
 
-        return request;
+        return ctor;
     })(self.OrganizationRequest);
 
     this.RetrieveAttributeRequest = (function(base) {
-        var template = compile([
+        const template = compile([
                 `<request i:type='a:RetrieveAttributeRequest' xmlns:a='${contractsXrmNs}'>`,
                   `<a:Parameters xmlns:b='${genericNs}'>`,
                     "<a:KeyValuePairOfstringanyType>",
@@ -1748,34 +1796,34 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                   "<a:RequestId i:nil='true' />",
                   "<a:RequestName>RetrieveAttribute</a:RequestName>",
                 "</request>"
-            ].join(emptyString)),
+            ].join(""));
 
-            request = function(entityLogicalName, attributeLogicalName, retrieveAsIfPublished) {
-                this.entityLogicalName = entityLogicalName;
-                this.attributeLogicalName = attributeLogicalName;
-                this.retrieveAsIfPublished = !!retrieveAsIfPublished;
-                this.template = template;
-                request.base.constructor.call(
-                    this,
-                    "RetrieveAttributeRequest",
-                    {
-                        entityLogicalName: this.entityLogicalName,
-                        attributeLogicalName: this.attributeLogicalName,
-                        retrieveAsIfPublished: this.retrieveAsIfPublished
-                    });
-            };
+        const ctor = function(entityLogicalName, attributeLogicalName, retrieveAsIfPublished) {
+            this.entityLogicalName = entityLogicalName;
+            this.attributeLogicalName = attributeLogicalName;
+            this.retrieveAsIfPublished = !!retrieveAsIfPublished;
+            this.template = template;
+            ctor.base.constructor.call(
+                this,
+                "RetrieveAttributeRequest",
+                {
+                    entityLogicalName: this.entityLogicalName,
+                    attributeLogicalName: this.attributeLogicalName,
+                    retrieveAsIfPublished: this.retrieveAsIfPublished
+                });
+        };
 
-        request.prototype.serialize = function() {
+        ctor.prototype.serialize = function() {
             return this.base.prototype.serialize.apply(this);
         };
 
-        extend(request, base);
+        extend(ctor, base);
 
-        return request;
+        return ctor;
     })(self.OrganizationRequest);
 
     this.SetStateRequest = (function(base) {
-        var template = compile([
+        const template = compile([
                 `<request i:type='b:SetStateRequest' xmlns:a='${contractsXrmNs}' xmlns:b='${contractsCrmNs}'>`,
                   `<a:Parameters xmlns:c='${genericNs}'>`,
                     "<a:KeyValuePairOfstringanyType>",
@@ -1810,36 +1858,36 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                   "<a:RequestId i:nil='true' />",
                   "<a:RequestName>SetState</a:RequestName>",
                 "</request>"
-            ].join(emptyString)),
+            ].join(""));
 
-            request = function(entityName, entityId, state, status) {
-                this.entityName = entityName;
-                this.entityId = new self.Guid(entityId);
-                this.state = state;
-                this.status = status;
-                this.template = template;
-                request.base.constructor.call(
-                    this,
-                    "SetStateRequest",
-                    {
-                        entityName: this.entityName,
-                        entityId: this.entityId.value,
-                        state: this.state,
-                        status: this.status
-                    });
-            };
+        const ctor = function(entityName, entityId, state, status) {
+            this.entityName = entityName;
+            this.entityId = new self.Guid(entityId);
+            this.state = state;
+            this.status = status;
+            this.template = template;
+            ctor.base.constructor.call(
+                this,
+                "SetStateRequest",
+                {
+                    entityName: this.entityName,
+                    entityId: this.entityId.value,
+                    state: this.state,
+                    status: this.status
+                });
+        };
 
-        request.prototype.serialize = function() {
+        ctor.prototype.serialize = function() {
             return this.base.prototype.serialize.apply(this);
         };
 
-        extend(request, base);
+        extend(ctor, base);
 
-        return request;
+        return ctor;
     })(self.OrganizationRequest);
 
     this.ExecuteWorkflowRequest = (function(base) {
-        var template = compile([
+        const template = compile([
                 `<request i:type='b:ExecuteWorkflowRequest' xmlns:a='${contractsXrmNs}' xmlns:b='${contractsCrmNs}'>`,
                   `<a:Parameters xmlns:c='${genericNs}'>`,
                     "<a:KeyValuePairOfstringanyType>",
@@ -1858,32 +1906,32 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                   "<a:RequestId i:nil='true'/>",
                   "<a:RequestName>ExecuteWorkflow</a:RequestName>",
                 "</request>"
-            ].join(emptyString)),
+            ].join(""));
 
-            request = function(entityId, workflowId) {
-                this.entityId = new self.Guid(entityId);
-                this.workflowId = new self.Guid(workflowId);
-                this.template = template;
-                request.base.constructor.call(
-                    this,
-                    "ExecuteWorkflowRequest",
-                    {
-                        entityId: this.entityId.value,
-                        workflowId: this.workflowId.value
-                    });
-            };
+        const ctor = function(entityId, workflowId) {
+            this.entityId = new self.Guid(entityId);
+            this.workflowId = new self.Guid(workflowId);
+            this.template = template;
+            ctor.base.constructor.call(
+                this,
+                "ExecuteWorkflowRequest",
+                {
+                    entityId: this.entityId.value,
+                    workflowId: this.workflowId.value
+                });
+        };
 
-        request.prototype.serialize = function() {
+        ctor.prototype.serialize = function() {
             return this.base.prototype.serialize.apply(this);
         };
 
-        extend(request, base);
+        extend(ctor, base);
 
-        return request;
+        return ctor;
     })(self.OrganizationRequest);
 
     this.RetrieveSharedPrincipalsAndAccessRequest = (function(base) {
-        var template = compile([
+        const template = compile([
                 `<request i:type='b:RetrieveSharedPrincipalsAndAccessRequest' xmlns:a='${contractsXrmNs}' xmlns:i='${xmlSchemaInstanceNs}' xmlns:b='${contractsCrmNs}'>`,
                   `<a:Parameters xmlns:c='${genericNs}'>`,
                     "<a:KeyValuePairOfstringanyType>",
@@ -1898,155 +1946,159 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                   "<a:RequestId i:nil='true'/>",
                   "<a:RequestName>RetrieveSharedPrincipalsAndAccess</a:RequestName>",
                 "</request>"
-            ].join(emptyString)),
+            ].join(""));
 
-            request = function(entityName, entityId) {
-                /// <summary>RetrieveSharedPrincipalsAndAccessRequest like in Microsoft.Xrm.Sdk</summary>
-                this.entityName = entityName;
-                this.entityId = entityId;
-                this.template = template;
-                request.base.constructor.call(
-                    this,
-                    "RetrieveSharedPrincipalsAndAccessRequest",
-                    {
-                        entityName: this.entityName,
-                        entityId: this.entityId.value
-                    });
-            };
+        /**
+         * RetrieveSharedPrincipalsAndAccessRequest like in Microsoft.Xrm.Sdk
+         */
+        const ctor = function(entityName, entityId) {
+            this.entityName = entityName;
+            this.entityId = entityId;
+            this.template = template;
+            ctor.base.constructor.call(
+                this,
+                "RetrieveSharedPrincipalsAndAccessRequest",
+                {
+                    entityName: this.entityName,
+                    entityId: this.entityId.value
+                });
+        };
 
-        request.prototype.serialize = function() {
+        ctor.prototype.serialize = function() {
             return this.base.prototype.serialize.apply(this);
         };
 
-        extend(request, base);
+        extend(ctor, base);
 
-        return request;
+        return ctor;
     })(self.OrganizationRequest);
 
     this.ExecuteActionRequest = (function(base) {
-        var template = compile([
-                `<request  xmlns:a='${contractsXrmNs}' xmlns:i='${xmlSchemaInstanceNs}' xmlns:b='${genericNs}'>`,
-                  "<%= parameters %>",
-                  "<a:RequestId i:nil='true'/>",
-                  "<a:RequestName><%= actionName %></a:RequestName>",
-                "</request>"
-            ].join(emptyString)),
+        const template = compile([
+            `<request  xmlns:a='${contractsXrmNs}' xmlns:i='${xmlSchemaInstanceNs}' xmlns:b='${genericNs}'>`,
+              "<%= parameters %>",
+              "<a:RequestId i:nil='true'/>",
+              "<a:RequestName><%= actionName %></a:RequestName>",
+            "</request>"
+        ].join(""));
 
-            targetTemplate = compile([
-                "<a:KeyValuePairOfstringanyType>",
-                    "<b:key>Target</b:key>",
-                    "<b:value i:type='a:<%= type %>'>",
-                        "<a:Id><%= id.value %></a:Id>",
-                        "<a:LogicalName><%= logicalName %></a:LogicalName>",
-                        "<a:Name i:nil='true'/>",
-                    "</b:value>",
-                "</a:KeyValuePairOfstringanyType>"
-            ].join(emptyString)),
+        const targetTemplate = compile([
+            "<a:KeyValuePairOfstringanyType>",
+                "<b:key>Target</b:key>",
+                "<b:value i:type='a:<%= type %>'>",
+                    "<a:Id><%= id.value %></a:Id>",
+                    "<a:LogicalName><%= logicalName %></a:LogicalName>",
+                    "<a:Name i:nil='true'/>",
+                "</b:value>",
+            "</a:KeyValuePairOfstringanyType>"
+        ].join(""));
 
-            parameterTemplate = compile([
-                "<a:KeyValuePairOfstringanyType>",
-                  "<b:key><%= name %></b:key>",
-                  `<b:value i:type='c:<%= type %>' xmlns:c='${xmlSchemaNs}'>`,
-                    "<%= value %>",
-                  "</b:value>",
-                "</a:KeyValuePairOfstringanyType>"
-            ].join(emptyString)),
+        const parameterTemplate = compile([
+            "<a:KeyValuePairOfstringanyType>",
+              "<b:key><%= name %></b:key>",
+              `<b:value i:type='c:<%= type %>' xmlns:c='${xmlSchemaNs}'>`,
+                "<%= value %>",
+              "</b:value>",
+            "</a:KeyValuePairOfstringanyType>"
+        ].join(""));
 
-            emptyParametersTemplate = `<a:Parameters xmlns:c='${xmlSchemaNs}' i:nil='true'/>`,
-            parametersTemplate = compile(`<a:Parameters xmlns:c='${xmlSchemaNs}'><% _.each(parameters, function(p) { %><%= p %><% }) %></a:Parameters>`),
+        const emptyParametersTemplate = `<a:Parameters xmlns:c='${xmlSchemaNs}' i:nil='true'/>`;
+        const parametersTemplate = compile(`<a:Parameters xmlns:c='${xmlSchemaNs}'><% _.each(parameters, function(p) { %><%= p %><% }) %></a:Parameters>`);
 
-            request = function(actionName, entityName, entityId, parameters) {
-                this.actionName = actionName;
-                this.target = new self.EntityReference(entityName, entityId);
-                this.parameters = parameters.length ? parametersTemplate({
-                    parameters: _.map(parameters, function(p) {
-                        // ToDo: extract this method to common usage
-                        const typed = p.value ? p.value.hasOwnProperty("type") : false;
-                        return parameterTemplate({
-                            name: p.name,
-                            type: typed ? p.value.type : "string",
-                            value: p.value === undefined ? null : (p.value.hasOwnProperty("value") ? p.value.value : p.value)
-                        });
-                    }).concat(targetTemplate(this.target))
-                }) : emptyParametersTemplate;
-                this.template = template;
-
-                request.base.constructor.call(
-                    this,
-                    emptyString,
-                    {
-                        parameters: this.parameters,
-                        actionName: this.actionName
+        const ctor = function(actionName, entityName, entityId, parameters) {
+            this.actionName = actionName;
+            this.target = new self.EntityReference(entityName, entityId);
+            this.parameters = parameters.length ? parametersTemplate({
+                parameters: _.map(parameters, function(p) {
+                    // ToDo: extract this method to common usage
+                    const typed = p.value ? p.value.hasOwnProperty("type") : false;
+                    return parameterTemplate({
+                        name: p.name,
+                        type: typed ? p.value.type : "string",
+                        value: p.value === undefined ? null : (p.value.hasOwnProperty("value") ? p.value.value : p.value)
                     });
-            };
+                }).concat(targetTemplate(this.target))
+            }) : emptyParametersTemplate;
+            this.template = template;
 
-        request.prototype.serialize = function() {
+            ctor.base.constructor.call(
+                this,
+                "",
+                {
+                    parameters: this.parameters,
+                    actionName: this.actionName
+                });
+        };
+
+        ctor.prototype.serialize = function() {
             return this.base.prototype.serialize.apply(this);
         };
 
-        extend(request, base);
+        extend(ctor, base);
 
-        return request;
+        return ctor;
     })(self.OrganizationRequest);
 
     this.ExecuteGlobalActionRequest = (function(base) {
-        var template = compile([
-                `<request  xmlns:a='${contractsXrmNs}' xmlns:i='${xmlSchemaInstanceNs}' xmlns:b='${genericNs}'>`,
-                  "<%= parameters %>",
-                  "<a:RequestId i:nil='true'/>",
-                  "<a:RequestName><%= actionName %></a:RequestName>",
-                "</request>"
-            ].join(emptyString)),
+        const template = compile([
+            `<request  xmlns:a='${contractsXrmNs}' xmlns:i='${xmlSchemaInstanceNs}' xmlns:b='${genericNs}'>`,
+              "<%= parameters %>",
+              "<a:RequestId i:nil='true'/>",
+              "<a:RequestName><%= actionName %></a:RequestName>",
+            "</request>"
+        ].join(""));
 
-            parameterTemplate = compile([
-                "<a:KeyValuePairOfstringanyType>",
-                  "<b:key><%= name %></b:key>",
-                  `<b:value i:type='c:<%= type %>' xmlns:c='${xmlSchemaNs}'>`,
-                    "<%= value %>",
-                  "</b:value>",
-                "</a:KeyValuePairOfstringanyType>"
-            ].join(emptyString)),
+        const parameterTemplate = compile([
+            "<a:KeyValuePairOfstringanyType>",
+              "<b:key><%= name %></b:key>",
+              `<b:value i:type='c:<%= type %>' xmlns:c='${xmlSchemaNs}'>`,
+                "<%= value %>",
+              "</b:value>",
+            "</a:KeyValuePairOfstringanyType>"
+        ].join(""));
 
-            emptyParametersTemplate = `<a:Parameters xmlns:c='${xmlSchemaNs}' i:nil='true'/>`,
-            parametersTemplate = compile(`<a:Parameters xmlns:c='${xmlSchemaNs}'><% _.each(parameters, function(p) { %><%= p %><% }) %></a:Parameters>`),
+        const emptyParametersTemplate = `<a:Parameters xmlns:c='${xmlSchemaNs}' i:nil='true'/>`;
+        const parametersTemplate = compile(`<a:Parameters xmlns:c='${xmlSchemaNs}'><% _.each(parameters, function(p) { %><%= p %><% }) %></a:Parameters>`);
 
-            request = function(actionName, parameters) {
-                this.actionName = actionName;
-                this.parameters = parameters.length ? parametersTemplate({
-                    parameters: _.map(parameters, function(p) {
-                        // ToDo: extract this method to common usage
-                        const typed = p.value ? p.value.hasOwnProperty("type") : false;
-                        return parameterTemplate({
-                            name: p.name,
-                            type: typed ? p.value.type : "string",
-                            value: p.value === undefined ? null : (p.value.hasOwnProperty("value") ? p.value.value : p.value)
-                        });
-                    })
-                }) : emptyParametersTemplate;
-                this.template = template;
-
-                request.base.constructor.call(
-                    this,
-                    emptyString,
-                    {
-                        actionName: this.actionName,
-                        parameters: this.parameters
+        const ctor = function(actionName, parameters) {
+            this.actionName = actionName;
+            this.parameters = parameters.length ? parametersTemplate({
+                parameters: _.map(parameters, function(p) {
+                    // ToDo: extract this method to common usage
+                    const typed = p.value ? p.value.hasOwnProperty("type") : false;
+                    return parameterTemplate({
+                        name: p.name,
+                        type: typed ? p.value.type : "string",
+                        value: p.value === undefined ? null : (p.value.hasOwnProperty("value") ? p.value.value : p.value)
                     });
-            };
+                })
+            }) : emptyParametersTemplate;
+            this.template = template;
 
-        request.prototype.serialize = function() {
+            ctor.base.constructor.call(
+                this,
+                "",
+                {
+                    actionName: this.actionName,
+                    parameters: this.parameters
+                });
+        };
+
+        ctor.prototype.serialize = function() {
             return this.base.prototype.serialize.apply(this);
         };
 
-        extend(request, base);
+        extend(ctor, base);
 
-        return request;
+        return ctor;
     })(self.OrganizationRequest);
 
+    /**
+     * Like IOrganizationService in Microsoft.Xrm.Sdk
+     */
     this.OrganizationService = (function() {
-        /// <summary>Like IOrganizationService in Microsoft.Xrm.Sdk</summary>
         var url = splittedUrl[0] + "//" + splittedUrl[1],
-            serviceUrl = url + (splittedUrl.length === 3 && splittedUrl[2] === orgName ? (`/${orgName}`) : emptyString) + xrmServiceUrl,
+            serviceUrl = url + (splittedUrl.length === 3 && splittedUrl[2] === orgName ? (`/${orgName}`) : "") + xrmServiceUrl,
             soapTemplate = compile([
                 utf8Root,
                 "<soap:Envelope xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'>",
@@ -2056,7 +2108,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                         "</<%= soapAction %>>",
                     "</soap:Body>",
                 "</soap:Envelope>"
-            ].join(emptyString)),
+            ].join("")),
 
             processResponse = function(response) {
                 if (!response || (response.hasOwnProperty("xml") && !response.xml)) {
@@ -2067,13 +2119,14 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                 const error = $response.find("error").text();
                 const faultString = $response.find("faultstring").text();
 
-                if (!(error === emptyString && faultString === emptyString)) {
-                    return error !== emptyString ? $response.find("description").text() : faultString;
+                if (!(error === "" && faultString === "")) {
+                    return error !== "" ? $response.find("description").text() : faultString;
                 }
 
-                const currentType = typeof response;
-                const ieXmlType = typeof response.xml;
+                const currentType = typeof(response);
+                const ieXmlType = typeof(response.xml);
 
+                // ReSharper disable once ConditionIsAlwaysConst
                 if (currentType !== "object" && (ieXmlType === "undefined" || ieXmlType === "unknown")) {
                     return parseXml(response);
                 } else if (currentType === "object") {
@@ -2100,27 +2153,43 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                     return Error(parsedResponse);
                 }
             };
+
         const sync = {
+            /**
+             * Create like create in Microsoft.Xrm.Sdk
+             * @param {Entity} entity
+             */
             create: function(entity) {
-                /// <summary>Create like create in Microsoft.Xrm.Sdk</summary>
                 const result = executeSync(entity.serialize(), "Create");
                 return result && !(result instanceof Error) ? $(result).find("CreateResult").text() : result;
             },
 
+            /**
+             * Update like update in Microsoft.Xrm.Sdk
+             * @param {Entity} entity
+             */
             update: function(entity) {
-                /// <summary>Update like update in Microsoft.Xrm.Sdk</summary>
                 const result = executeSync(entity.serialize(), "Update");
                 return result && !(result instanceof Error) ? $(result).find("UpdateResponse").text() : result;
             },
 
+            /**
+             * Delete like delete in Microsoft.Xrm.Sdk
+             * @param {String} entityName
+             * @param {Guid} id
+             */
             "delete": function(entityName, id) {
-                /// <summary>Delete like delete in Microsoft.Xrm.Sdk</summary>
                 const request = `<entityName>${entityName}</entityName><id>${new self.Guid(id).value}</id>`;
                 return executeSync(request, "Delete");
             },
 
+            /**
+             * Retrieve like in Microsoft.Xrm.Sdk
+             * @param {String} entityName
+             * @param {Guid} id
+             * @param {Array|ColumnSet} columnSet
+             */
             retrieve: function(entityName, id, columnSet) {
-                /// <summary>Retrieve like in Microsoft.Xrm.Sdk</summary>
                 const soapBodyTemplate = compile("<entityName><%= entityName %></entityName><id><%= id %></id><%= columnSet %>");
                 if (columnSet && $.isArray(columnSet)) {
                     columnSet = new self.ColumnSet(columnSet);
@@ -2151,9 +2220,11 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                 return self.Entity.deserialize(retrieveResult);
             },
 
+            /**
+             * RetrieveMultiple like in Microsoft.Xrm.Sdk
+             * @param {QueryExpression|QueryByAttribute} query Query for perform retrieve operation
+             */
             retrieveMultiple: function(query) {
-                /// <summary>RetrieveMultiple like in Microsoft.Xrm.Sdk</summary>
-                /// <param name="query" type="QueryExpression|QueryByAttribute">Query for perform retrieve operation</param>
                 const result = executeSync(query.serialize(), "RetrieveMultiple");
 
                 if (result && result instanceof Error) {
@@ -2162,34 +2233,39 @@ Type.registerNamespace("Xrm.Soap.Sdk");
 
                 const $resultXml = $(result);
                 var resultNodes;
-                const retriveMultipleResults = [];
 
                 if ($resultXml.find("a\\:Entities").length) {
                     resultNodes = $resultXml.find("a\\:Entities")[0];
                 } else {
-                    resultNodes = $resultXml.find("Entities")[0]; // chrome could not load node properly
+                    // chrome could not load node properly
+                    resultNodes = $resultXml.find("Entities")[0];
                 }
 
                 if (!resultNodes) {
-                    return retriveMultipleResults; // return empty results
+                    return [];
                 }
 
+                const retrieveMultipleResults = [];
                 for (let i = 0, l = resultNodes.childNodes.length; i < l; i++) {
-                    retriveMultipleResults[i] = self.Entity.deserialize(resultNodes.childNodes[i]);
+                    retrieveMultipleResults[i] = self.Entity.deserialize(resultNodes.childNodes[i]);
                 }
 
-                return retriveMultipleResults;
+                return retrieveMultipleResults;
             },
 
+            /**
+             * Execute like in Microsoft.Xrm.Sdk
+             * @param {OrganizationRequest} request
+             */
             execute: function(request) {
-                /// <summary>Execute like in Microsoft.Xrm.Sdk</summary>
-                /// <param name="request" type="OrganizationRequest">Current request</param>
                 return executeSync(request.serialize(), "Execute");
             },
 
+            /**
+             * Execute fetch Xml query
+             * @param {String} fetchXml Fetch xml expression
+             */
             fetch: function(fetchXml) {
-                /// <summary>Execute fetch Xml query</summary>
-                /// <param name="fetchXml" type="String">Fetch xml expression</param>
                 // ToDo: implement fetchXmlBuilder
                 const fetchQuery = [
                     `<query i:type='a:FetchExpression' xmlns:a='${contractsXrmNs}'>`,
@@ -2197,7 +2273,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                     crmXmlEncode(fetchXml),
                     "</a:Query>",
                     "</query>"
-                ].join(emptyString);
+                ].join("");
 
                 const result = executeSync(fetchQuery, "RetrieveMultiple");
 
@@ -2214,7 +2290,9 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                     fetchResult = $entities[0];
                 } else {
                     $entities = $resultXml.find("Entities");
-                    fetchResult = $entities[0]; // chrome could not load node
+
+                    // chrome could not load node
+                    fetchResult = $entities[0];
                 }
 
                 for (let i = 0, l = fetchResult.childNodes.length; i < l; i++) {
@@ -2224,6 +2302,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                 return fetchResults;
             }
         };
+
         var execute = function(soapBody, soapAction, async) {
             return new Promise(function(resolve, reject) {
                 const soapXml = soapTemplate({ soapBody: soapBody, soapAction: soapAction });
@@ -2265,44 +2344,73 @@ Type.registerNamespace("Xrm.Soap.Sdk");
 
         orgService.prototype.sync = sync;
 
+        /**
+         * Create like create in Microsoft.Xrm.Sdk
+         * @param {Entity} entity
+         * @param {Boolean} async
+         */
         orgService.prototype.create = function(entity, async) {
-            /// <summary>Create like create in Microsoft.Xrm.Sdk</summary>
             return execute(entity.serialize(), "Create", async).then(function(resultXml) {
                 return resultXml ? $(resultXml).find("CreateResult").text() : null;
             });
         };
 
+        /**
+         * Create like create in Microsoft.Xrm.Sdk
+         * @param {Entity} entity
+         */
         orgService.prototype.createAsync = function(entity) {
-            /// <summary>Create like create in Microsoft.Xrm.Sdk</summary>
             return this.create(entity, true);
         };
 
+        /**
+         * Update like update in Microsoft.Xrm.Sdk
+         * @param {Entity} entity
+         * @param {Boolean} async
+         */
         orgService.prototype.update = function(entity, async) {
-            /// <summary>Update like update in Microsoft.Xrm.Sdk</summary>
             return execute(entity.serialize(), "Update", async).then(function(resultXml) {
                 return resultXml ? $(resultXml).find("UpdateResponse").text() : null;
             });
         };
 
+        /**
+         * Update like update in Microsoft.Xrm.Sdk
+         * @param {Entity} entity
+         */
         orgService.prototype.updateAsync = function(entity) {
-            /// <summary>Update like update in Microsoft.Xrm.Sdk</summary>
             return this.update(entity, true);
         };
 
+        /**
+         * Delete like delete in Microsoft.Xrm.Sdk
+         * @param {String} entityName
+         * @param {Guid} id
+         * @param {Boolean} async
+         */
         orgService.prototype.delete = function(entityName, id, async) {
-            /// <summary>Delete like delete in Microsoft.Xrm.Sdk</summary>
             const request = `<entityName>${entityName}</entityName><id>${new self.Guid(id).value}</id>`;
 
             return execute(request, "Delete", async);
         };
 
+        /**
+         * Delete like delete in Microsoft.Xrm.Sdk
+         * @param {String} entityName
+         * @param {Guid} id
+         */
         orgService.prototype.deleteAsync = function(entityName, id) {
-            /// <summary>Delete like delete in Microsoft.Xrm.Sdk</summary>
             return this.delete(entityName, id, true);
         };
 
+        /**
+         * Retrieve like in Microsoft.Xrm.Sdk
+         * @param {String} entityName
+         * @param {Guid} id
+         * @param {(Array<String>|ColumnSet)} columnSet
+         * @param {Boolean} async
+         */
         orgService.prototype.retrieve = function(entityName, id, columnSet, async) {
-            /// <summary>Retrieve like in Microsoft.Xrm.Sdk</summary>
             const soapBodyTemplate = compile("<entityName><%= entityName %></entityName><id><%= id %></id><%= columnSet %>");
             if (columnSet && $.isArray(columnSet)) {
                 columnSet = new self.ColumnSet(columnSet);
@@ -2327,58 +2435,77 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             });
         };
 
+        /**
+         * Retrieve like in Microsoft.Xrm.Sdk
+         * @param {String} entityName
+         * @param {Guid} id
+         * @param {(Array<String>|ColumnSet)} columnSet
+         */
         orgService.prototype.retrieveAsync = function(entityName, id, columnSet) {
-            /// <summary>Retrieve like in Microsoft.Xrm.Sdk</summary>
             return this.retrieve(entityName, id, columnSet, true);
         };
 
+        /**
+         * RetrieveMultiple like in Microsoft.Xrm.Sdk
+         * @param {(QueryExpression|QueryByAttribute))} query - Query for perform retrieve operation
+         * @param {Boolean} async
+         */
         orgService.prototype.retrieveMultiple = function(query, async) {
-            /// <summary>RetrieveMultiple like in Microsoft.Xrm.Sdk</summary>
-            /// <param name="query" type="QueryExpression|QueryByAttribute">Query for perform retrieve operation</param>
             return execute(query.serialize(), "RetrieveMultiple", async).then(function(result) {
                 const $resultXml = $(result);
                 var resultNodes;
-                const retriveMultipleResults = [];
 
                 if ($resultXml.find("a\\:Entities").length) {
                     resultNodes = $resultXml.find("a\\:Entities")[0];
                 } else {
-                    resultNodes = $resultXml.find("Entities")[0]; // chrome could not load node properly
+                    // chrome could not load node properly
+                    resultNodes = $resultXml.find("Entities")[0];
                 }
 
                 if (!resultNodes) {
-                    return retriveMultipleResults; // return empty results
+                    return [];
                 }
 
+                const retrieveMultipleResults = [];
                 for (let i = 0, l = resultNodes.childNodes.length; i < l; i++) {
-                    retriveMultipleResults[i] = self.Entity.deserialize(resultNodes.childNodes[i]);
+                    retrieveMultipleResults[i] = self.Entity.deserialize(resultNodes.childNodes[i]);
                 }
 
-                return retriveMultipleResults;
+                return retrieveMultipleResults;
             });
         };
 
+        /**
+         * RetrieveMultiple like in Microsoft.Xrm.Sdk
+         * @param {(QueryExpression|QueryByAttribute)} query - Query for perform retrieve operation
+         */
         orgService.prototype.retrieveMultipleAsync = function(query) {
-            /// <summary>RetrieveMultiple like in Microsoft.Xrm.Sdk</summary>
-            /// <param name="query" type="QueryExpression|QueryByAttribute">Query for perform retrieve operation</param>
             return this.retrieveMultiple(query, true);
         };
 
+        /**
+         * Execute like in Microsoft.Xrm.Sdk
+         * @param {OrganizationRequest} request
+         * @param {Boolean} async
+         */
         orgService.prototype.execute = function(request, async) {
-            /// <summary>Execute like in Microsoft.Xrm.Sdk</summary>
-            /// <param name="request" type="OrganizationRequest">Current request</param>
             return execute(request.serialize(), "Execute", async);
         };
 
+        /**
+         * Execute like in Microsoft.Xrm.Sdk
+         * @param {OrganizationRequest} request
+         */
         orgService.prototype.executeAsync = function(request) {
-            /// <summary>Execute like in Microsoft.Xrm.Sdk</summary>
-            /// <param name="request" type="OrganizationRequest">Current request</param>
             return this.execute(request, true);
         };
 
+        /**
+         * Execute fetch Xml query
+         * @param {String} fetchXml
+         * @param {Boolean} async
+         */
         orgService.prototype.fetch = function(fetchXml, async) {
-            /// <summary>Execute fetch Xml query</summary>
-            /// <param name="fetchXml" type="String">Fetch xml expression</param>
             // ToDo: implement fetchXmlBuilder
             const fetchQuery = [
                     `<query i:type='a:FetchExpression' xmlns:a='${contractsXrmNs}'>`,
@@ -2386,7 +2513,7 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                             crmXmlEncode(fetchXml),
                         "</a:Query>",
                     "</query>"
-            ].join(emptyString);
+            ].join("");
 
             return execute(fetchQuery, "RetrieveMultiple", async).then(function(resultXml) {
                 let fetchResult;
@@ -2397,7 +2524,9 @@ Type.registerNamespace("Xrm.Soap.Sdk");
                     fetchResult = $entities[0];
                 } else {
                     $entities = $(resultXml).find("Entities");
-                    fetchResult = $entities[0]; // chrome could not load node
+
+                    // chrome could not load node
+                    fetchResult = $entities[0];
                 }
 
                 for (let i = 0, l = fetchResult.childNodes.length; i < l; i++) {
@@ -2408,9 +2537,11 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             });
         };
 
+        /**
+         * Execute fetch Xml query
+         * @param {String} fetchXml
+         */
         orgService.prototype.fetchAsync = function(fetchXml) {
-            /// <summary>Execute fetch Xml query</summary>
-            /// <param name="fetchXml" type="String">Fetch xml expression</param>
             return this.fetch(fetchXml, true);
         };
 
@@ -2422,15 +2553,18 @@ Type.registerNamespace("Xrm.Soap.Sdk");
         const orgService = new self.OrganizationService();
         const crmProvider = function() {};
 
+        /**
+         * Execute ExecuteWorkflowRequest like in Microsoft.Xrm.Sdk
+         * @param {Guid} entityId - Current entity Id
+         * @param {Guid} workflowId - Executing workflow Id
+         * @param {Boolean} async
+         * @returns {Guid} Async operation Id
+         */
         crmProvider.prototype.executeWorkflow = function(entityId, workflowId, async) {
-            /// <summary>Execute ExecuteWorkflowRequest like in Microsoft.Xrm.Sdk</summary>
-            /// <param name="entityId" type="Guid">Current entity Id</param>
-            /// <param name="workflowId" type="Guid">Executing workflow Id</param>
-            /// <returns type="Guid">Async operation Id</returns>
             const request = new self.ExecuteWorkflowRequest(entityId, workflowId);
 
             return orgService.execute(request, async).then(function(result) {
-                const $xml = $(typeof result.xml === "undefined" ? result : result.xml);
+                const $xml = $(typeof(result.xml) === "undefined" ? result : result.xml);
                 const id = $xml.find("c\\:value").text() || $xml.find("value").text();
 
                 return id ? new self.Guid(id) : null;
@@ -2439,17 +2573,23 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             });
         };
 
+        /**
+         * Execute ExecuteWorkflowRequest like in Microsoft.Xrm.Sdk
+         * @param {Guid} entityId - Current entity Id
+         * @param {Guid} workflowId - Executing workflow Id
+         * @returns {Guid} Async operation Id
+         */
         crmProvider.prototype.executeWorkflowAsync = function(entityId, workflowId) {
-            /// <summary>Execute ExecuteWorkflowRequest like in Microsoft.Xrm.Sdk</summary>
-            /// <param name="entityId" type="Guid">Current entity Id</param>
-            /// <param name="workflowId" type="Guid">Executing workflow Id</param>
-            /// <returns type="Guid">Async operation Id</returns>
             return this.executeWorkflow(entityId, workflowId, true);
         };
 
+        /**
+         * Obtains user teams
+         * @param {Guid} userId - Current user Id
+         * @param {ColumnSet=ColumnSet("name")} teamColumnSet
+         * @param {Boolean} async
+         */
         crmProvider.prototype.getSystemUserTeams = function(userId, teamColumnSet, async) {
-            /// <summary>Get user teams</summary>
-            /// <param name="userId" type="Guid">Current user Identifier</param>
             const query = new self.QueryExpression("team", [], teamColumnSet || new self.ColumnSet("name"));
             const linkEntity = new self.LinkEntity("team", "teammembership", "teamid", "teamid", self.JoinOperator.Inner);
             const filterExpression = new self.FilterExpression();
@@ -2461,35 +2601,46 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             return orgService.retrieveMultiple(query, async);
         };
 
+        /**
+         * Obtains user teams
+         * @param {Guid} userId - Current user Id
+         * @param {ColumnSet=ColumnSet("name")} teamColumnSet
+         */
         crmProvider.prototype.getSystemUserTeamsAsync = function(userId, teamColumnSet) {
-            /// <summary>Get user teams</summary>
-            /// <param name="userId" type="Guid">Current user Identifier</param>
             return this.getSystemUserTeams(userId, teamColumnSet, true);
         };
 
+        /**
+         * Obtains user businessunit
+         * @param {Guid} userId - Current user Id
+         * @param {Boolean} async
+         */
         crmProvider.prototype.getSystemUserBusinessUnit = function(userId, async) {
-            /// <summary>Get user businessunit</summary>
-            /// <param name="userId" type="Guid">Current user Identifier</param>
             return orgService.retrieve("systemuser", new self.Guid(userId).value, ["businessunitid"], async).then(function(user) {
                 return user.getAttributeValue("businessunitid");
             });
         };
 
+        /**
+         * Obtains user businessunit
+         * @param {Guid} userId - Current user Id
+         */
         crmProvider.prototype.getSystemUserBusinessUnitAsync = function(userId) {
-            /// <summary>Get user businessunit</summary>
-            /// <param name="userId" type="Guid">Current user Identifier</param>
             return this.getSystemUserBusinessUnit(userId, true);
         };
 
+        /**
+         * Execute RetrieveSharedPrincipalsAndAccessRequest like in Microsoft.Xrm.Sdk
+         * @param {String} entityName - Entity Logical Name
+         * @param {Guid} entityId - Entity instance Id for check access
+         * @param {Boolean} async
+         */
         crmProvider.prototype.retrieveSharedPrincipalsAndAccess = function(entityName, entityId, async) {
-            /// <summary>Execute RetrieveSharedPrincipalsAndAccessRequest like in Microsoft.Xrm.Sdk</summary>
-            /// <param name="entityName" type="String">EntityLogicalName</param>
-            /// <param name="entityId" type="Guid">Entity Id for check access</param>
             const request = new self.RetrieveSharedPrincipalsAndAccessRequest(entityName, new self.Guid(entityId));
 
             return orgService.execute(request, async).then(function(result) {
                 const sharedAccessRights = [];
-                const principalAccess = $(typeof result.xml === "undefined" ? result : result.xml).find("PrincipalAccess");
+                const principalAccess = $(typeof(result.xml) === "undefined" ? result : result.xml).find("PrincipalAccess");
                 for (let i = 0, l = principalAccess.length; i < l; i++) {
                     const parsedResult = principalAccess[i].childNodes;
                     sharedAccessRights[sharedAccessRights.length] = {
@@ -2505,15 +2656,24 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             });
         };
 
+        /**
+         * Execute RetrieveSharedPrincipalsAndAccessRequest like in Microsoft.Xrm.Sdk
+         * @param {String} entityName - Entity Logical Name
+         * @param {Guid} entityId - Entity instance Id for check access
+         */
         crmProvider.prototype.retrieveSharedPrincipalsAndAccessAsync = function(entityName, entityId) {
-            /// <summary>Execute RetrieveSharedPrincipalsAndAccessRequest like in Microsoft.Xrm.Sdk</summary>
-            /// <param name="entityName" type="String">EntityLogicalName</param>
-            /// <param name="entityId" type="Guid">Entity Id for check access</param>
             return this.retrieveSharedPrincipalsAndAccess(entityName, entityId, true);
         };
 
+        /**
+         * Execute SetStateRequest like in Microsoft.Xrm.Sdk
+         * @param {String} entityName
+         * @param {Guid} entityId
+         * @param {Number} state
+         * @param {Number} status
+         * @param {Boolean} async
+         */
         crmProvider.prototype.setState = function(entityName, entityId, state, status, async) {
-            /// <summary>Execute SetStateRequest like in Microsoft.Xrm.Sdk</summary>
             const request = new self.SetStateRequest(entityName, entityId, state, status);
 
             return orgService.execute(request, async).then(function(result) {
@@ -2522,11 +2682,24 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             });
         };
 
+        /**
+         * Execute SetStateRequest like in Microsoft.Xrm.Sdk
+         * @param {String} entityName
+         * @param {Guid} entityId
+         * @param {Number} state
+         * @param {Number} status
+         */
         crmProvider.prototype.setStateAsync = function(entityName, entityId, state, status) {
-            /// <summary>Execute SetStateRequest like in Microsoft.Xrm.Sdk</summary>
             return this.setState(entityName, entityId, state, status, true);
         };
 
+        /**
+         * Obtains entity metadata
+         * @param {String} logicalName
+         * @param {Array<String>} entityFilters
+         * @param {Boolean} retrieveAsIfPublished
+         * @param {Boolean} async
+         */
         crmProvider.prototype.retrieveEntityMetadata = function(logicalName, entityFilters, retrieveAsIfPublished, async) {
             entityFilters = $.isArray(entityFilters) ? entityFilters : [entityFilters];
             entityFilters = entityFilters.join(" ");
@@ -2548,10 +2721,23 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             });
         };
 
+        /**
+         * Obtains entity metadata
+         * @param {String} logicalName
+         * @param {Array<String>} entityFilters
+         * @param {Boolean} retrieveAsIfPublished
+         */
         crmProvider.prototype.retrieveEntityMetadataAsync = function(logicalName, entityFilters, retrieveAsIfPublished) {
             return this.retrieveEntityMetadata(logicalName, entityFilters, retrieveAsIfPublished, true);
         };
 
+        /**
+         * Obtains entity attribute metadata
+         * @param {String} entityLogicalName
+         * @param {String} attributeLogicalName
+         * @param {Boolean} retrieveAsIfPublished
+         * @param {Boolean} async
+         */
         crmProvider.prototype.retrieveAttributeMetadata = function(entityLogicalName, attributeLogicalName, retrieveAsIfPublished, async) {
             const request = new self.RetrieveAttributeRequest(entityLogicalName, attributeLogicalName, retrieveAsIfPublished);
 
@@ -2569,16 +2755,28 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             });
         };
 
+        /**
+         * Obtains entity attribute metadata
+         * @param {String} entityLogicalName
+         * @param {String} attributeLogicalName
+         * @param {Boolean} retrieveAsIfPublished
+         */
         crmProvider.prototype.retrieveAttributeMetadataAsync = function(entityLogicalName, attributeLogicalName, retrieveAsIfPublished) {
             return this.retrieveAttributeMetadata(entityLogicalName, attributeLogicalName, retrieveAsIfPublished, true);
         };
 
-        crmProvider.prototype.retrieveAllEntitiesMetadata = function(entityFilters, retrieveIfPublished, async) {
+        /**
+         * Obtains all entities metadata
+         * @param {Array<String} entityFilters
+         * @param {Boolean} retrieveIfPublished
+         * @param {Boolean} async
+         */
+        crmProvider.prototype.retrieveAllEntitiesMetadataAsync = function(entityFilters, retrieveIfPublished) {
             entityFilters = $.isArray(entityFilters) ? entityFilters : [entityFilters];
             entityFilters = entityFilters.join(" ");
             const request = new self.RetrieveAllEntitiesRequest(entityFilters, retrieveIfPublished);
 
-            return orgService.execute(request, async).then(function(result) {
+            return orgService.execute(request, true).then(function(result) {
                 const $resultXml = $(result);
                 const results = [];
                 const $metadata = $resultXml.find(`c\\:${entityMetadataType}`);
@@ -2594,10 +2792,14 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             });
         };
 
-        crmProvider.prototype.retrieveAllEntitiesMetadataAsync = function(entityFilters, retrieveIfPublished) {
-            return this.retrieveAllEntitiesMetadata(entityFilters, retrieveIfPublished, true);
-        };
-
+        /**
+         * Execute action request like in Microsoft.Xrm.Sdk
+         * @param {String} actionName
+         * @param {String} entityName
+         * @param {Guid} entityId
+         * @param {Array} parameters
+         * @param {Boolean} async
+         */
         crmProvider.prototype.callAction = function(actionName, entityName, entityId, parameters, async) {
             const request = new self.ExecuteActionRequest(actionName, entityName, entityId, parameters);
 
@@ -2609,10 +2811,23 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             });
         };
 
+        /**
+         * Execute action request like in Microsoft.Xrm.Sdk
+         * @param {String} actionName
+         * @param {String} entityName
+         * @param {Guid} entityId
+         * @param {Array} parameters
+         */
         crmProvider.prototype.callActionAsync = function(actionName, entityName, entityId, parameters) {
             return this.callAction(actionName, entityName, entityId, parameters, true);
         };
 
+        /**
+         * Execute global action request like in Microsoft.Xrm.Sdk
+         * @param {String} actionName
+         * @param {Array} parameters
+         * @param {Boolean} async
+         */
         crmProvider.prototype.callGlobalAction = function(actionName, parameters, async) {
             const request = new self.ExecuteGlobalActionRequest(actionName, parameters);
 
@@ -2624,10 +2839,15 @@ Type.registerNamespace("Xrm.Soap.Sdk");
             });
         };
 
+        /**
+         * Execute global action request like in Microsoft.Xrm.Sdk
+         * @param {String} actionName
+         * @param {Array} parameters
+         */
         crmProvider.prototype.callGlobalActionAsync = function(actionName, parameters) {
             return this.callGlobalAction(actionName, parameters, true);
         };
 
         return crmProvider;
     })();
-}).call(Xrm.Soap.Sdk, this);
+}).call(this.Xrm.Soap.Sdk, this);

@@ -1,0 +1,171 @@
+env:
+  browser: true
+  jasmine: true
+  jquery: true
+  worker: true
+  es6: true
+parserOptions:
+  ecmaVersion: 2017
+globals:
+  _: false
+  ko: false
+  React: false
+  postal: false
+  toastr: false
+  Handlebars: false
+  moment: false
+  require: false
+  define: false
+  module: false
+  console: false
+  alert: false
+  Type: false
+  Xrm: false
+  Sys: false
+  XrmServiceToolkit: false
+  Base64: false
+  Mscrm: false
+  after: false
+  afterEach: false
+  before: false
+  beforeEach: false
+  context: false
+  describe: false
+  it: false
+  Url: false
+  Global: false
+  _$: false
+  _jQuery: false
+  fmt: false
+rules:
+  linebreak-style: 0
+  no-bitwise: 2
+  curly:
+    - 2
+    - all
+  eqeqeq: 2
+  guard-for-in: 2
+  no-extend-native: 2
+  no-caller: 2
+  no-plusplus: 0
+  no-undef: 2
+  strict: 0
+  max-params:
+    - 2
+    - 7
+  max-depth:
+    - 2
+    - 4
+  max-statements:
+    - 2
+    - 45
+  complexity:
+    - 2
+    - 16
+  no-unused-vars: 2
+  no-use-before-define:
+    - 2
+    - functions: false
+  no-debugger: 0
+  no-eval: 0
+  no-underscore-dangle: 2
+  no-empty:
+    - 2
+    - allowEmptyCatch: true
+  no-implicit-coercion:
+    - 2
+    - boolean: false
+      string: false
+      number: false
+  no-with: 2
+  no-warning-comments:
+    - 2
+    - terms:
+        - '\b(ToDo:|fix|fixme)\b'
+      location: anywhere
+  brace-style:
+    - 2
+    - 1tbs
+    - allowSingleLine: true
+  no-mixed-spaces-and-tabs: 2
+  no-multiple-empty-lines: 2
+  no-multi-str: 2
+  no-multi-spaces: 2
+  one-var: 0
+  operator-linebreak:
+    - 2
+    - after
+  padded-blocks:
+    - 2
+    - never
+  quote-props:
+    - 2
+    - as-needed
+  key-spacing:
+    - 2
+    - beforeColon: false
+      afterColon: true
+  space-unary-ops:
+    - 2
+    - words: false
+      nonwords: false
+  space-before-function-paren:
+    - 2
+    - anonymous: ignore
+      named: never
+  no-spaced-func: 2
+  array-bracket-spacing:
+    - 2
+    - never
+  space-in-parens:
+    - 2
+    - never
+  comma-dangle:
+    - 2
+    - never
+  no-trailing-spaces: 2
+  yoda:
+    - 2
+    - never
+  max-len:
+    - 2
+    - 230
+  camelcase:
+    - 2
+    - properties: always
+  comma-style:
+    - 2
+    - last
+  dot-notation: 2
+  func-style: 0
+  eol-last: 2
+  lines-around-comment:
+    - 2
+    - beforeLineComment: true
+  wrap-iife: 2
+  semi:
+    - 2
+    - always
+  space-infix-ops: 2
+  keyword-spacing:
+    - 2
+    - overrides:
+        else:
+          before: true
+        while:
+          before: true
+        catch:
+          before: true
+  spaced-comment:
+    - 2
+    - always
+  space-before-blocks:
+    - 2
+    - always
+  consistent-this:
+    - 2
+    - self
+  indent:
+    - 2
+    - 4
+    - SwitchCase: 1

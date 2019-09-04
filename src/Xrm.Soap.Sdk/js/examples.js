@@ -23,6 +23,7 @@ define(["soap"], function(soap) {
         },
 
         fetchExample = function() {
+            /* eslint-disable */
             const fetchXml = [
                 "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>",
                     "<entity name='contact'>",
@@ -36,8 +37,9 @@ define(["soap"], function(soap) {
                         "<attribute name='internalemailaddress'/>",
                     "</link-entity>",
                     "</entity>",
-                "</fetch>"].join("");
-
+                "</fetch>"
+            ].join("");
+            /* eslint-enable */
             orgService.fetch(fetchXml).then(function(contacts) {
                 for (let i = 0, l = contacts.length; i < l; i++) {
                     const contact = contacts[i];
@@ -50,6 +52,7 @@ define(["soap"], function(soap) {
         },
 
         fetchAsyncExample = function() {
+            /* eslint-disable */
             const fetchXml = [
                 "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>",
                     "<entity name='contact'>",
@@ -66,6 +69,7 @@ define(["soap"], function(soap) {
                 "</fetch>"
             ].join("");
 
+            /* eslint-enable */
             orgService.fetchAsync(fetchXml).then(function(contacts) {
                 for (let i = 0, l = contacts.length; i < l; i++) {
                     const contact = contacts[i];
@@ -110,14 +114,13 @@ define(["soap"], function(soap) {
         },
 
         queryExpressionExample = function() {
-            var query =
-                    new QueryExpression(
-                        "contact",
-                        [
-                            new ConditionExpression("middlename", soap.ConditionOperator.NotNull),
-                            new ConditionExpression("statecode", soap.ConditionOperator.Equal, [new soap.StateCode(contactState.Active)])
-                        ],
-                        new ColumnSet(true));
+            const query = new QueryExpression(
+                "contact",
+                [
+                    new ConditionExpression("middlename", soap.ConditionOperator.NotNull),
+                    new ConditionExpression("statecode", soap.ConditionOperator.Equal, [new soap.StateCode(contactState.Active)])
+                ],
+                new ColumnSet(true));
 
             orgService.retrieveMultiple(query).then(function(contacts) {
                 for (let i = 0, l = contacts.length; i < l; i++) {
@@ -217,16 +220,16 @@ define(["soap"], function(soap) {
                     Xrm.Utility.alertDialog(`Contact update failed:${err}`);
                 });
             }).then(function() {
-                orgService.delete(contact.LogicalName(), contact.Id());
+                orgService.delete(contact.logicalName(), contact.id());
             });
 
             // working with Activity
             orgService.createAsync(new Entity("phonecall")).then(function(phonecallId) {
-                const from = contact.ToEntityReference();
+                const from = contact.toEntityReference();
                 const phonecall = new Entity("phonecall", phonecallId);
                 phonecall.setAttribute("from", new soap.EntityCollection([from]));
                 orgService.updateAsync(phonecall).then(function() {
-                    orgService.delete(phonecall.LogicalName(), phonecall.Id());
+                    orgService.delete(phonecall.logicalName(), phonecall.id());
                 });
             });
         },

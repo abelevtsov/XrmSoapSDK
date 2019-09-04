@@ -13,7 +13,7 @@
         paths: {
             underscore: "new_lib.underscore",
             soap: "new_lib.xrm.soap.sdk",
-            text: "new_lib_requirejs.text",
+            text: "new_lib.requirejs.text",
             common: "new_lib.xrm.common",
             form: `new_form.${etnLowerCased}`,
             ribbon: `new_ribbon.${etnLowerCased}`,

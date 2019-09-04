@@ -29,14 +29,12 @@
   "devDependencies": {
     "better-console": "1.0.1",
     "gulp": "4.0.2",
-    "gulp-jscs": "4.1.0",
-    "gulp-jshint": "2.1.0",
     "gulp-notify": "3.2.0",
     "gulp-notify-growl": "1.0.2",
     "gulp-flatten": "0.4.0",
     "gulp-yarn": "2.0.0",
-    "jshint": "2.10.2",
-    "jshint-stylish": "2.2.1",
+    "gulp-eslint": "6.0.0",
+    "eslint": "6.2.2",
     "run-sequence": "2.2.1",
     "requirejs": "2.3.6",
     "requirejs-text": "2.0.15"
