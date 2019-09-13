@@ -1061,7 +1061,7 @@
         const entity = function(logicalName, id) {
             this.attributes = {};
             this.logicalName = logicalName;
-            this.guid = id && id.type === "guid" ? id : new self.Guid(!id ? self.Guid.empty() : id);
+            this.id = id && id.type === "guid" ? id : new self.Guid(id || self.Guid.empty());
         };
 
         entity.prototype = {
@@ -1111,21 +1111,21 @@
             },
 
             getIdValue: function() {
-                return this.guid.value;
+                return this.id.value;
             },
 
-            id: function(id) {
+            getId: function(id) {
                 if (id) {
-                    this.guid = id.type === "guid" ? id : new self.Guid(id);
+                    this.id = id.type === "guid" ? id : new self.Guid(id);
                 }
 
-                return this.guid;
+                return this.id;
             },
 
             toEntityReference: function() {
                 return new self.EntityReference(
                     this.logicalName(),
-                    this.id(),
+                    this.getId(),
                     this.getName());
             },
 
@@ -2794,6 +2794,7 @@
 
         /**
          * Execute action request like in Microsoft.Xrm.Sdk
+         * Action must return exactly one string parameter. If you want to pass more than one use JSON.
          * @param {String} actionName
          * @param {String} entityName
          * @param {Guid} entityId
@@ -2813,6 +2814,7 @@
 
         /**
          * Execute action request like in Microsoft.Xrm.Sdk
+         * Action must return exactly one string parameter. If you want to pass more than one use JSON.
          * @param {String} actionName
          * @param {String} entityName
          * @param {Guid} entityId
@@ -2824,6 +2826,7 @@
 
         /**
          * Execute global action request like in Microsoft.Xrm.Sdk
+         * Action must return exactly one string parameter. If you want to pass more than one use JSON.
          * @param {String} actionName
          * @param {Array} parameters
          * @param {Boolean} async
@@ -2841,6 +2844,7 @@
 
         /**
          * Execute global action request like in Microsoft.Xrm.Sdk
+         * Action must return exactly one string parameter. If you want to pass more than one use JSON.
          * @param {String} actionName
          * @param {Array} parameters
          */

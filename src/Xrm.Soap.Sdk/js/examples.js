@@ -188,7 +188,7 @@ define(["soap"], function(soap) {
         },
 
         callCustomActionExample = function() {
-            const leadId = soap.Guid.empty;
+            const leadId = soap.Guid.empty();
             // pass entity logical name and Id
             crmProvider.callActionAsync("new_NotifyLead", "lead", new soap.Guid(leadId), [new soap.RequestParameter("Message", "TEST MESSAGE")]).then(function(result) {
                 console.log(result);
@@ -220,7 +220,7 @@ define(["soap"], function(soap) {
                     Xrm.Utility.alertDialog(`Contact update failed:${err}`);
                 });
             }).then(function() {
-                orgService.delete(contact.logicalName(), contact.id());
+                orgService.delete(contact.logicalName(), contact.getId());
             });
 
             // working with Activity
@@ -229,7 +229,7 @@ define(["soap"], function(soap) {
                 const phonecall = new Entity("phonecall", phonecallId);
                 phonecall.setAttribute("from", new soap.EntityCollection([from]));
                 orgService.updateAsync(phonecall).then(function() {
-                    orgService.delete(phonecall.logicalName(), phonecall.id());
+                    orgService.delete(phonecall.logicalName(), phonecall.getId());
                 });
             });
         },

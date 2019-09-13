@@ -1,6 +1,6 @@
 {
   "name": "xrm.soap.sdk",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "author": "Aleksandr Belevtsov <belevtsov80@mail.ru>",
   "description": "Package to interact with Microsoft Dynamics CRM 365 from entity form and ribbon like CRM SDK manner (C# or any other .NET lang e.g. VB or F#).",
   "homepage": "https://github.com/abelevtsov/XrmSoapSDK.git#readme",
