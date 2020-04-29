@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "underscore": "1.9.1",
-    "jquery": "3.4.1"
+    "jquery": "3.5.0"
   },
   "devDependencies": {
     "better-console": "1.0.1",
